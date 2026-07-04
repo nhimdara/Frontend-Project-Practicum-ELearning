@@ -44,9 +44,14 @@ const COLORS = [
   "#7c3aed",
 ];
 
+function getCurrentAcademicYear(startYear) {
+  const start = Number.parseInt(startYear, 10);
+  if (Number.isNaN(start)) return 1;
+  return Math.min(4, Math.max(1, new Date().getFullYear() - start + 1));
+}
+
 const DEFAULT_ADMIN_SETTINGS = {
   defaultMajor: "ITE",
-  defaultAcademicYear: 1,
   publishNewLessons: true,
   compactTables: false,
   themeMode: "dark",
@@ -55,12 +60,10 @@ const DEFAULT_ADMIN_SETTINGS = {
 };
 
 const emptyStudentForm = {
-  accountType: "student",
   name: "",
   major: "ITE",
   startYear: new Date().getFullYear(),
   endYear: new Date().getFullYear() + 4,
-  academicYear: 1,
   password: "Student@123",
 };
 
@@ -292,9 +295,6 @@ const AdminDashboard = ({ user, onLogout }) => {
       .replace(/[^a-z0-9]+/g, "")
       .slice(0, 32);
     if (!clean) return "";
-    if (studentForm.accountType === "teacher") {
-      return `${clean}.teacher@elearning.com`;
-    }
     const end = String(studentForm.endYear).slice(-2);
     const start = String(studentForm.startYear).slice(-2);
     return `${clean}.${end}${start}@elearning.com`;
@@ -305,9 +305,6 @@ const AdminDashboard = ({ user, onLogout }) => {
       const next = { ...prev, [field]: value };
       if (field === "startYear") {
         next.endYear = Number(value) + 4;
-      }
-      if (field === "accountType") {
-        next.password = value === "teacher" ? "Teacher@123" : "Student@123";
       }
       return next;
     });
@@ -359,16 +356,18 @@ const AdminDashboard = ({ user, onLogout }) => {
     event.preventDefault();
     setStudentMessage("");
     try {
-      const isTeacher = studentForm.accountType === "teacher";
-      const endpoint = isTeacher ? "teachers" : "students";
-      const res = await fetch(`${API_BASE}/users/${endpoint}`, {
+      const payload = {
+        ...studentForm,
+        academicYear: undefined,
+      };
+      const res = await fetch(`${API_BASE}/users/students`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(studentForm),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || `Could not create ${studentForm.accountType}.`);
+        throw new Error(data.error || "Could not create student.");
       }
       setStudentMessage(
         `Created ${data.user.email} with password ${data.temporaryPassword}`,
@@ -377,24 +376,6 @@ const AdminDashboard = ({ user, onLogout }) => {
       refreshUsers();
     } catch (err) {
       setStudentMessage(err.message);
-    }
-  };
-
-  const updateStudentYear = async (student, academicYear) => {
-    try {
-      const res = await fetch(`${API_BASE}/users/${student.id}/student-profile`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ academicYear }),
-      });
-      if (!res.ok) throw new Error("Could not update academic year.");
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === student.id ? { ...u, academicYear: Number(academicYear) } : u,
-        ),
-      );
-    } catch (err) {
-      alert(err.message);
     }
   };
 
@@ -462,7 +443,6 @@ const AdminDashboard = ({ user, onLogout }) => {
     setStudentForm((prev) => ({
       ...prev,
       major: adminSettings.defaultMajor,
-      academicYear: Number(adminSettings.defaultAcademicYear),
     }));
     setTeacherForm((prev) => ({
       ...prev,
@@ -732,7 +712,12 @@ const AdminDashboard = ({ user, onLogout }) => {
               {[
                 ["Role", viewUser.role],
                 ["Major", viewUser.major || "—"],
-                ["Academic Year", viewUser.academicYear ? `Year ${viewUser.academicYear}` : "—"],
+                [
+                  "Academic Year",
+                  viewUser.startYear
+                    ? `Year ${getCurrentAcademicYear(viewUser.startYear)}`
+                    : "—",
+                ],
                 [
                   "Study Period",
                   viewUser.startYear && viewUser.endYear
@@ -955,26 +940,9 @@ const AdminDashboard = ({ user, onLogout }) => {
                 className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5"
               >
                 <div className="flex flex-col lg:flex-row lg:items-end gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1">
-                      Account
-                    </label>
-                    <select
-                      value={studentForm.accountType}
-                      onChange={(e) =>
-                        updateStudentForm("accountType", e.target.value)
-                      }
-                      className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      <option value="student">Student</option>
-                      <option value="teacher">Teacher</option>
-                    </select>
-                  </div>
                   <div className="flex-1 min-w-[180px]">
                     <label className="block text-xs font-semibold text-slate-400 mb-1">
-                      {studentForm.accountType === "teacher"
-                        ? "Teacher"
-                        : "Student"}
+                      Student
                     </label>
                     <input
                       value={studentForm.name}
@@ -996,60 +964,40 @@ const AdminDashboard = ({ user, onLogout }) => {
                       ))}
                     </select>
                   </div>
-                  {studentForm.accountType === "student" && (
-                    <>
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-400 mb-1">
-                          Start
-                        </label>
-                        <input
-                          type="number"
-                          value={studentForm.startYear}
-                          onChange={(e) =>
-                            updateStudentForm(
-                              "startYear",
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-24 px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-400 mb-1">
-                          End
-                        </label>
-                        <input
-                          type="number"
-                          value={studentForm.endYear}
-                          onChange={(e) =>
-                            updateStudentForm("endYear", Number(e.target.value))
-                          }
-                          className="w-24 px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-400 mb-1">
-                          Year
-                        </label>
-                        <select
-                          value={studentForm.academicYear}
-                          onChange={(e) =>
-                            updateStudentForm(
-                              "academicYear",
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-24 px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                        >
-                          {[1, 2, 3, 4].map((year) => (
-                            <option key={year} value={year}>
-                              {year}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1">
+                      Start
+                    </label>
+                    <input
+                      type="number"
+                      value={studentForm.startYear}
+                      onChange={(e) =>
+                        updateStudentForm("startYear", Number(e.target.value))
+                      }
+                      className="w-24 px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1">
+                      End
+                    </label>
+                    <input
+                      type="number"
+                      value={studentForm.endYear}
+                      onChange={(e) =>
+                        updateStudentForm("endYear", Number(e.target.value))
+                      }
+                      className="w-24 px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1">
+                      Year
+                    </label>
+                    <div className="w-24 px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm">
+                      Year {getCurrentAcademicYear(studentForm.startYear)}
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1">
                       Password
@@ -1064,7 +1012,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </div>
                   <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500">
                     <Plus className="h-4 w-4" />
-                    Create {studentForm.accountType}
+                    Create student
                   </button>
                 </div>
                 <div className="mt-3 text-xs text-slate-500">
@@ -1160,19 +1108,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                             </td>
                             <td className="py-3.5 px-5">
                               {["student", "client"].includes(u.role) ? (
-                                <select
-                                  value={u.academicYear || 1}
-                                  onChange={(e) =>
-                                    updateStudentYear(u, e.target.value)
-                                  }
-                                  className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs"
-                                >
-                                  {[1, 2, 3, 4].map((year) => (
-                                    <option key={year} value={year}>
-                                      Year {year}
-                                    </option>
-                                  ))}
-                                </select>
+                                <span className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs">
+                                  Year{" "}
+                                  {getCurrentAcademicYear(
+                                    u.startYear || new Date().getFullYear(),
+                                  )}
+                                </span>
                               ) : (
                                 <span className="text-slate-500 text-sm">—</span>
                               )}
@@ -1259,17 +1200,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                             </span>
                           </span>
                           {["student", "client"].includes(u.role) && (
-                            <select
-                              value={u.academicYear || 1}
-                              onChange={(e) => updateStudentYear(u, e.target.value)}
-                              className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs"
-                            >
-                              {[1, 2, 3, 4].map((year) => (
-                                <option key={year} value={year}>
-                                  Year {year}
-                                </option>
-                              ))}
-                            </select>
+                            <span className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs">
+                              Year{" "}
+                              {getCurrentAcademicYear(
+                                u.startYear || new Date().getFullYear(),
+                              )}
+                            </span>
                           )}
                           {/* Progress bar */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -2031,7 +1967,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1">
                       Default major
@@ -2045,27 +1981,6 @@ const AdminDashboard = ({ user, onLogout }) => {
                     >
                       {MAJORS.map((major) => (
                         <option key={major}>{major}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1">
-                      Default student year
-                    </label>
-                    <select
-                      value={adminSettings.defaultAcademicYear}
-                      onChange={(e) =>
-                        updateAdminSetting(
-                          "defaultAcademicYear",
-                          Number(e.target.value),
-                        )
-                      }
-                      className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      {[1, 2, 3, 4].map((year) => (
-                        <option key={year} value={year}>
-                          Year {year}
-                        </option>
                       ))}
                     </select>
                   </div>
