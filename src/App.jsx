@@ -1,0 +1,360 @@
+// App.js — Complete with major selection for all users
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  getSession,
+  logoutMiddleware,
+  updateSessionMajor,
+} from "./auth/authMiddleware";
+import ProtectedRoute from "./components/layout/auth/ProtectedRoute";
+
+import FontStyle from "./components/layout/ui/FontStyle";
+import GlobalStyles from "./components/layout/ui/GlobalStyles";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import AuthModal from "./components/layout/auth/AuthModal";
+import ScrollToTop from "./components/assets/ScrollToTop";
+
+import HomePage from "./components/pages/HomePage";
+import LessonsPage from "./components/pages/LessonsPage";
+import ProjectsPage from "./components/pages/ProjectsPage";
+import CalendarPage from "./components/pages/CalendarPage";
+import Profile from "./components/pages/Profile/Profile";
+import Certificates from "./components/pages/Profile/Certificates";
+import Settings from "./components/pages/Profile/Settings";
+
+import AdminDashboard from "./components/pages/AdminDashboard";
+import TeacherDashboard from "./components/pages/TeacherDashboard";
+import MajorSelectPage from "./components/pages/MajorSelectPage";
+
+import RegisterPage from "./components/layout/auth/RegisterPage";
+import LoginPage from "./components/layout/auth/LoginPage";
+
+import AIChat from "./components/service/AIChat";
+
+// ─────────────────────────────────────────────────────────────
+//  PageLayout
+// ─────────────────────────────────────────────────────────────
+const PageLayout = ({
+  isAuthenticated,
+  user,
+  onLogout,
+  onAuthModalOpen,
+  children,
+  showAIChat = true,
+}) => (
+  <div className="nav-font min-h-screen flex flex-col">
+    <FontStyle />
+    <GlobalStyles />
+    <Navbar
+      isAuthenticated={isAuthenticated}
+      user={user}
+      onLogout={onLogout}
+      onAuthModalOpen={onAuthModalOpen}
+    />
+    <main className="flex-grow">{children}</main>
+    <Footer />
+    {showAIChat && isAuthenticated && <AIChat />}
+  </div>
+);
+
+// ─────────────────────────────────────────────────────────────
+//  AppInner
+// ─────────────────────────────────────────────────────────────
+const AppInner = () => {
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+
+  // ── Restore session on mount ──
+  useEffect(() => {
+    const session = getSession();
+
+    if (session) {
+      // ALL users (except admin) need major selection if they don't have one
+      if (
+        session.role !== "admin" &&
+        !session.major &&
+        session.needsMajorSelect === true
+      ) {
+        navigate("/select-major", { replace: true });
+        return;
+      }
+      setUser(session);
+      setIsAuthenticated(true);
+    }
+  }, [navigate]);
+
+  // ── Theme ──
+  useEffect(() => {
+    try {
+      const settings = JSON.parse(
+        localStorage.getItem("learnflow_settings") || "{}",
+      );
+      if (
+        settings.theme === "dark" ||
+        (settings.theme === "system" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark-mode");
+      } else {
+        document.documentElement.classList.remove("dark-mode");
+      }
+    } catch {}
+  }, []);
+
+  // ─── HANDLERS ──────────────────────────────────────────────
+
+  const handleAuthSuccess = (middlewareResult) => {
+    if (!middlewareResult.success) return;
+
+    setUser(middlewareResult.user);
+    setIsAuthenticated(true);
+    setIsAuthModalOpen(false);
+
+    // ALL users (except admin) go to major selection if needed
+    if (middlewareResult.needsMajorSelect) {
+      navigate("/select-major", { replace: true });
+      return;
+    }
+
+    navigate(middlewareResult.redirect, { replace: true });
+  };
+
+  const handleLogout = () => {
+    const { redirect } = logoutMiddleware();
+    setUser(null);
+    setIsAuthenticated(false);
+    navigate(redirect, { replace: true });
+  };
+
+  const handleUserUpdate = (updated) => {
+    setUser(updated);
+    const session = getSession();
+    if (session) {
+      const newSession = { ...session, ...updated };
+      localStorage.setItem("learnflow_session", JSON.stringify(newSession));
+    }
+  };
+
+  const openAuthModal = (mode) => {
+    setIsLogin(mode === "signin");
+    setIsAuthModalOpen(true);
+  };
+
+  const layoutProps = {
+    isAuthenticated,
+    user,
+    onLogout: handleLogout,
+    onAuthModalOpen: openAuthModal,
+  };
+
+  const hasRegistered = !!localStorage.getItem("has_registered");
+
+  return (
+    <Routes>
+      {/* ─── AUTH ROUTES ─── */}
+
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate
+              to={
+                user?.role === "admin"
+                  ? "/admin/dashboard"
+                  : user?.role === "teacher"
+                    ? "/teacher/dashboard"
+                    : user?.major
+                      ? "/home"
+                      : "/select-major"
+              }
+              replace
+            />
+          ) : (
+            <div className="min-h-screen flex flex-col">
+              <RegisterPage onAuthSuccess={handleAuthSuccess} />
+              <Footer />
+            </div>
+          )
+        }
+      />
+
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate
+              to={
+                user?.role === "admin"
+                  ? "/admin/dashboard"
+                  : user?.role === "teacher"
+                    ? "/teacher/dashboard"
+                    : user?.major
+                      ? "/home"
+                      : "/select-major"
+              }
+              replace
+            />
+          ) : (
+            <div className="min-h-screen flex flex-col">
+              <LoginPage onAuthSuccess={handleAuthSuccess} />
+              <Footer />
+            </div>
+          )
+        }
+      />
+
+      {/* Major Selection - For ALL users who need it */}
+      <Route
+        path="/select-major"
+        element={
+          <MajorSelectPage
+            onMajorSelected={(major) => {
+              updateSessionMajor(major);
+              const updatedSession = getSession();
+              if (updatedSession) {
+                setUser(updatedSession);
+                setIsAuthenticated(true);
+              }
+
+              if (updatedSession?.role === "teacher") {
+                navigate("/teacher/dashboard", { replace: true });
+              } else if (updatedSession?.role === "admin") {
+                navigate("/admin/dashboard", { replace: true });
+              } else {
+                navigate("/home", { replace: true });
+              }
+            }}
+          />
+        }
+      />
+
+      {/* ─── PROTECTED ROUTES ─── */}
+
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/teacher/dashboard"
+        element={
+          <ProtectedRoute requiredRole="teacher">
+            <TeacherDashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <Profile user={user} onUserUpdate={handleUserUpdate} />
+            </PageLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/certificates"
+        element={
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <Certificates user={user} />
+            </PageLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <Settings user={user} onLogout={handleLogout} />
+            </PageLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ─── PUBLIC PAGES ─── */}
+
+      <Route
+        path="/home"
+        element={
+          <PageLayout {...layoutProps}>
+            <HomePage onAuthModalOpen={openAuthModal} />
+            <AuthModal
+              isOpen={isAuthModalOpen}
+              onClose={() => setIsAuthModalOpen(false)}
+              isLogin={isLogin}
+              setIsLogin={setIsLogin}
+              onAuthSuccess={handleAuthSuccess}
+            />
+          </PageLayout>
+        }
+      />
+
+      <Route
+        path="/lessons"
+        element={
+          <PageLayout {...layoutProps}>
+            <LessonsPage />
+          </PageLayout>
+        }
+      />
+
+      <Route
+        path="/projects"
+        element={
+          <PageLayout {...layoutProps}>
+            <ProjectsPage />
+          </PageLayout>
+        }
+      />
+
+      <Route
+        path="/calendar"
+        element={
+          <PageLayout {...layoutProps}>
+            <CalendarPage />
+          </PageLayout>
+        }
+      />
+
+      {/* Catch-all */}
+      <Route
+        path="*"
+        element={<Navigate to={hasRegistered ? "/login" : "/"} replace />}
+      />
+    </Routes>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
+//  Root App
+// ─────────────────────────────────────────────────────────────
+const App = () => (
+  <Router>
+    <ScrollToTop />
+    <AppInner />
+  </Router>
+);
+
+export default App;
