@@ -1,5 +1,6 @@
 // pages/CalendarPage.jsx
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 import {
   Search,
   ChevronDown,
@@ -10,7 +11,7 @@ import {
 import lessonBanner from "./../assets/image/lessonpage.jpeg";
 
 // ─── API ─────────────────────────────────────────────────────
-const API_BASE = "http://localhost:5001/api";
+const API_BASE = API_BASE_URL;
 
 async function fetchLessonsByMajor(major) {
   const res = await fetch(`${API_BASE}/lessons/by-major/${major}`);

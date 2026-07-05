@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../../../config/api";
 import {
   User,
   Mail,
@@ -70,7 +71,7 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
       } else {
         // Register: hit the backend API first, then sync localStorage
         try {
-          const res = await fetch("http://localhost:5001/api/register", {
+          const res = await fetch(`${API_BASE_URL}/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

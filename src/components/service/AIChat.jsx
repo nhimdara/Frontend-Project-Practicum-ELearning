@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { API_BASE_URL } from "../../config/api";
 import {
   MessageCircle,
   X,
@@ -25,7 +26,7 @@ You help students with:
 
 Keep responses concise, friendly, and helpful. Use emojis sparingly. If a question is outside your scope, guide the student to the appropriate resource.`;
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001/api/chat";
+const API_BASE = API_BASE_URL;
 
 const AIChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,7 +81,7 @@ const AIChat = () => {
     apiMessages.push({ role: "user", content: userMessage });
 
     try {
-      const response = await fetch(`${API_BASE}/api/chat`, {
+      const response = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

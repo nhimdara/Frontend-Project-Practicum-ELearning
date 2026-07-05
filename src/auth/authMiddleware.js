@@ -1,9 +1,11 @@
 // authMiddleware.js — All users must select major with database update
+import { API_BASE_URL } from "../config/api";
+
 const USERS_KEY = "learnflow_users";
 const SESSION_KEY = "learnflow_session";
 const USER_MAJOR_KEY = "learnflow_user_major";
 
-const API_BASE = "http://localhost:5001/api";
+const API_BASE = API_BASE_URL;
 
 // ── Hardcoded admin ──
 const ADMIN_ACCOUNT = {

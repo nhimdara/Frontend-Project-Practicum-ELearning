@@ -1,4 +1,6 @@
-const BASE_URL = 'http://localhost:5001/api';
+import { API_BASE_URL } from "../../config/api";
+
+const BASE_URL = API_BASE_URL;
 
 export async function getLessons() {
   const res = await fetch(`${BASE_URL}/lessons`);

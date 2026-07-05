@@ -1,5 +1,6 @@
 // pages/LessonsPage.jsx
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 import {
   BookOpen,
   Clock,
@@ -25,7 +26,7 @@ import VideoModal from "./video/VideoModal";
 import VideoPlaylistModal from "./video/VideoPlaylistModal";
 
 // ─── API ────────────────────────────────────────────────────
-const API_BASE = "http://localhost:5001/api";
+const API_BASE = API_BASE_URL;
 
 function dedupeVideosByLessonSlot(videos = []) {
   const bySlot = new Map();
@@ -827,7 +828,7 @@ const LessonsPage = () => {
         </p>
         <p className="text-gray-400 text-sm">
           Make sure your backend is running on{" "}
-          <code>http://localhost:5001</code>
+          <code>{API_BASE}</code>
         </p>
         <button
           onClick={() => {
