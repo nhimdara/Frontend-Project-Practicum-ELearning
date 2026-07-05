@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import logo from "../../assets/image/logo.png";
 import banner from "../../assets/image/banner.jpg";
 import { registerMiddleware } from "../../../auth/authMiddleware";
+import { API_BASE_URL } from "../../../config/api";
 
 const RegisterPage = ({ onAuthSuccess }) => {
   const navigate = useNavigate();
@@ -85,7 +86,7 @@ const RegisterPage = ({ onAuthSuccess }) => {
 
     try {
       // ── 1. Save to MySQL via backend API ──
-      const response = await fetch("http://localhost:5001/api/register", {
+      const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

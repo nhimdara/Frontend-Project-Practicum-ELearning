@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 import {
   Layers,
   Github,
@@ -28,7 +29,7 @@ const ProjectsPage = () => {
     });
 
     // ✅ fetch projects from backend API
-    fetch("http://localhost:5001/api/projects")
+    fetch(`${API_BASE_URL}/projects`)
       .then((res) => res.json())
       .then((data) => {
         setProjects(data);

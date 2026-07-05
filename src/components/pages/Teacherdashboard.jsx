@@ -1,5 +1,6 @@
 // TeacherDashboard.jsx — Complete with major filtering
 import React, { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL } from "../../config/api";
 import logo from "./../assets/image/logo.png";
 
 import {
@@ -28,7 +29,7 @@ import {
   Menu,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:5001/api";
+const API_BASE = API_BASE_URL;
 
 // ─────────────────────────────────────────────────────────────
 //  YOUTUBE HELPERS

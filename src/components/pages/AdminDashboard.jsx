@@ -5,6 +5,7 @@
 //  • Users table → card list on mobile (< md)
 // ─────────────────────────────────────────────────────────────
 import React, { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL, API_ORIGIN } from "../../config/api";
 import {
   Shield,
   Users,
@@ -31,8 +32,8 @@ import {
 } from "lucide-react";
 import logo from "./../assets/image/logo.png";
 
-const API = "http://localhost:5001";
-const API_BASE = `${API}/api`;
+const API = API_ORIGIN;
+const API_BASE = API_BASE_URL;
 const MAJORS = ["ITE", "IT", "Mathematics"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 const COLORS = [
