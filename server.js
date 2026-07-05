@@ -58,6 +58,7 @@ app.post("/api/chat", async (req, res) => {
     }
 
     res.json({
+      response: aiText,
       content: [{ type: "text", text: aiText }],
     });
   } catch (err) {
