@@ -103,7 +103,11 @@ const AIChat = () => {
       // Handle response format
       let text = "Sorry, I couldn't generate a response.";
 
-      if (data.content && Array.isArray(data.content)) {
+      if (typeof data.response === "string") {
+        text = data.response;
+      } else if (typeof data.content === "string") {
+        text = data.content;
+      } else if (data.content && Array.isArray(data.content)) {
         text =
           data.content
             .filter((block) => block.type === "text")

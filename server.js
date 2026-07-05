@@ -8,9 +8,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const legacyAnthropicApiKey = process.env.ANTHROPIC_API_KEY?.trim() || "";
+const groqApiKey =
+  process.env.GROQ_API_KEY?.trim() ||
+  (legacyAnthropicApiKey.startsWith("gsk_") ? legacyAnthropicApiKey : "");
+
 app.post("/api/chat", async (req, res) => {
   try {
     const { system, messages, max_tokens } = req.body;
+
+    if (!groqApiKey) {
+      return res.status(500).json({
+        error: "AI service is not configured. Please add GROQ_API_KEY.",
+      });
+    }
 
     console.log("Sending request to Groq API...");
 
@@ -20,7 +31,7 @@ app.post("/api/chat", async (req, res) => {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.ANTHROPIC_API_KEY}`,
+          Authorization: `Bearer ${groqApiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
