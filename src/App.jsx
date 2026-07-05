@@ -34,8 +34,8 @@ import AdminDashboard from "./components/pages/AdminDashboard";
 import TeacherDashboard from "./components/pages/TeacherDashboard";
 import MajorSelectPage from "./components/pages/MajorSelectPage";
 
-import RegisterPage from "./components/layout/auth/RegisterPage";
-import LoginPage from "./components/layout/auth/LoginPage";
+import RegisterPage from "./components/layout/auth/Registerpage";
+import LoginPage from "./components/layout/auth/Loginpage";
 
 import AIChat from "./components/service/AIChat";
 
