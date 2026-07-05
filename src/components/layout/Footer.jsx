@@ -87,7 +87,7 @@ const Footer = () => {
                 <div className="relative flex items-center justify-center w-10 h-10 rounded-xl group-hover:shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 transition-all duration-300">
                   <img
                     src={logo}
-                    alt="LearnFlow Logo"
+                    alt="Elearning Logo"
                     className="w-full h-full absolute left-1"
                   />
                 </div>

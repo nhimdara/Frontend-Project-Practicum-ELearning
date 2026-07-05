@@ -143,7 +143,7 @@ const ProjectsPage = () => {
               {/* Project Image */}
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={project.image}
+                  src={project.image || project.image_url || projectImage}
                   alt={project.title}
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
@@ -160,15 +160,27 @@ const ProjectsPage = () => {
                 {/* Overlay Actions */}
                 <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-100 scale-90 z-10">
                   <a
-                    href="#"
-                    className="bg-white/20 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/30 hover:scale-110 transition-all duration-300 border border-white/30"
+                    href={project.github_url || project.github || "#"}
+                    target={project.github_url || project.github ? "_blank" : undefined}
+                    rel="noreferrer"
+                    className={`bg-white/20 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/30 hover:scale-110 transition-all duration-300 border border-white/30 ${
+                      project.github_url || project.github
+                        ? ""
+                        : "pointer-events-none opacity-50"
+                    }`}
                   >
                     <Github className="h-5 w-5" />
                   </a>
 
                   <a
-                    href="#"
-                    className="bg-white/20 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/30 hover:scale-110 transition-all duration-300 border border-white/30"
+                    href={project.live_url || project.demo_url || "#"}
+                    target={project.live_url || project.demo_url ? "_blank" : undefined}
+                    rel="noreferrer"
+                    className={`bg-white/20 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/30 hover:scale-110 transition-all duration-300 border border-white/30 ${
+                      project.live_url || project.demo_url
+                        ? ""
+                        : "pointer-events-none opacity-50"
+                    }`}
                   >
                     <ExternalLink className="h-5 w-5" />
                   </a>
@@ -193,7 +205,13 @@ const ProjectsPage = () => {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tags?.map((tag) => (
+                  {(Array.isArray(project.tags)
+                    ? project.tags
+                    : String(project.tags || "")
+                        .split(",")
+                        .map((tag) => tag.trim())
+                        .filter(Boolean)
+                  ).map((tag) => (
                     <span
                       key={tag}
                       className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full hover:bg-indigo-100 hover:text-indigo-700 transition-colors"
@@ -207,16 +225,28 @@ const ProjectsPage = () => {
                 {/* Buttons */}
                 <div className="flex gap-4 pt-4 border-t border-gray-200">
                   <a
-                    href="#"
-                    className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors group"
+                    href={project.github_url || project.github || "#"}
+                    target={project.github_url || project.github ? "_blank" : undefined}
+                    rel="noreferrer"
+                    className={`flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors group ${
+                      project.github_url || project.github
+                        ? ""
+                        : "pointer-events-none opacity-50"
+                    }`}
                   >
                     <Github className="h-4 w-4 group-hover:scale-110 transition-transform" />
                     Code
                   </a>
 
                   <a
-                    href="#"
-                    className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors group"
+                    href={project.live_url || project.demo_url || "#"}
+                    target={project.live_url || project.demo_url ? "_blank" : undefined}
+                    rel="noreferrer"
+                    className={`flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors group ${
+                      project.live_url || project.demo_url
+                        ? ""
+                        : "pointer-events-none opacity-50"
+                    }`}
                   >
                     <ExternalLink className="h-4 w-4 group-hover:scale-110 transition-transform" />
                     Live Demo

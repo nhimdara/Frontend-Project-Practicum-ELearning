@@ -317,7 +317,7 @@ const BrandLogo = ({ logo }) => (
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-xl blur-lg opacity-60" />
       <img
         src={logo}
-        alt="LearnFlow Logo"
+        alt="Elearning Logo"
         className="relative w-full h-full object-contain"
       />
     </div>

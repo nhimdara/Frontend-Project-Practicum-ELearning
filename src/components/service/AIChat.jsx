@@ -14,8 +14,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-// ── System prompt: customize this for your LearnFlow context ──
-const SYSTEM_PROMPT = `You are an AI learning assistant for LearnFlow, an e-learning platform focused on the ITE (Information Technology Engineering) programme at university level.
+// ── System prompt: customize this for your Elearning context ──
+const SYSTEM_PROMPT = `You are an AI learning assistant for Elearning, an e-learning platform focused on the ITE (Information Technology Engineering) programme at university level.
 
 You help students with:
 - Course and subject information (Foundation Year, Year 2, Year 3, Year 4)

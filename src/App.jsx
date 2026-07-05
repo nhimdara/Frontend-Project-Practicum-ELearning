@@ -27,8 +27,8 @@ import LessonsPage from "./components/pages/LessonsPage";
 import ProjectsPage from "./components/pages/ProjectsPage";
 import CalendarPage from "./components/pages/CalendarPage";
 import Profile from "./components/pages/Profile/Profile";
-import Certificates from "./components/pages/Profile/Certificates";
 import Settings from "./components/pages/Profile/Settings";
+import ExamPage from "./components/pages/Profile/ExamPage";
 
 import AdminDashboard from "./components/pages/AdminDashboard";
 import TeacherDashboard from "./components/pages/Teacherdashboard";
@@ -38,6 +38,14 @@ import RegisterPage from "./components/layout/auth/Registerpage";
 import LoginPage from "./components/layout/auth/Loginpage";
 
 import AIChat from "./components/service/AIChat";
+
+const deferState = (fn) => {
+  if (typeof queueMicrotask === "function") {
+    queueMicrotask(fn);
+  } else {
+    setTimeout(fn, 0);
+  }
+};
 
 // ─────────────────────────────────────────────────────────────
 //  PageLayout
@@ -90,8 +98,10 @@ const AppInner = () => {
         navigate("/select-major", { replace: true });
         return;
       }
-      setUser(session);
-      setIsAuthenticated(true);
+      deferState(() => {
+        setUser(session);
+        setIsAuthenticated(true);
+      });
     }
   }, [navigate]);
 
@@ -110,7 +120,9 @@ const AppInner = () => {
       } else {
         document.documentElement.classList.remove("dark-mode");
       }
-    } catch {}
+    } catch {
+      // Ignore malformed local settings and keep the default theme.
+    }
   }, []);
 
   // ─── HANDLERS ──────────────────────────────────────────────
@@ -274,9 +286,22 @@ const AppInner = () => {
       <Route
         path="/certificates"
         element={
+          <ProtectedRoute requiredRole="admin">
+            <Navigate
+              to="/admin/dashboard"
+              replace
+              state={{ activeTab: "certificates" }}
+            />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/exam"
+        element={
           <ProtectedRoute requiredRole="client">
             <PageLayout {...layoutProps}>
-              <Certificates user={user} />
+              <ExamPage user={user} />
             </PageLayout>
           </ProtectedRoute>
         }
@@ -287,7 +312,11 @@ const AppInner = () => {
         element={
           <ProtectedRoute requiredRole="client">
             <PageLayout {...layoutProps}>
-              <Settings user={user} onLogout={handleLogout} />
+              <Settings
+                user={user}
+                onLogout={handleLogout}
+                onUserUpdate={handleUserUpdate}
+              />
             </PageLayout>
           </ProtectedRoute>
         }

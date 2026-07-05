@@ -6,6 +6,60 @@ import {
   FolderGit2, Plus, Link, ExternalLink, Code2, Trash2,
   Upload, Image as ImageIcon
 } from "lucide-react";
+import { profileApi, syncStoredSession } from "../../api/profile";
+
+const makeAvatar = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=6366f1&color=fff&size=128`;
+
+const normalizeProfile = (source = {}) => {
+  const name = source.name || "Student";
+  const role =
+    source.dbRole === "student" ||
+    source.role === "student" ||
+    source.role === "Student"
+      ? "client"
+      : source.role || "client";
+  return {
+    id: source.id || null,
+    name,
+    email: source.email || "",
+    avatar: source.avatar || makeAvatar(name),
+    role,
+    dbRole: source.dbRole || (role === "client" ? "student" : role),
+    displayRole:
+      role === "client" ? "Student" : role ? role.charAt(0).toUpperCase() + role.slice(1) : "Student",
+    joinDate: source.joinDate || source.created_at || new Date().toISOString(),
+    progress: Number(source.progress || 0),
+    coursesEnrolled: Number(source.coursesEnrolled || 0),
+    certificates: Number(source.certificates || 0),
+    achievements: Array.isArray(source.achievements) ? source.achievements : [],
+    phone: source.phone || "",
+    location: source.location || "",
+    bio: source.bio || "",
+    occupation: source.occupation || "Student",
+    education: source.education || source.major || "",
+    website: source.website || "",
+    github: source.github || "",
+    linkedin: source.linkedin || "",
+    twitter: source.twitter || "",
+    skills: Array.isArray(source.skills) ? source.skills : [],
+    languages: Array.isArray(source.languages) ? source.languages : [],
+  };
+};
+
+const formatDate = (value) => {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "Unknown";
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+};
+
+const deferState = (fn) => {
+  if (typeof queueMicrotask === "function") {
+    queueMicrotask(fn);
+  } else {
+    setTimeout(fn, 0);
+  }
+};
 
 const Profile = ({ user: initialUser, onUserUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -16,81 +70,81 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const projectStorageKey = initialUser?.id
+    ? `learnflow_user_projects_${initialUser.id}`
+    : "learnflow_user_projects";
 
   // Projects state
   const [projects, setProjects] = useState(() => {
-    const savedProjects = localStorage.getItem("user_projects");
-    return savedProjects ? JSON.parse(savedProjects) : [
-      {
-        id: 1,
-        title: "Arduino Weather Station",
-        description: "A weather monitoring system using Arduino sensors that displays temperature, humidity, and pressure on an LCD screen.",
-        technologies: ["C++", "Arduino", "Sensors"],
-        image: "https://content.instructables.com/FD1/94Q9/MKG51UPF/FD194Q9MKG51UPF.jpg?auto=webp&crop=1.2%3A1&frame=1&width=360",
-        github: "https://github.com/daracombodia/weather-station",
-        live: "https://weather-station-demo.com",
-        featured: true,
-        completedDate: "2025-12-15",
-        category: "Hardware"
-      },
-      {
-        id: 2,
-        title: "C++ Banking System",
-        description: "A console-based banking application with account management, transactions, and data persistence using file handling.",
-        technologies: ["C++", "File I/O", "OOP"],
-        image: "https://files.codingninjas.in/article_images/c-projects-for-beginners-0-1672592014.webp",
-        github: "https://github.com/daracombodia/banking-system",
-        live: null,
-        featured: true,
-        completedDate: "2026-01-20",
-        category: "Software"
-      },
-      {
-        id: 3,
-        title: "Math Visualization Tool",
-        description: "Interactive tool for visualizing mathematical concepts including derivatives, integrals, and matrix operations.",
-        technologies: ["Python", "NumPy", "Matplotlib"],
-        image: "https://jessup.edu/wp-content/uploads/2023/12/Does-Computer-Science-Require-Math-NEW.webp",
-        github: "https://github.com/daracombodia/math-viz",
-        live: "https://math-viz.streamlit.app",
-        featured: false,
-        completedDate: "2026-02-10",
-        category: "Data Science"
-      }
-    ];
+    const savedProjects = localStorage.getItem(projectStorageKey);
+    return savedProjects ? JSON.parse(savedProjects) : [];
   });
 
-  const [user, setUser] = useState(initialUser || {
-    name: "Nhim Dara",
-    email: "daracombodia54@gmail.com",
-    avatar: "https://ui-avatars.com/api/?name=Nhim+Dara&background=6366f1&color=fff&size=128",
-    role: "Student",
-    joinDate: "2026-02-15",
-    progress: 68,
-    coursesEnrolled: 3,
-    certificates: 2,
-    achievements: ["New Member", "Fast Learner", "Project Creator"],
-    phone: "+855 12 345 678",
-    location: "Phnom Penh, Cambodia",
-    bio: "Passionate learner and aspiring web developer. Currently mastering React and modern web technologies. Love building projects that solve real-world problems.",
-    occupation: "Student",
-    education: "Computer Science",
-    website: "daracombodia.dev",
-    github: "daracombodia",
-    linkedin: "nhim-dara",
-    twitter: "@daracombodia",
-    skills: ["React", "JavaScript", "HTML/CSS", "Node.js", "C++", "Python", "Arduino"],
-    languages: ["Khmer (Native)", "English (Fluent)"],
-  });
+  const [user, setUser] = useState(() => normalizeProfile(initialUser));
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState("");
 
   const [editForm, setEditForm] = useState({ ...user });
 
   useEffect(() => {
-    localStorage.setItem("user_projects", JSON.stringify(projects));
-  }, [projects]);
+    let cancelled = false;
+    const userId = initialUser?.id;
+
+    if (!userId || String(userId).startsWith("user-")) {
+      const normalized = normalizeProfile(initialUser);
+      deferState(() => {
+        if (cancelled) return;
+        setUser(normalized);
+        setEditForm(normalized);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    deferState(() => {
+      if (cancelled) return;
+      setProfileLoading(true);
+      setProfileError("");
+    });
+    profileApi
+      .getProfile(userId)
+      .then((profile) => {
+        if (cancelled) return;
+        const normalized = normalizeProfile(profile);
+        setUser(normalized);
+        setEditForm(normalized);
+        syncStoredSession(normalized);
+        onUserUpdate?.(normalized);
+      })
+      .catch((err) => {
+        if (!cancelled) setProfileError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setProfileLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialUser?.id]);
+
+  useEffect(() => {
+    deferState(() => {
+      try {
+        const savedProjects = localStorage.getItem(projectStorageKey);
+        setProjects(savedProjects ? JSON.parse(savedProjects) : []);
+      } catch {
+        setProjects([]);
+      }
+    });
+  }, [projectStorageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(projectStorageKey, JSON.stringify(projects));
+  }, [projects, projectStorageKey]);
 
   const [projectForm, setProjectForm] = useState({
     title: "",
@@ -107,16 +161,24 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
   const handleInput = (e) => setEditForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleSave = () => {
-    setUser(editForm);
-    if (onUserUpdate) {
-      onUserUpdate(editForm);
+  const handleSave = async () => {
+    try {
+      const userId = user.id || initialUser?.id;
+      let saved = normalizeProfile(editForm);
+      if (userId && !String(userId).startsWith("user-")) {
+        saved = normalizeProfile(await profileApi.updateProfile(userId, editForm));
+        syncStoredSession(saved);
+      }
+      setUser(saved);
+      setEditForm(saved);
+      onUserUpdate?.(saved);
+      setIsEditing(false);
+      setSuccessMessage("Profile updated successfully!");
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      setProfileError(err.message);
     }
-    localStorage.setItem("user", JSON.stringify(editForm));
-    setIsEditing(false);
-    setSuccessMessage("Profile updated successfully!");
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   const handleCancel = () => { 
@@ -125,13 +187,21 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   };
 
   const addSkill = () => {
-    if (newSkill.trim() && !editForm.skills.includes(newSkill.trim())) {
-      setEditForm((p) => ({ ...p, skills: [...p.skills, newSkill.trim()] }));
+    const currentSkills = Array.isArray(editForm.skills) ? editForm.skills : [];
+    if (newSkill.trim() && !currentSkills.includes(newSkill.trim())) {
+      setEditForm((p) => ({
+        ...p,
+        skills: [...currentSkills, newSkill.trim()],
+      }));
       setNewSkill("");
     }
   };
 
-  const removeSkill = (s) => setEditForm((p) => ({ ...p, skills: p.skills.filter((x) => x !== s) }));
+  const removeSkill = (s) =>
+    setEditForm((p) => ({
+      ...p,
+      skills: (p.skills || []).filter((x) => x !== s),
+    }));
 
   const handleAvatarClick = () => {
     fileInputRef.current.click();
@@ -148,7 +218,6 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         alert("Please upload an image file");
         return;
       }
-      setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
@@ -158,27 +227,33 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     }
   };
 
-  const handleAvatarUpload = () => {
+  const handleAvatarUpload = async () => {
     if (avatarPreview) {
-      const updatedUser = { ...user, avatar: avatarPreview };
-      setUser(updatedUser);
-      setEditForm({ ...editForm, avatar: avatarPreview });
-      if (onUserUpdate) {
-        onUserUpdate(updatedUser);
+      try {
+        const userId = user.id || initialUser?.id;
+        let updatedUser = normalizeProfile({ ...user, avatar: avatarPreview });
+        if (userId && !String(userId).startsWith("user-")) {
+          updatedUser = normalizeProfile(
+            await profileApi.uploadAvatar(userId, avatarPreview),
+          );
+          syncStoredSession(updatedUser);
+        }
+        setUser(updatedUser);
+        setEditForm({ ...editForm, avatar: updatedUser.avatar });
+        onUserUpdate?.(updatedUser);
+        setShowAvatarModal(false);
+        setAvatarPreview(null);
+        setSuccessMessage("Profile picture updated!");
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } catch (err) {
+        setProfileError(err.message);
       }
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setShowAvatarModal(false);
-      setAvatarFile(null);
-      setAvatarPreview(null);
-      setSuccessMessage("Profile picture updated!");
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
     }
   };
 
   const handleAvatarCancel = () => {
     setShowAvatarModal(false);
-    setAvatarFile(null);
     setAvatarPreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -905,6 +980,18 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
             )}
           </div>
 
+          {profileLoading && (
+            <div className="mb-5 rounded-2xl bg-white border border-indigo-100 px-4 py-3 text-sm text-indigo-700">
+              Loading your latest profile data...
+            </div>
+          )}
+
+          {profileError && (
+            <div className="mb-5 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+              {profileError}
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="flex gap-2 mb-6 flex-wrap">
             {tabs.map((tab) => {
@@ -964,9 +1051,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   <div className="text-center mt-4 mb-5">
                     <h2 className="prof-heading text-xl font-bold text-gray-900">{user.name}</h2>
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1"
-                      style={{ background: "#eef2ff", color: "#4f46e5" }}>{user.role}</span>
+                      style={{ background: "#eef2ff", color: "#4f46e5" }}>{user.displayRole}</span>
                     <p className="text-xs text-gray-400 mt-1">
-                      Joined {new Date(user.joinDate).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                      Joined {formatDate(user.joinDate)}
                     </p>
                   </div>
 
@@ -1101,7 +1188,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                           {/* Project Image */}
                           <div className="md:w-48 h-48 md:h-auto">
                             <img
-                              src={project.image}
+                              src={project.image || makeAvatar(project.title)}
                               alt={project.title}
                               className="w-full h-full object-cover"
                             />
@@ -1123,7 +1210,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
                             {/* Technologies */}
                             <div className="flex flex-wrap gap-2 my-3">
-                              {project.technologies.map(tech => (
+                              {(project.technologies || []).map(tech => (
                                 <span key={tech} className="skill-chip text-xs">
                                   <Code2 className="h-3 w-3" />
                                   {tech}
@@ -1156,7 +1243,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                                 </a>
                               )}
                               <span className="text-sm text-gray-400">
-                                Completed: {new Date(project.completedDate).toLocaleDateString()}
+                                Completed: {formatDate(project.completedDate)}
                               </span>
                             </div>
 
@@ -1213,7 +1300,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                     )}
 
                     <div className="flex flex-wrap gap-2">
-                      {(isEditing ? editForm.skills : user.skills).map((skill) => (
+                      {(isEditing ? editForm.skills || [] : user.skills || []).map((skill) => (
                         <span key={skill} className="skill-chip">
                           {skill}
                           {isEditing && (
@@ -1229,13 +1316,16 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   <div className="prof-card p-6">
                     <h3 className="text-base font-bold text-gray-900 mb-4">Languages</h3>
                     <div className="space-y-3">
-                      {user.languages.map((lang) => (
+                      {(user.languages || []).map((lang) => (
                         <div key={lang} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "#fafafa" }}>
                           <span className="text-sm font-medium text-gray-700">{lang}</span>
                           <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
                             style={{ background: "#ecfdf5", color: "#065f46" }}>Active</span>
                         </div>
                       ))}
+                      {(user.languages || []).length === 0 && (
+                        <p className="text-sm text-gray-500">No languages saved yet.</p>
+                      )}
                     </div>
                   </div>
                 </>

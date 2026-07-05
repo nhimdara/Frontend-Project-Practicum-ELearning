@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   User, Bell, Shield, Globe, Moon, Sun, Mail, Lock,
   Smartphone, Eye, EyeOff, Save, Check, CreditCard,
   History, LogOut, AlertTriangle, Volume2, Monitor,
-  Download, Clock, DollarSign, BookOpen, Award, Settings as SettingsIcon
+  Download, Clock, DollarSign, BookOpen, Award, Settings as SettingsIcon,
+  Upload
 } from "lucide-react";
+import { profileApi, syncStoredSession } from "../../api/profile";
 
 /* ─────────────────────────────────────────────────
    APPLY FUNCTIONS — these write to <html> immediately
@@ -33,7 +35,13 @@ const applyFlags = (s) => {
 
 const STORAGE_KEY = "learnflow_settings";
 
-const save = (s) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {} };
+const save = (s) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    // Browser storage can be unavailable in private/restricted contexts.
+  }
+};
 
 const loadSaved = () => {
   try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
@@ -81,22 +89,24 @@ const Field = ({ label, children }) => (
 /* ─────────────────────────────────────────────────
    MAIN COMPONENT
    ───────────────────────────────────────────────── */
-const Settings = ({ user, onLogout }) => {
+const Settings = ({ user, onLogout, onUserUpdate }) => {
+  const photoInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarSaving, setAvatarSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const DEFAULTS = {
-    name: user?.name || "Nhim Dara",
-    email: user?.email || "daracombodia54@gmail.com",
-    username: "daracombodia",
-    bio: "Passionate learner and aspiring web developer currently mastering React and modern web technologies.",
-    phone: "+855 12 345 678",
-    location: "Phnom Penh, Cambodia",
+    name: user?.name || "",
+    email: user?.email || "",
+    avatar: user?.avatar || "",
+    username: user?.email?.split("@")[0] || "",
+    bio: user?.bio || "",
+    phone: user?.phone || "",
+    location: user?.location || "",
     occupation: "Student",
-    education: "Computer Science",
+    education: user?.major || "",
     emailNotifications: true,
     pushNotifications: true,
     lessonReminders: true,
@@ -131,12 +141,9 @@ const Settings = ({ user, onLogout }) => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    paymentMethods: [
-      { id: 1, type: "visa", last4: "4242", exp: "12/26", default: true },
-      { id: 2, type: "mastercard", last4: "8888", exp: "08/25", default: false },
-    ],
-    billingAddress: "123 Main St, Phnom Penh, Cambodia",
-    autoRenewal: true,
+    paymentMethods: [],
+    billingAddress: "",
+    autoRenewal: false,
     screenReader: false,
     highContrastMode: false,
     reducedMotion: false,
@@ -149,7 +156,52 @@ const Settings = ({ user, onLogout }) => {
     usedStorage: "3.2GB",
   };
 
-  const [settings, setSettings] = useState(() => ({ ...DEFAULTS, ...(loadSaved() || {}) }));
+  const [settings, setSettings] = useState(() => {
+    const saved = loadSaved() || {};
+    return {
+      ...DEFAULTS,
+      ...saved,
+      name: user?.name || saved.name || "",
+      email: user?.email || saved.email || "",
+      avatar: user?.avatar || saved.avatar || "",
+      username: saved.username || user?.email?.split("@")[0] || "",
+      bio: user?.bio || saved.bio || "",
+      phone: user?.phone || saved.phone || "",
+      location: user?.location || saved.location || "",
+      education: user?.education || user?.major || saved.education || "",
+    };
+  });
+  const [settingsError, setSettingsError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user?.id || String(user.id).startsWith("user-")) return;
+
+    profileApi
+      .getProfile(user.id)
+      .then((profile) => {
+        if (cancelled) return;
+        setSettings((prev) => ({
+          ...prev,
+          name: profile.name || prev.name,
+          email: profile.email || prev.email,
+          avatar: profile.avatar || prev.avatar,
+          username: prev.username || profile.email?.split("@")[0] || "",
+          bio: profile.bio || "",
+          phone: profile.phone || "",
+          location: profile.location || "",
+          occupation: profile.occupation || prev.occupation,
+          education: profile.education || profile.major || "",
+        }));
+      })
+      .catch((err) => {
+        if (!cancelled) setSettingsError(err.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   /* Apply saved settings on first mount */
   useEffect(() => {
@@ -175,14 +227,87 @@ const Settings = ({ user, onLogout }) => {
 
   const handleToggle = (key) => handleChange(key, !settings[key]);
 
-  const handleSave = (section) => {
+  const showSavedMessage = (message) => {
+    setSuccessMessage(message);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
+
+  const handleAvatarSelect = () => {
+    photoInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setSettingsError("Profile photo must be smaller than 2MB.");
+      e.target.value = "";
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setSettingsError("Please choose an image file.");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        setAvatarSaving(true);
+        setSettingsError("");
+        const image = reader.result;
+        let updatedProfile = { ...user, avatar: image };
+
+        if (user?.id && !String(user.id).startsWith("user-")) {
+          updatedProfile = await profileApi.uploadAvatar(user.id, image);
+          syncStoredSession(updatedProfile);
+        }
+
+        setSettings((prev) => {
+          const next = { ...prev, avatar: updatedProfile.avatar };
+          save(next);
+          return next;
+        });
+        onUserUpdate?.(updatedProfile);
+        showSavedMessage("Profile photo updated!");
+      } catch (err) {
+        setSettingsError(err.message);
+      } finally {
+        setAvatarSaving(false);
+        if (photoInputRef.current) photoInputRef.current.value = "";
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async (section) => {
     setIsLoading(true);
-    setSuccessMessage(`${section} settings saved!`);
-    setTimeout(() => {
+    setSettingsError("");
+
+    try {
+      if (section === "Profile" && user?.id && !String(user.id).startsWith("user-")) {
+        const savedProfile = await profileApi.updateProfile(user.id, {
+          name: settings.name,
+          email: settings.email,
+          phone: settings.phone,
+          location: settings.location,
+          occupation: settings.occupation,
+          education: settings.education,
+          bio: settings.bio,
+        });
+        syncStoredSession(savedProfile);
+        onUserUpdate?.(savedProfile);
+      }
+      save(settings);
+      showSavedMessage(`${section} settings saved!`);
+    } catch (err) {
+      setSettingsError(err.message);
+    } finally {
       setIsLoading(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    }, 900);
+    }
   };
 
   const tabs = [
@@ -223,6 +348,14 @@ const Settings = ({ user, onLogout }) => {
         html.dark-mode .toast { background: #1a1a35 !important; border-color: #166534 !important; }
       `}</style>
 
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleAvatarChange}
+        style={{ display: "none" }}
+      />
+
       {showSuccess && (
         <div className="toast">
           <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#ecfdf5" }}>
@@ -245,6 +378,12 @@ const Settings = ({ user, onLogout }) => {
               <span className="text-xs font-semibold text-indigo-700">Auto-save on</span>
             </div>
           </div>
+
+          {settingsError && (
+            <div className="mb-6 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+              {settingsError}
+            </div>
+          )}
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
@@ -298,12 +437,21 @@ const Settings = ({ user, onLogout }) => {
                     <SectionHeader title="Profile Settings" description="Update your personal information" onSave={() => handleSave("Profile")} isLoading={isLoading} />
                     <div className="space-y-5 max-w-2xl">
                       <div className="flex items-center gap-5 p-4 rounded-2xl sett-card">
-                        <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(settings.name)}&background=6366f1&color=fff&size=128`}
+                        <img src={settings.avatar || user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(settings.name)}&background=6366f1&color=fff&size=128`}
                           alt={settings.name} className="w-16 h-16 rounded-2xl object-cover"
                           style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.2)" }} />
                         <div>
-                          <button className="px-4 py-2 rounded-xl text-sm font-semibold text-white"
-                            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>Upload Photo</button>
+                          <button
+                            type="button"
+                            onClick={handleAvatarSelect}
+                            disabled={avatarSaving}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+                            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                          >
+                            {avatarSaving
+                              ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Uploading...</>
+                              : <><Upload className="h-4 w-4" />Upload Photo</>}
+                          </button>
                           <p className="text-xs text-gray-400 mt-1.5">JPG, PNG or GIF · Max 2MB</p>
                         </div>
                       </div>
@@ -339,12 +487,14 @@ const Settings = ({ user, onLogout }) => {
                             { id: "light",  icon: Sun,     label: "Light",  bg: "linear-gradient(135deg,#fde68a,#f59e0b)" },
                             { id: "dark",   icon: Moon,    label: "Dark",   bg: "linear-gradient(135deg,#312e81,#6d28d9)" },
                             { id: "system", icon: Monitor, label: "System", bg: "linear-gradient(135deg,#6b7280,#374151)" },
-                          ].map(({ id, icon: Icon, label, bg }) => (
+                          ].map(({ id, icon, label, bg }) => (
                             <button key={id} onClick={() => handleChange("theme", id)}
                               className="p-4 rounded-2xl text-center transition-all"
                               style={{ border: `2px solid ${settings.theme === id ? "#6366f1" : "#e5e7eb"}`, background: settings.theme === id ? "#eef2ff" : "white" }}>
                               <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{ background: bg }}>
-                                <Icon className="h-5 w-5 text-white" />
+                                {React.createElement(icon, {
+                                  className: "h-5 w-5 text-white",
+                                })}
                               </div>
                               <span className="text-sm font-semibold" style={{ color: settings.theme === id ? "#4f46e5" : "#374151" }}>{label}</span>
                             </button>
@@ -464,6 +614,11 @@ const Settings = ({ user, onLogout }) => {
                               </div>
                             </div>
                           ))}
+                          {settings.paymentMethods.length === 0 && (
+                            <p className="p-3 rounded-xl text-sm text-gray-500" style={{ background: "white", border: "1px solid #f0f0f8" }}>
+                              No payment methods saved.
+                            </p>
+                          )}
                           <button className="w-full mt-2 py-2.5 rounded-xl text-sm font-semibold transition-all"
                             style={{ border: "1.5px dashed #c7d2fe", color: "#4f46e5", background: "#fafafe" }}>
                             + Add Payment Method
@@ -477,18 +632,10 @@ const Settings = ({ user, onLogout }) => {
                       <div className="sett-card">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Billing History</p>
                         <div className="space-y-2">
-                          {[1, 2, 3].map(i => (
-                            <div key={i} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "white", border: "1px solid #f0f0f8" }}>
-                              <div className="flex items-center gap-3">
-                                <History className="h-4 w-4 text-gray-400" />
-                                <div>
-                                  <p className="text-sm font-medium text-gray-800">Premium Subscription</p>
-                                  <p className="text-xs text-gray-500">Feb {i}, 2026</p>
-                                </div>
-                              </div>
-                              <span className="text-sm font-bold text-gray-800">$9.99</span>
-                            </div>
-                          ))}
+                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "white", border: "1px solid #f0f0f8" }}>
+                            <History className="h-4 w-4 text-gray-400" />
+                            <p className="text-sm text-gray-500">No billing history available.</p>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -1,6 +1,7 @@
 // TeacherDashboard.jsx — Complete with major filtering
 import React, { useState, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../../config/api";
+import ExamQuestionForm from "./ExamQuestionForm";
 import logo from "./../assets/image/logo.png";
 
 import {
@@ -1266,6 +1267,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
     { id: "videos", icon: Video, label: "All Videos" },
     { id: "by-lesson", icon: Layers, label: "By Lesson" },
     { id: "lessons", icon: BookOpen, label: "Lessons" },
+    { id: "exam", icon: CheckCircle, label: "Exam Questions" },
   ];
 
   const sidebarStyle = {
@@ -1388,7 +1390,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
                 <img
                   src={logo}
-                  alt="LearnFlow Logo"
+                  alt="Elearning Logo"
                   className="w-full h-full"
                 />
               </div>
@@ -1814,6 +1816,38 @@ const TeacherDashboard = ({ user, onLogout }) => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* EXAM QUESTIONS TAB */}
+          {activeTab === "exam" && (
+            <div style={{ padding: "24px 20px" }}>
+              <div style={{ marginBottom: 20 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: "clamp(18px, 5vw, 22px)",
+                    fontWeight: 700,
+                    color: "#0f172a",
+                  }}
+                >
+                  Exam Questions
+                </h1>
+                <p
+                  style={{
+                    margin: "3px 0 0",
+                    color: "#64748b",
+                    fontSize: "13.5px",
+                  }}
+                >
+                  Add questions to the student exam for your teaching major.
+                </p>
+              </div>
+              <ExamQuestionForm
+                user={user}
+                defaultMajor={teacherMajor || "ITE"}
+                lockMajor={Boolean(teacherMajor)}
+              />
             </div>
           )}
 

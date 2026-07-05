@@ -5,12 +5,14 @@
 //  • Users table → card list on mobile (< md)
 // ─────────────────────────────────────────────────────────────
 import React, { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { API_BASE_URL, API_ORIGIN } from "../../config/api";
+import Certificates from "./Profile/Certificates";
+import ExamQuestionForm from "./ExamQuestionForm";
 import {
   Shield,
   Users,
   BookOpen,
-  TrendingUp,
   Settings,
   LogOut,
   Bell,
@@ -29,6 +31,9 @@ import {
   RefreshCw,
   Menu,
   X,
+  FolderKanban,
+  Award,
+  ClipboardCheck,
 } from "lucide-react";
 import logo from "./../assets/image/logo.png";
 
@@ -96,12 +101,25 @@ const emptyLessonForm = {
   videoIsFree: true,
 };
 
+const emptyProjectForm = {
+  id: null,
+  title: "",
+  description: "",
+  image: "",
+  tags: "",
+  github_url: "",
+  live_url: "",
+  featured: false,
+  is_active: true,
+};
+
 const AdminDashboard = ({ user, onLogout }) => {
+  const location = useLocation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "overview");
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [viewUser, setViewUser] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // mobile sidebar
@@ -118,6 +136,12 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [lessonError, setLessonError] = useState("");
   const [lessonMajorFilter, setLessonMajorFilter] = useState("all");
   const [lessonYearFilter, setLessonYearFilter] = useState("all");
+  const [projects, setProjects] = useState([]);
+  const [projectForm, setProjectForm] = useState(emptyProjectForm);
+  const [projectMessage, setProjectMessage] = useState("");
+  const [projectError, setProjectError] = useState("");
+  const [projectSearch, setProjectSearch] = useState("");
+  const [projectStatusFilter, setProjectStatusFilter] = useState("all");
   const [settingsMessage, setSettingsMessage] = useState("");
   const [health, setHealth] = useState(null);
   const [adminSettings, setAdminSettings] = useState(() => {
@@ -145,6 +169,12 @@ const AdminDashboard = ({ user, onLogout }) => {
     name: adminSettings.profileName || user?.name || "Admin",
     email: adminSettings.profileEmail || user?.email || "",
   };
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state?.activeTab]);
 
   // ── Fetch users ───────────────────────────────────────────
   const refreshUsers = useCallback(async () => {
@@ -181,6 +211,19 @@ const AdminDashboard = ({ user, onLogout }) => {
     }
   }, []);
 
+  const refreshProjects = useCallback(async () => {
+    setProjectError("");
+    try {
+      const res = await fetch(`${API_BASE}/projects?include_inactive=1`);
+      const data = await res.json().catch(() => []);
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      setProjects(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setProjectError("Could not load projects from database.");
+      console.error("fetchProjects:", err.message);
+    }
+  }, []);
+
   const refreshReferences = useCallback(async () => {
     try {
       const [yearsRes, semestersRes, categoriesRes] = await Promise.all([
@@ -209,15 +252,23 @@ const AdminDashboard = ({ user, onLogout }) => {
   useEffect(() => {
     refreshUsers();
     refreshLessons();
+    refreshProjects();
     refreshReferences();
     refreshHealth();
-  }, [refreshUsers, refreshLessons, refreshReferences, refreshHealth]);
+  }, [
+    refreshUsers,
+    refreshLessons,
+    refreshProjects,
+    refreshReferences,
+    refreshHealth,
+  ]);
 
   // Close sidebar when route changes on mobile
   const handleTabChange = (id) => {
     setActiveTab(id);
     refreshUsers();
     refreshLessons();
+    refreshProjects();
     setSidebarOpen(false);
   };
 
@@ -250,10 +301,10 @@ const AdminDashboard = ({ user, onLogout }) => {
       light: "bg-cyan-50 text-cyan-600",
     },
     {
-      label: "Completion Rate",
-      value: "73%",
-      delta: "+5%",
-      icon: TrendingUp,
+      label: "Projects",
+      value: projects.length,
+      delta: `${projects.filter((project) => project.featured).length} featured`,
+      icon: FolderKanban,
       light: "bg-amber-50 text-amber-600",
     },
   ];
@@ -287,6 +338,23 @@ const AdminDashboard = ({ user, onLogout }) => {
       lessonYearFilter === "all" ||
       String(lesson.year_id) === String(lessonYearFilter);
     return matchesMajor && matchesYear;
+  });
+  const filteredProjects = projects.filter((project) => {
+    const searchText = projectSearch.toLowerCase();
+    const tagText = Array.isArray(project.tags)
+      ? project.tags.join(" ")
+      : project.tags || "";
+    const matchesSearch =
+      project.title?.toLowerCase().includes(searchText) ||
+      project.description?.toLowerCase().includes(searchText) ||
+      tagText.toLowerCase().includes(searchText);
+    const isActive = project.is_active !== false && project.is_active !== 0;
+    const matchesStatus =
+      projectStatusFilter === "all" ||
+      (projectStatusFilter === "active" && isActive) ||
+      (projectStatusFilter === "hidden" && !isActive) ||
+      (projectStatusFilter === "featured" && project.featured);
+    return matchesSearch && matchesStatus;
   });
 
   const generatedEmailPreview = (() => {
@@ -605,6 +673,79 @@ const AdminDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const updateProjectForm = (field, value) => {
+    setProjectForm((prev) => ({ ...prev, [field]: value }));
+    setProjectMessage("");
+  };
+
+  const resetProjectForm = (clearMessage = true) => {
+    setProjectForm(emptyProjectForm);
+    if (clearMessage) setProjectMessage("");
+  };
+
+  const editProject = (project) => {
+    setProjectForm({
+      id: project.id,
+      title: project.title || "",
+      description: project.description || "",
+      image: project.image || project.image_url || "",
+      tags: Array.isArray(project.tags) ? project.tags.join(", ") : project.tags || "",
+      github_url: project.github_url || project.github || "",
+      live_url: project.live_url || project.demo_url || "",
+      featured: Boolean(project.featured),
+      is_active: project.is_active !== false && project.is_active !== 0,
+    });
+    setProjectMessage("");
+    setActiveTab("projects");
+  };
+
+  const saveProject = async (event) => {
+    event.preventDefault();
+    setProjectMessage("");
+    try {
+      const method = projectForm.id ? "PUT" : "POST";
+      const url = projectForm.id
+        ? `${API_BASE}/projects/${projectForm.id}`
+        : `${API_BASE}/projects`;
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...projectForm,
+          tags: projectForm.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not save project.");
+
+      resetProjectForm(false);
+      setProjectMessage(projectForm.id ? "Project updated." : "Project created.");
+      refreshProjects();
+    } catch (err) {
+      setProjectMessage(err.message);
+    }
+  };
+
+  const deleteProject = async (id) => {
+    if (!window.confirm("Delete this project permanently?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/projects/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not delete project.");
+      if (projectForm.id === id) resetProjectForm(false);
+      refreshProjects();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const recentUsers = [...users]
     .sort((a, b) => (b.id > a.id ? 1 : -1))
     .slice(0, 5);
@@ -615,6 +756,9 @@ const AdminDashboard = ({ user, onLogout }) => {
     { id: "users", label: "Users", icon: Users },
     { id: "teachers", label: "Teachers", icon: UserCheck },
     { id: "lessons", label: "Lessons", icon: BookOpen },
+    { id: "exams", label: "Exam Questions", icon: ClipboardCheck },
+    { id: "certificates", label: "Certificates", icon: Award },
+    { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -625,7 +769,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       <div className="px-6 py-5 border-b border-slate-800">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
-            <img src={logo} alt="LearnFlow Logo" className="w-full h-full" />
+            <img src={logo} alt="Elearning Logo" className="w-full h-full" />
           </div>
           <div>
             <p className="text-white font-bold text-sm leading-none">
@@ -846,6 +990,9 @@ const AdminDashboard = ({ user, onLogout }) => {
                 {activeTab === "teachers" && "Teacher Management"}
                 {(activeTab === "lessons" || activeTab === "Courses") &&
                   "Lesson Management"}
+                {activeTab === "exams" && "Exam Question Management"}
+                {activeTab === "certificates" && "Certificate Management"}
+                {activeTab === "projects" && "Project Management"}
                 {activeTab === "settings" && "System Settings"}
               </h1>
               <p className="text-slate-500 text-xs mt-0.5 hidden sm:block">
@@ -856,7 +1003,11 @@ const AdminDashboard = ({ user, onLogout }) => {
 
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
             <button
-              onClick={refreshUsers}
+              onClick={() => {
+                refreshUsers();
+                refreshLessons();
+                refreshProjects();
+              }}
               title="Refresh"
               className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             >
@@ -1837,7 +1988,310 @@ const AdminDashboard = ({ user, onLogout }) => {
             </div>
           )}
 
-          {/* ── Settings Tab ── */}
+          {/* ── Certificates Tab ── */}
+          {activeTab === "exams" && (
+            <div className="w-full">
+              <ExamQuestionForm
+                user={user}
+                defaultMajor={adminSettings.defaultMajor || "ITE"}
+                dark
+              />
+            </div>
+          )}
+
+          {activeTab === "certificates" && (
+            <Certificates user={user} onLogout={onLogout} embedded />
+          )}
+
+          {/* ── Projects Tab ── */}
+          {activeTab === "projects" && (
+            <div className="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-5">
+              <form
+                onSubmit={saveProject}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-5 h-fit"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-white font-bold flex items-center gap-2">
+                    {projectForm.id ? (
+                      <Edit3 className="h-4 w-4 text-indigo-400" />
+                    ) : (
+                      <Plus className="h-4 w-4 text-indigo-400" />
+                    )}
+                    {projectForm.id ? "Edit Project" : "Create Project"}
+                  </h2>
+                  {projectForm.id && (
+                    <button
+                      type="button"
+                      onClick={resetProjectForm}
+                      className="text-xs text-slate-400 hover:text-white"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <input
+                    value={projectForm.title}
+                    onChange={(e) => updateProjectForm("title", e.target.value)}
+                    placeholder="Project title"
+                    className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <textarea
+                    value={projectForm.description}
+                    onChange={(e) =>
+                      updateProjectForm("description", e.target.value)
+                    }
+                    placeholder="Project description"
+                    rows={4}
+                    className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <input
+                    type="url"
+                    value={projectForm.image}
+                    onChange={(e) => updateProjectForm("image", e.target.value)}
+                    placeholder="Image URL"
+                    className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <input
+                    value={projectForm.tags}
+                    onChange={(e) => updateProjectForm("tags", e.target.value)}
+                    placeholder="Tags, separated by commas"
+                    className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      type="url"
+                      value={projectForm.github_url}
+                      onChange={(e) =>
+                        updateProjectForm("github_url", e.target.value)
+                      }
+                      placeholder="GitHub URL"
+                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                    />
+                    <input
+                      type="url"
+                      value={projectForm.live_url}
+                      onChange={(e) =>
+                        updateProjectForm("live_url", e.target.value)
+                      }
+                      placeholder="Live demo URL"
+                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="flex items-center gap-2 rounded-xl bg-slate-950 border border-slate-800 p-3 text-sm text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={projectForm.featured}
+                        onChange={(e) =>
+                          updateProjectForm("featured", e.target.checked)
+                        }
+                      />
+                      Featured
+                    </label>
+                    <label className="flex items-center gap-2 rounded-xl bg-slate-950 border border-slate-800 p-3 text-sm text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={projectForm.is_active}
+                        onChange={(e) =>
+                          updateProjectForm("is_active", e.target.checked)
+                        }
+                      />
+                      Visible
+                    </label>
+                  </div>
+
+                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500">
+                    <Save className="h-4 w-4" />
+                    {projectForm.id ? "Save project" : "Create project"}
+                  </button>
+                  {projectMessage && (
+                    <p className="text-xs text-indigo-300">{projectMessage}</p>
+                  )}
+                </div>
+              </form>
+
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-white font-bold">All Projects</h2>
+                    <p className="text-slate-500 text-xs">
+                      {filteredProjects.length} of {projects.length} projects
+                    </p>
+                  </div>
+                  <button
+                    onClick={refreshProjects}
+                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="p-4 border-b border-slate-800 flex flex-col lg:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="h-4 w-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      value={projectSearch}
+                      onChange={(e) => setProjectSearch(e.target.value)}
+                      placeholder="Search projects"
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <select
+                    value={projectStatusFilter}
+                    onChange={(e) => setProjectStatusFilter(e.target.value)}
+                    className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
+                  >
+                    <option value="all">All status</option>
+                    <option value="active">Visible</option>
+                    <option value="hidden">Hidden</option>
+                    <option value="featured">Featured</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProjectSearch("");
+                      setProjectStatusFilter("all");
+                    }}
+                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-800"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {projectError && (
+                  <div className="m-4 flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    <span className="flex-1">{projectError}</span>
+                    <button
+                      onClick={refreshProjects}
+                      className="text-xs underline hover:no-underline"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-800 bg-slate-800/50">
+                        {["Project", "Tags", "Views", "Status", "Actions"].map(
+                          (header) => (
+                            <th
+                              key={header}
+                              className="py-3 px-5 text-left text-xs font-bold text-slate-400 uppercase"
+                            >
+                              {header}
+                            </th>
+                          ),
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProjects.map((project) => {
+                        const isActive =
+                          project.is_active !== false && project.is_active !== 0;
+                        return (
+                          <tr
+                            key={project.id}
+                            className="border-b border-slate-800 hover:bg-slate-800/40"
+                          >
+                            <td className="py-3.5 px-5">
+                              <div className="flex items-center gap-3 min-w-[260px]">
+                                {project.image ? (
+                                  <img
+                                    src={project.image}
+                                    alt={project.title}
+                                    className="h-11 w-14 rounded-xl object-cover border border-slate-800"
+                                  />
+                                ) : (
+                                  <div className="h-11 w-14 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center">
+                                    <FolderKanban className="h-5 w-5 text-slate-500" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <p className="text-white text-sm font-semibold truncate">
+                                    {project.title}
+                                  </p>
+                                  <p className="text-slate-500 text-xs line-clamp-1">
+                                    {project.description || "No description"}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-5">
+                              <div className="flex flex-wrap gap-1.5 min-w-[180px]">
+                                {(project.tags || []).slice(0, 3).map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-slate-300 text-xs"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {(project.tags || []).length === 0 && (
+                                  <span className="text-slate-500 text-xs">
+                                    No tags
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-5 text-slate-300 text-sm">
+                              {project.view_count ?? 0}
+                            </td>
+                            <td className="py-3.5 px-5">
+                              <div className="flex flex-wrap gap-2">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                                    isActive
+                                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                      : "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                                  }`}
+                                >
+                                  {isActive ? "Visible" : "Hidden"}
+                                </span>
+                                {project.featured && (
+                                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                    Featured
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-5">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => editProject(project)}
+                                  className="p-1.5 rounded-lg hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-400"
+                                  title="Edit project"
+                                >
+                                  <Edit3 className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteProject(project.id)}
+                                  className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400"
+                                  title="Delete project"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {filteredProjects.length === 0 && (
+                    <div className="py-12 text-center text-slate-500 text-sm">
+                      No projects match these filters.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === "settings" && (
             <div className="space-y-5">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

@@ -17,16 +17,27 @@ import {
   Star
 } from "lucide-react";
 
-const ProfileModal = ({ isOpen, onClose, user, onLogout }) => {
+const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
 
-  const menuItems = [
+  const fallbackItems = [
     { icon: User, label: "My Profile", path: "/profile", color: "#8b5cf6" },
-    { icon: Award, label: "Certificates", path: "/certificates", color: "#f59e0b" },
     { icon: Settings, label: "Settings", path: "/settings", color: "#6b7280" },
   ];
+  const colorByPath = {
+    "/profile": "#8b5cf6",
+    "/exam": "#4f46e5",
+    "/certificates": "#f59e0b",
+    "/settings": "#6b7280",
+  };
+  const menuItems = (profileLinks?.length ? profileLinks : fallbackItems).map((item) => ({
+    icon: item.icon,
+    label: item.name || item.label,
+    path: item.path,
+    color: item.color || colorByPath[item.path] || "#6b7280",
+  }));
 
   const handleNavigation = (path) => {
     navigate(path);

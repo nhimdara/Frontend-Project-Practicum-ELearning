@@ -22,6 +22,7 @@ import {
   Zap,
   ChevronRight,
   FolderGit2,
+  ClipboardCheck,
 } from "lucide-react";
 import ProfileModal from "./ui/ProfileModal"; 
 
@@ -175,15 +176,22 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   const navLinks = [
     { name: "Home", href: "/home", icon: Home },
     { name: "My Lessons", href: "/lessons", icon: BookOpen },
+    { name: "Exam", href: "/exam", icon: ClipboardCheck },
     { name: "Projects", href: "/projects", icon: FolderGit2 },
     { name: "Calendar", href: "/calendar", icon: Calendar },
   ];
 
-  const profileLinks = [
-    { name: "My Profile", path: "/profile", icon: User },
-    { name: "Certificates", path: "/certificates", icon: Award },
-    { name: "Settings", path: "/settings", icon: Settings },
-  ];
+  const profileLinks =
+    user?.role === "admin"
+      ? [
+          { name: "Certificates", path: "/certificates", icon: Award },
+          { name: "Settings", path: "/settings", icon: Settings },
+        ]
+      : [
+          { name: "My Profile", path: "/profile", icon: User },
+          { name: "Exam Test", path: "/exam", icon: ClipboardCheck },
+          { name: "Settings", path: "/settings", icon: Settings },
+        ];
 
   return (
     <>
@@ -261,7 +269,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                   <div className="relative flex items-center justify-center w-10 h-10 rounded-xl group-hover:shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 transition-all duration-300">
                     <img
                       src={logo}
-                      alt="LearnFlow Logo"
+                      alt="Elearning Logo"
                       className="w-full h-full absolute left-1"
                     />
                   </div>

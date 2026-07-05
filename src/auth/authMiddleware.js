@@ -332,15 +332,22 @@ export function routeGuardMiddleware(requiredRole = null) {
     return { allowed: false, redirect: hasRegistered ? "/login" : "/" };
   }
 
-  if (requiredRole && session.role !== requiredRole) {
+  const normalizedRole =
+    session.role === "student" || session.role === "Student"
+      ? "client"
+      : session.role;
+  const normalizedRequiredRole =
+    requiredRole === "student" ? "client" : requiredRole;
+
+  if (requiredRole && normalizedRole !== normalizedRequiredRole) {
     let redirect = "/home";
-    if (session.role === "admin") redirect = "/admin/dashboard";
-    if (session.role === "teacher") redirect = "/teacher/dashboard";
+    if (normalizedRole === "admin") redirect = "/admin/dashboard";
+    if (normalizedRole === "teacher") redirect = "/teacher/dashboard";
     return { allowed: false, redirect };
   }
 
   if (
-    session.role !== "admin" &&
+    normalizedRole !== "admin" &&
     !session.major &&
     session.needsMajorSelect === true
   ) {
