@@ -53,6 +53,23 @@ function getYouTubeEmbedUrl(videoId) {
   return `https://www.youtube.com/embed/${videoId}`;
 }
 
+function dedupeVideosByLessonSlot(videos = []) {
+  const bySlot = new Map();
+  videos.forEach((video) => {
+    const key = `${video.lesson_id}:${video.order_index || 1}`;
+    const current = bySlot.get(key);
+    if (!current || Number(video.id) > Number(current.id)) {
+      bySlot.set(key, video);
+    }
+  });
+  return [...bySlot.values()].sort(
+    (a, b) =>
+      Number(a.lesson_id) - Number(b.lesson_id) ||
+      Number(a.order_index || 1) - Number(b.order_index || 1) ||
+      Number(a.id) - Number(b.id),
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 //  FETCH FUNCTIONS
 // ─────────────────────────────────────────────────────────────
@@ -1040,7 +1057,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
         fetchVideosFromAPI(),
         fetchLessonsFromAPI(),
       ]);
-      setVideos(videosData);
+      setVideos(dedupeVideosByLessonSlot(videosData));
 
       // Filter lessons by teacher's selected major
       if (teacherMajor) {
@@ -1126,8 +1143,8 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   // Stats - filter videos by teacher's major lessons
   const teacherLessonIds = lessons.map((l) => String(l.id));
-  const teacherVideos = videos.filter((v) =>
-    teacherLessonIds.includes(String(v.lesson_id)),
+  const teacherVideos = dedupeVideosByLessonSlot(
+    videos.filter((v) => teacherLessonIds.includes(String(v.lesson_id))),
   );
 
   const stats = {

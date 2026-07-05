@@ -27,6 +27,22 @@ import VideoPlaylistModal from "./video/VideoPlaylistModal";
 // ─── API ────────────────────────────────────────────────────
 const API_BASE = "http://localhost:5001/api";
 
+function dedupeVideosByLessonSlot(videos = []) {
+  const bySlot = new Map();
+  videos.forEach((video) => {
+    const key = `${video.lesson_id}:${video.order_index || 1}`;
+    const current = bySlot.get(key);
+    if (!current || Number(video.id) > Number(current.id)) {
+      bySlot.set(key, video);
+    }
+  });
+  return [...bySlot.values()].sort(
+    (a, b) =>
+      Number(a.order_index || 1) - Number(b.order_index || 1) ||
+      Number(a.id) - Number(b.id),
+  );
+}
+
 async function fetchLessons(major, academicYear) {
   const params = new URLSearchParams();
   if (major) params.set("major", major);
@@ -47,9 +63,9 @@ async function fetchLessons(major, academicYear) {
   // Attach videos array to each lesson
   return lessonsData.map((lesson) => ({
     ...lesson,
-    videos: videosData
-      .filter((v) => v.lesson_id === lesson.id)
-      .sort((a, b) => a.order_index - b.order_index),
+    videos: dedupeVideosByLessonSlot(
+      videosData.filter((v) => v.lesson_id === lesson.id),
+    ),
   }));
 }
 // ────────────────────────────────────────────────────────────

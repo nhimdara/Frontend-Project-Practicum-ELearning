@@ -87,6 +87,7 @@ const emptyLessonForm = {
   option: "",
   major: "ITE",
   is_published: true,
+  videoId: null,
   videoTitle: "",
   videoLink: "",
   videoDuration: "",
@@ -456,7 +457,18 @@ const AdminDashboard = ({ user, onLogout }) => {
     setSettingsMessage("Settings saved to this browser.");
   };
 
-  const editLesson = (lesson) => {
+  const editLesson = async (lesson) => {
+    let firstVideo = null;
+    try {
+      const res = await fetch(`${API_BASE}/lessons/${lesson.id}/videos`);
+      if (res.ok) {
+        const videos = await res.json();
+        firstVideo = videos[0] || null;
+      }
+    } catch (err) {
+      console.error("fetchLessonVideos:", err.message);
+    }
+
     setLessonForm({
       id: lesson.id,
       title: lesson.title || "",
@@ -470,11 +482,12 @@ const AdminDashboard = ({ user, onLogout }) => {
       option: lesson.option || "",
       major: lesson.major || "ITE",
       is_published: lesson.is_published !== 0,
-      videoTitle: "",
-      videoLink: "",
-      videoDuration: "",
-      videoDescription: "",
-      videoIsFree: true,
+      videoId: firstVideo?.id || null,
+      videoTitle: firstVideo?.title || "",
+      videoLink: firstVideo?.link || "",
+      videoDuration: firstVideo?.duration_minutes || "",
+      videoDescription: firstVideo?.description || "",
+      videoIsFree: firstVideo ? firstVideo.is_free !== 0 : true,
     });
     setActiveTab("lessons");
   };
@@ -502,23 +515,56 @@ const AdminDashboard = ({ user, onLogout }) => {
 
       const lessonId = lessonForm.id || data.lesson?.id;
       const videoLink = lessonForm.videoLink.trim();
+      let activeVideoId = lessonForm.videoId;
       if (videoLink && lessonId) {
-        const videoRes = await fetch(`${API_BASE}/videos`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            lesson_id: lessonId,
-            title: lessonForm.videoTitle.trim() || lessonForm.title.trim(),
-            link: videoLink,
-            duration_minutes: lessonForm.videoDuration || null,
-            description: lessonForm.videoDescription || null,
-            is_free: lessonForm.videoIsFree,
-            order_index: 1,
-          }),
-        });
+        const videoId = lessonForm.videoId;
+        const videoRes = await fetch(
+          videoId ? `${API_BASE}/videos/${videoId}` : `${API_BASE}/videos`,
+          {
+            method: videoId ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lesson_id: lessonId,
+              title: lessonForm.videoTitle.trim() || lessonForm.title.trim(),
+              link: videoLink,
+              duration_minutes: lessonForm.videoDuration || null,
+              description: lessonForm.videoDescription || null,
+              is_free: lessonForm.videoIsFree,
+              order_index: 1,
+            }),
+          },
+        );
         const videoData = await videoRes.json().catch(() => ({}));
         if (!videoRes.ok) {
           throw new Error(videoData.error || "Lesson saved, but video failed.");
+        }
+        activeVideoId = videoId || videoData.video?.id || null;
+        if (activeVideoId) {
+          const videosRes = await fetch(`${API_BASE}/lessons/${lessonId}/videos`);
+          if (videosRes.ok) {
+            const videos = await videosRes.json();
+            await Promise.all(
+              videos
+                .filter((video) => video.id !== activeVideoId)
+                .map((video) =>
+                  fetch(`${API_BASE}/videos/${video.id}`, { method: "DELETE" }),
+                ),
+            );
+          }
+        }
+      } else if (!videoLink && lessonForm.videoId) {
+        const deleteVideoRes = await fetch(
+          `${API_BASE}/videos/${lessonForm.videoId}`,
+          {
+            method: "DELETE",
+          },
+        );
+        const deleteVideoData = await deleteVideoRes.json().catch(() => ({}));
+        if (!deleteVideoRes.ok) {
+          throw new Error(
+            deleteVideoData.error ||
+              "Lesson saved, but old video failed to delete.",
+          );
         }
       }
 
@@ -526,10 +572,14 @@ const AdminDashboard = ({ user, onLogout }) => {
       setLessonMessage(
         videoLink
           ? lessonForm.id
-            ? "Lesson updated and video added."
+            ? lessonForm.videoId
+              ? "Lesson and video updated."
+              : "Lesson updated and video added."
             : "Lesson created with video."
           : lessonForm.id
-            ? "Lesson updated."
+            ? lessonForm.videoId
+              ? "Lesson updated and video removed."
+              : "Lesson updated."
             : "Lesson created.",
       );
       refreshLessons();
@@ -1540,11 +1590,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                   <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3 space-y-3">
                     <div>
                       <p className="text-xs font-semibold text-slate-300">
-                        Add first video
+                        {lessonForm.videoId ? "Edit video" : "Add first video"}
                       </p>
                       <p className="text-[11px] text-slate-500">
-                        Optional. Paste a YouTube or video URL to attach it to
-                        this lesson.
+                        {lessonForm.videoId
+                          ? "Update the fields below, or clear the link to delete this video."
+                          : "Optional. Paste a YouTube or video URL to attach it to this lesson."}
                       </p>
                     </div>
                     <input
