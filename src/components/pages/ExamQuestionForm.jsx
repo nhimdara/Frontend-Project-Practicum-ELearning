@@ -20,16 +20,36 @@ const emptyQuestionForm = {
   correctAnswer: 0,
 };
 
-const normalizeRole = (role = "") =>
-  role === "client" || role === "student" || role === "Student"
-    ? "student"
-    : role;
+const normalizeRole = (role = "") => {
+  const normalized = String(role || "").trim().toLowerCase();
+  return normalized === "client" ? "student" : normalized;
+};
 
 const padOptions = (options = []) => {
   const next = Array.isArray(options) ? options.slice(0, 4) : [];
   while (next.length < 4) next.push("");
   return next;
 };
+
+const getCorrectAnswerIndex = (question = {}) => {
+  const answer = Number(question.correctAnswer ?? question.answer ?? 0);
+  return Number.isInteger(answer) && answer >= 0 ? answer : 0;
+};
+
+const normalizeExamQuestion = (question = {}, index = 0) => ({
+  id:
+    question.id ||
+    question.questionKey ||
+    question.question_key ||
+    `question-${index + 1}`,
+  question:
+    question.question ||
+    question.questionText ||
+    question.question_text ||
+    "",
+  options: Array.isArray(question.options) ? question.options : [],
+  correctAnswer: getCorrectAnswerIndex(question),
+});
 
 function ExamQuestionForm({
   user,
@@ -104,8 +124,12 @@ function ExamQuestionForm({
     try {
       setLoadingQuestions(true);
       setError("");
-      const data = await profileApi.getExamByMajor(major);
-      setQuestions(Array.isArray(data?.questions) ? data.questions : []);
+      const data = await profileApi.getExamByMajor(major, user);
+      setQuestions(
+        Array.isArray(data?.questions)
+          ? data.questions.map(normalizeExamQuestion)
+          : [],
+      );
       onQuestionsChange?.(data);
     } catch (err) {
       setQuestions([]);
@@ -131,17 +155,12 @@ function ExamQuestionForm({
   };
 
   const startEdit = (question) => {
-    const correctAnswer =
-      Number.isInteger(question.correctAnswer) ||
-      typeof question.correctAnswer === "string"
-        ? Number(question.correctAnswer)
-        : 0;
     setEditingQuestion(question);
     setForm({
       major: selectedMajor,
       question: question.question || "",
       options: padOptions(question.options),
-      correctAnswer: Number.isNaN(correctAnswer) ? 0 : correctAnswer,
+      correctAnswer: getCorrectAnswerIndex(question),
     });
     clearAlerts();
   };

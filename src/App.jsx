@@ -164,14 +164,24 @@ const AppInner = () => {
     setIsAuthModalOpen(true);
   };
 
+  const restoredSession = getSession();
+  const effectiveUser = user || restoredSession;
+  const effectiveIsAuthenticated = isAuthenticated || Boolean(restoredSession);
+
   const layoutProps = {
-    isAuthenticated,
-    user,
+    isAuthenticated: effectiveIsAuthenticated,
+    user: effectiveUser,
     onLogout: handleLogout,
     onAuthModalOpen: openAuthModal,
   };
 
-  const hasRegistered = !!localStorage.getItem("has_registered");
+  const hasRegistered = (() => {
+    try {
+      return !!localStorage.getItem("has_registered");
+    } catch {
+      return false;
+    }
+  })();
 
   return (
     <Routes>
@@ -180,14 +190,14 @@ const AppInner = () => {
       <Route
         path="/"
         element={
-          isAuthenticated ? (
+          effectiveIsAuthenticated ? (
             <Navigate
               to={
-                user?.role === "admin"
+                effectiveUser?.role === "admin"
                   ? "/admin/dashboard"
-                  : user?.role === "teacher"
+                  : effectiveUser?.role === "teacher"
                     ? "/teacher/dashboard"
-                    : user?.major
+                    : effectiveUser?.major
                       ? "/home"
                       : "/select-major"
               }
@@ -205,14 +215,14 @@ const AppInner = () => {
       <Route
         path="/login"
         element={
-          isAuthenticated ? (
+          effectiveIsAuthenticated ? (
             <Navigate
               to={
-                user?.role === "admin"
+                effectiveUser?.role === "admin"
                   ? "/admin/dashboard"
-                  : user?.role === "teacher"
+                  : effectiveUser?.role === "teacher"
                     ? "/teacher/dashboard"
-                    : user?.major
+                    : effectiveUser?.major
                       ? "/home"
                       : "/select-major"
               }
@@ -258,7 +268,7 @@ const AppInner = () => {
         path="/admin/dashboard"
         element={
           <ProtectedRoute requiredRole="admin">
-            <AdminDashboard user={user} onLogout={handleLogout} />
+            <AdminDashboard user={effectiveUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
@@ -267,7 +277,7 @@ const AppInner = () => {
         path="/teacher/dashboard"
         element={
           <ProtectedRoute requiredRole="teacher">
-            <TeacherDashboard user={user} onLogout={handleLogout} />
+            <TeacherDashboard user={effectiveUser} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
@@ -277,7 +287,7 @@ const AppInner = () => {
         element={
           <ProtectedRoute requiredRole="client">
             <PageLayout {...layoutProps}>
-              <Profile user={user} onUserUpdate={handleUserUpdate} />
+              <Profile user={effectiveUser} onUserUpdate={handleUserUpdate} />
             </PageLayout>
           </ProtectedRoute>
         }
@@ -301,7 +311,7 @@ const AppInner = () => {
         element={
           <ProtectedRoute requiredRole="client">
             <PageLayout {...layoutProps}>
-              <ExamPage user={user} />
+              <ExamPage user={effectiveUser} />
             </PageLayout>
           </ProtectedRoute>
         }
@@ -313,7 +323,7 @@ const AppInner = () => {
           <ProtectedRoute requiredRole="client">
             <PageLayout {...layoutProps}>
               <Settings
-                user={user}
+                user={effectiveUser}
                 onLogout={handleLogout}
                 onUserUpdate={handleUserUpdate}
               />

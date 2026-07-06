@@ -6,7 +6,7 @@
 // ─────────────────────────────────────────────────────────────
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { API_BASE_URL, API_ORIGIN } from "../../config/api";
+import { API_BASE_URL } from "../../config/api";
 import Certificates from "./Profile/Certificates";
 import ExamQuestionForm from "./ExamQuestionForm";
 import {
@@ -37,7 +37,6 @@ import {
 } from "lucide-react";
 import logo from "./../assets/image/logo.png";
 
-const API = API_ORIGIN;
 const API_BASE = API_BASE_URL;
 const MAJORS = ["ITE", "IT", "Mathematics"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
@@ -136,6 +135,8 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [lessonError, setLessonError] = useState("");
   const [lessonMajorFilter, setLessonMajorFilter] = useState("all");
   const [lessonYearFilter, setLessonYearFilter] = useState("all");
+  const [lessonStatusFilter, setLessonStatusFilter] = useState("all");
+  const [lessonSearch, setLessonSearch] = useState("");
   const [projects, setProjects] = useState([]);
   const [projectForm, setProjectForm] = useState(emptyProjectForm);
   const [projectMessage, setProjectMessage] = useState("");
@@ -181,7 +182,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setLoading(true);
     setApiError("");
     try {
-      const res = await fetch(`${API}/api/users`);
+      const res = await fetch(`${API_BASE}/users`);
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
       setUsers(data);
@@ -277,6 +278,12 @@ const AdminDashboard = ({ user, onLogout }) => {
   const activeUsers = users.filter((u) => u.status !== "inactive").length;
   const todayStr = new Date().toISOString().split("T")[0];
   const newToday = users.filter((u) => u.joinDate === todayStr).length;
+  const isLessonPublished = (lesson) =>
+    lesson.is_published === true ||
+    lesson.is_published === 1 ||
+    lesson.is_published === "1";
+  const publishedLessonCount = lessons.filter(isLessonPublished).length;
+  const draftLessonCount = lessons.length - publishedLessonCount;
 
   const STATS = [
     {
@@ -296,7 +303,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     {
       label: "Active Courses",
       value: lessons.length,
-      delta: `${lessons.filter((lesson) => lesson.is_published).length} live`,
+      delta: `${publishedLessonCount} live`,
       icon: BookOpen,
       light: "bg-cyan-50 text-cyan-600",
     },
@@ -312,7 +319,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   // ── Delete ────────────────────────────────────────────────
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${API}/api/users/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/users/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       setUsers((prev) => prev.filter((u) => u.id !== id));
     } catch (err) {
@@ -331,14 +338,44 @@ const AdminDashboard = ({ user, onLogout }) => {
   );
 
   const teachers = users.filter((u) => u.role === "teacher");
+  const selectedYear = years.find(
+    (year) => String(year.id) === String(lessonYearFilter),
+  );
+  const lessonSearchText = lessonSearch.trim().toLowerCase();
   const filteredLessons = lessons.filter((lesson) => {
+    const published = isLessonPublished(lesson);
     const matchesMajor =
       lessonMajorFilter === "all" || lesson.major === lessonMajorFilter;
     const matchesYear =
       lessonYearFilter === "all" ||
       String(lesson.year_id) === String(lessonYearFilter);
-    return matchesMajor && matchesYear;
+    const matchesStatus =
+      lessonStatusFilter === "all" ||
+      (lessonStatusFilter === "published" && published) ||
+      (lessonStatusFilter === "draft" && !published);
+    const searchable = [
+      lesson.title,
+      lesson.description,
+      lesson.major,
+      lesson.level,
+      lesson.category,
+      lesson.semester,
+      lesson.year,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    const matchesSearch =
+      !lessonSearchText || searchable.includes(lessonSearchText);
+
+    return matchesMajor && matchesYear && matchesStatus && matchesSearch;
   });
+  const lessonFilterCount = [
+    lessonMajorFilter !== "all",
+    lessonYearFilter !== "all",
+    lessonStatusFilter !== "all",
+    Boolean(lessonSearchText),
+  ].filter(Boolean).length;
   const filteredProjects = projects.filter((project) => {
     const searchText = projectSearch.toLowerCase();
     const tagText = Array.isArray(project.tags)
@@ -558,11 +595,16 @@ const AdminDashboard = ({ user, onLogout }) => {
       videoDescription: firstVideo?.description || "",
       videoIsFree: firstVideo ? firstVideo.is_free !== 0 : true,
     });
+    setLessonMessage("");
     setActiveTab("lessons");
   };
 
   const resetLessonForm = (clearMessage = true) => {
-    setLessonForm(emptyLessonForm);
+    setLessonForm({
+      ...emptyLessonForm,
+      major: adminSettings.defaultMajor || emptyLessonForm.major,
+      is_published: adminSettings.publishNewLessons,
+    });
     if (clearMessage) setLessonMessage("");
   };
 
@@ -1604,235 +1646,430 @@ const AdminDashboard = ({ user, onLogout }) => {
             </div>
           )}
 
-          {/* ── Courses Tab ── */}
+          {/* Lessons Tab */}
           {(activeTab === "lessons" || activeTab === "courses") && (
-            <div className="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-5">
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">
+                      Lesson catalog
+                    </p>
+                    <h1 className="mt-1 text-2xl font-bold text-white">
+                      Admin lessons
+                    </h1>
+                    <p className="mt-1 max-w-2xl text-sm text-slate-400">
+                      Catalog structure, publishing state, and primary video details.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[520px]">
+                    {[
+                      ["Total", lessons.length, "text-cyan-300"],
+                      ["Published", publishedLessonCount, "text-emerald-300"],
+                      ["Drafts", draftLessonCount, "text-amber-300"],
+                      ["Showing", filteredLessons.length, "text-indigo-300"],
+                    ].map(([label, value, tone]) => (
+                      <div
+                        key={label}
+                        className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-3"
+                      >
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          {label}
+                        </p>
+                        <p className={`mt-1 text-xl font-bold ${tone}`}>
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
               <form
                 onSubmit={saveLesson}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-5 h-fit"
+                className="h-fit rounded-2xl border border-slate-800 bg-slate-900 p-5"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-white font-bold flex items-center gap-2">
-                    {lessonForm.id ? (
-                      <Edit3 className="h-4 w-4 text-indigo-400" />
-                    ) : (
-                      <Plus className="h-4 w-4 text-indigo-400" />
-                    )}
-                    {lessonForm.id ? "Edit Lesson" : "Create Lesson"}
-                  </h2>
+                <div className="mb-5 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {lessonForm.id ? "Editing lesson" : "New lesson"}
+                    </p>
+                    <h2 className="mt-1 flex items-center gap-2 text-lg font-bold text-white">
+                      {lessonForm.id ? (
+                        <Edit3 className="h-4 w-4 text-indigo-400" />
+                      ) : (
+                        <Plus className="h-4 w-4 text-indigo-400" />
+                      )}
+                      {lessonForm.id ? "Update lesson" : "Create lesson"}
+                    </h2>
+                  </div>
                   {lessonForm.id && (
                     <button
                       type="button"
                       onClick={resetLessonForm}
-                      className="text-xs text-slate-400 hover:text-white"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+                      title="Clear form"
                     >
-                      Clear
+                      <X className="h-4 w-4" />
                     </button>
                   )}
                 </div>
 
-                <div className="space-y-3">
-                  <input
-                    value={lessonForm.title}
-                    onChange={(e) => updateLessonForm("title", e.target.value)}
-                    placeholder="Lesson title"
-                    className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
-                  />
-                  <textarea
-                    value={lessonForm.description}
-                    onChange={(e) =>
-                      updateLessonForm("description", e.target.value)
-                    }
-                    placeholder="Short description"
-                    rows={3}
-                    className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <select
-                      value={lessonForm.major}
-                      onChange={(e) => updateLessonForm("major", e.target.value)}
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      {MAJORS.map((major) => (
-                        <option key={major}>{major}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={lessonForm.level}
-                      onChange={(e) => updateLessonForm("level", e.target.value)}
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      {LEVELS.map((level) => (
-                        <option key={level}>{level}</option>
-                      ))}
-                    </select>
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Title
+                      </span>
+                      <input
+                        value={lessonForm.title}
+                        onChange={(e) =>
+                          updateLessonForm("title", e.target.value)
+                        }
+                        placeholder="Lesson title"
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Description
+                      </span>
+                      <textarea
+                        value={lessonForm.description}
+                        onChange={(e) =>
+                          updateLessonForm("description", e.target.value)
+                        }
+                        placeholder="Short description"
+                        rows={3}
+                        className="mt-1.5 w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500"
+                      />
+                    </label>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <select
-                      value={lessonForm.category_id}
-                      onChange={(e) =>
-                        updateLessonForm("category_id", e.target.value)
-                      }
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      <option value="">Category</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={lessonForm.semester_id}
-                      onChange={(e) =>
-                        updateLessonForm("semester_id", e.target.value)
-                      }
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      <option value="">Semester</option>
-                      {semesters.map((semester) => (
-                        <option key={semester.id} value={semester.id}>
-                          {semester.year_name} / {semester.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <input
-                      type="number"
-                      value={lessonForm.credit}
-                      onChange={(e) =>
-                        updateLessonForm("credit", Number(e.target.value))
-                      }
-                      placeholder="Credits"
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    />
-                    <input
-                      type="number"
-                      value={lessonForm.hours}
-                      onChange={(e) =>
-                        updateLessonForm("hours", Number(e.target.value))
-                      }
-                      placeholder="Hours"
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    />
-                    <select
-                      value={lessonForm.color}
-                      onChange={(e) => updateLessonForm("color", e.target.value)}
-                      className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
-                    >
-                      {COLORS.map((color) => (
-                        <option key={color} value={color}>
-                          {color}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <label className="flex items-center gap-2 text-sm text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={lessonForm.is_published}
-                      onChange={(e) =>
-                        updateLessonForm("is_published", e.target.checked)
-                      }
-                    />
-                    Published
-                  </label>
 
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3 space-y-3">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-300">
-                        {lessonForm.videoId ? "Edit video" : "Add first video"}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {lessonForm.videoId
-                          ? "Update the fields below, or clear the link to delete this video."
-                          : "Optional. Paste a YouTube or video URL to attach it to this lesson."}
-                      </p>
-                    </div>
-                    <input
-                      value={lessonForm.videoLink}
-                      onChange={(e) =>
-                        updateLessonForm("videoLink", e.target.value)
-                      }
-                      placeholder="Video link"
-                      className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
-                    />
-                    <input
-                      value={lessonForm.videoTitle}
-                      onChange={(e) =>
-                        updateLessonForm("videoTitle", e.target.value)
-                      }
-                      placeholder="Video title"
-                      className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
-                    />
-                    <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Major
+                      </span>
+                      <select
+                        value={lessonForm.major}
+                        onChange={(e) =>
+                          updateLessonForm("major", e.target.value)
+                        }
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
+                      >
+                        {MAJORS.map((major) => (
+                          <option key={major}>{major}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Level
+                      </span>
+                      <select
+                        value={lessonForm.level}
+                        onChange={(e) =>
+                          updateLessonForm("level", e.target.value)
+                        }
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
+                      >
+                        {LEVELS.map((level) => (
+                          <option key={level}>{level}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Category
+                      </span>
+                      <select
+                        value={lessonForm.category_id}
+                        onChange={(e) =>
+                          updateLessonForm("category_id", e.target.value)
+                        }
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
+                      >
+                        <option value="">Category</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Semester
+                      </span>
+                      <select
+                        value={lessonForm.semester_id}
+                        onChange={(e) =>
+                          updateLessonForm("semester_id", e.target.value)
+                        }
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
+                      >
+                        <option value="">Semester</option>
+                        {semesters.map((semester) => (
+                          <option key={semester.id} value={semester.id}>
+                            {semester.year_name} / {semester.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Credits
+                      </span>
                       <input
                         type="number"
-                        value={lessonForm.videoDuration}
+                        min="0"
+                        value={lessonForm.credit}
                         onChange={(e) =>
-                          updateLessonForm("videoDuration", e.target.value)
+                          updateLessonForm("credit", Number(e.target.value))
                         }
-                        placeholder="Minutes"
-                        className="px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
+                        placeholder="Credits"
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
                       />
-                      <label className="flex items-center gap-2 text-sm text-slate-300">
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Hours
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={lessonForm.hours}
+                        onChange={(e) =>
+                          updateLessonForm("hours", Number(e.target.value))
+                        }
+                        placeholder="Hours"
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
+                      />
+                    </label>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Accent color
+                    </span>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {COLORS.map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => updateLessonForm("color", color)}
+                          title={color}
+                          aria-label={`Use color ${color}`}
+                          className={`flex h-9 w-9 items-center justify-center rounded-lg border transition ${
+                            lessonForm.color === color
+                              ? "border-white ring-2 ring-indigo-400"
+                              : "border-slate-700 hover:border-slate-500"
+                          }`}
+                          style={{ background: color }}
+                        >
+                          {lessonForm.color === color && (
+                            <CheckCircle className="h-4 w-4 text-white drop-shadow" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Publishing
+                    </span>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {[
+                        ["published", true, CheckCircle],
+                        ["draft", false, AlertTriangle],
+                      ].map(([label, value, Icon]) => (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() =>
+                            updateLessonForm("is_published", value)
+                          }
+                          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold capitalize transition ${
+                            lessonForm.is_published === value
+                              ? value
+                                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                                : "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                              : "border-slate-700 bg-slate-950 text-slate-300 hover:bg-slate-800"
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Primary video
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {lessonForm.videoId
+                            ? "Video attached"
+                            : "Optional first video"}
+                        </p>
+                      </div>
+                      {lessonForm.videoId && (
+                        <span className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-xs font-semibold text-indigo-300">
+                          #{lessonForm.videoId}
+                        </span>
+                      )}
+                    </div>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Link
+                      </span>
+                      <input
+                        value={lessonForm.videoLink}
+                        onChange={(e) =>
+                          updateLessonForm("videoLink", e.target.value)
+                        }
+                        placeholder="Video link"
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Title
+                      </span>
+                      <input
+                        value={lessonForm.videoTitle}
+                        onChange={(e) =>
+                          updateLessonForm("videoTitle", e.target.value)
+                        }
+                        placeholder="Video title"
+                        className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500"
+                      />
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Minutes
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={lessonForm.videoDuration}
+                          onChange={(e) =>
+                            updateLessonForm("videoDuration", e.target.value)
+                          }
+                          placeholder="Minutes"
+                          className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
+                        />
+                      </label>
+                      <label className="mt-5 flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-slate-300">
                         <input
                           type="checkbox"
                           checked={lessonForm.videoIsFree}
                           onChange={(e) =>
                             updateLessonForm("videoIsFree", e.target.checked)
                           }
+                          className="h-4 w-4"
                         />
                         Free preview
                       </label>
                     </div>
-                    <textarea
-                      value={lessonForm.videoDescription}
-                      onChange={(e) =>
-                        updateLessonForm("videoDescription", e.target.value)
-                      }
-                      placeholder="Video description"
-                      rows={2}
-                      className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
-                    />
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Notes
+                      </span>
+                      <textarea
+                        value={lessonForm.videoDescription}
+                        onChange={(e) =>
+                          updateLessonForm(
+                            "videoDescription",
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Video description"
+                        rows={2}
+                        className="mt-1.5 w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500"
+                      />
+                    </label>
                   </div>
 
-                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500">
+                  <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500">
                     <Save className="h-4 w-4" />
                     {lessonForm.id ? "Save lesson" : "Create lesson"}
                   </button>
                   {lessonMessage && (
-                    <p className="text-xs text-indigo-300">{lessonMessage}</p>
+                    <div
+                      className={`rounded-xl border px-3 py-2 text-sm font-semibold ${
+                        /failed|error|could not|cannot/i.test(lessonMessage)
+                          ? "border-red-500/20 bg-red-500/10 text-red-300"
+                          : "border-indigo-500/20 bg-indigo-500/10 text-indigo-300"
+                      }`}
+                    >
+                      {lessonMessage}
+                    </div>
                   )}
                 </div>
               </form>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-white font-bold">All Lessons</h2>
-                    <p className="text-slate-500 text-xs">
-                      {filteredLessons.length} of {lessons.length} lessons
-                    </p>
+              <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+                <div className="border-b border-slate-800 p-5">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Catalog table
+                      </p>
+                      <h2 className="mt-1 text-lg font-bold text-white">
+                        Lessons
+                      </h2>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {filteredLessons.length} of {lessons.length} lessons
+                        {lessonMajorFilter !== "all" ? ` / ${lessonMajorFilter}` : ""}
+                        {selectedYear ? ` / ${selectedYear.name}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {lessonFilterCount > 0 && (
+                        <span className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-300">
+                          {lessonFilterCount} active filter
+                          {lessonFilterCount > 1 ? "s" : ""}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={refreshLessons}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+                        title="Refresh lessons"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={refreshLessons}
-                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </button>
-                </div>
 
-                <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <label className="block text-xs font-semibold text-slate-400 mb-1">
-                      Filter by major
+                  <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(220px,1fr)_180px_220px]">
+                    <label className="relative block">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                      <input
+                        value={lessonSearch}
+                        onChange={(e) => setLessonSearch(e.target.value)}
+                        placeholder="Search lessons"
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 pl-9 pr-3 text-sm text-white outline-none transition focus:border-indigo-500"
+                      />
                     </label>
                     <select
                       value={lessonMajorFilter}
                       onChange={(e) => setLessonMajorFilter(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white"
                     >
                       <option value="all">All majors</option>
                       {MAJORS.map((major) => (
@@ -1841,11 +2078,30 @@ const AdminDashboard = ({ user, onLogout }) => {
                         </option>
                       ))}
                     </select>
+
+                    <div className="grid grid-cols-3 rounded-xl border border-slate-700 bg-slate-950 p-1">
+                      {[
+                        ["all", "All"],
+                        ["published", "Live"],
+                        ["draft", "Draft"],
+                      ].map(([value, label]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setLessonStatusFilter(value)}
+                          className={`rounded-lg px-2 py-1.5 text-xs font-semibold transition ${
+                            lessonStatusFilter === value
+                              ? "bg-indigo-600 text-white"
+                              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <label className="block text-xs font-semibold text-slate-400 mb-1">
-                      Filter by year
-                    </label>
+
+                  <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -1873,16 +2129,19 @@ const AdminDashboard = ({ user, onLogout }) => {
                         </button>
                       ))}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLessonMajorFilter("all");
+                        setLessonYearFilter("all");
+                        setLessonStatusFilter("all");
+                        setLessonSearch("");
+                      }}
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                    >
+                      Clear filters
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      setLessonMajorFilter("all");
-                      setLessonYearFilter("all");
-                    }}
-                    className="self-end px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-800"
-                  >
-                    Clear
-                  </button>
                 </div>
 
                 {lessonError && (
@@ -1901,12 +2160,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-800 bg-slate-800/50">
-                        {["Lesson", "Major", "Year", "Status", "Actions"].map(
+                      <tr className="border-b border-slate-800 bg-slate-950/70">
+                        {["Lesson", "Structure", "Load", "Status", "Actions"].map(
                           (header) => (
                             <th
                               key={header}
-                              className="py-3 px-5 text-left text-xs font-bold text-slate-400 uppercase"
+                              className="py-3 px-5 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
                             >
                               {header}
                             </th>
@@ -1918,56 +2177,69 @@ const AdminDashboard = ({ user, onLogout }) => {
                       {filteredLessons.map((lesson) => (
                         <tr
                           key={lesson.id}
-                          className="border-b border-slate-800 hover:bg-slate-800/40"
+                          className="border-b border-slate-800 transition hover:bg-slate-800/40"
                         >
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-3">
                               <span
-                                className="h-9 w-9 rounded-xl"
+                                className="h-10 w-10 shrink-0 rounded-xl"
                                 style={{
                                   background: lesson.color || "#2563eb",
                                 }}
                               />
-                              <div>
-                                <p className="text-white text-sm font-semibold">
+                              <div className="min-w-0">
+                                <p className="max-w-[320px] truncate text-white text-sm font-semibold">
                                   {lesson.title}
                                 </p>
                                 <p className="text-slate-500 text-xs">
-                                  {lesson.category || "No category"} ·{" "}
-                                  {lesson.semester || "No semester"}
+                                  {lesson.description || "No description"}
                                 </p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-3.5 px-5 text-slate-300 text-sm">
-                            {lesson.major || "—"}
+                          <td className="py-3.5 px-5">
+                            <p className="text-sm font-semibold text-slate-200">
+                              {lesson.major || "No major"}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {lesson.category || "No category"} /{" "}
+                              {lesson.semester || "No semester"}
+                            </p>
                           </td>
-                          <td className="py-3.5 px-5 text-slate-300 text-sm">
-                            {lesson.year || "—"}
+                          <td className="py-3.5 px-5">
+                            <p className="text-sm text-slate-300">
+                              {lesson.credit || 0} credits
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {lesson.hours || 0} hours /{" "}
+                              {lesson.year || "No year"}
+                            </p>
                           </td>
                           <td className="py-3.5 px-5">
                             <span
                               className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                lesson.is_published
+                                isLessonPublished(lesson)
                                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                                   : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                               }`}
                             >
-                              {lesson.is_published ? "Published" : "Draft"}
+                              {isLessonPublished(lesson) ? "Published" : "Draft"}
                             </span>
                           </td>
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-2">
                               <button
+                                type="button"
                                 onClick={() => editLesson(lesson)}
-                                className="p-1.5 rounded-lg hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-400"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-indigo-500/10 hover:text-indigo-300"
                                 title="Edit lesson"
                               >
                                 <Edit3 className="h-4 w-4" />
                               </button>
                               <button
+                                type="button"
                                 onClick={() => deleteLesson(lesson.id)}
-                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-500/10 hover:text-red-300"
                                 title="Delete lesson"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -1979,12 +2251,19 @@ const AdminDashboard = ({ user, onLogout }) => {
                     </tbody>
                   </table>
                   {filteredLessons.length === 0 && (
-                    <div className="py-12 text-center text-slate-500 text-sm">
-                      No lessons match these filters.
+                    <div className="px-5 py-14 text-center">
+                      <BookOpen className="mx-auto h-8 w-8 text-slate-600" />
+                      <p className="mt-3 text-sm font-semibold text-slate-300">
+                        No lessons found
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Adjust filters or create a new lesson.
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
+            </div>
             </div>
           )}
 

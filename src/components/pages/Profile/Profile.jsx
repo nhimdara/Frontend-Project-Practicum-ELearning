@@ -61,6 +61,24 @@ const deferState = (fn) => {
   }
 };
 
+const readStoredProjects = (key) => {
+  try {
+    const savedProjects = localStorage.getItem(key);
+    const parsedProjects = savedProjects ? JSON.parse(savedProjects) : [];
+    return Array.isArray(parsedProjects) ? parsedProjects : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeStoredProjects = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage can fail in private mode or when the quota is full.
+  }
+};
+
 const Profile = ({ user: initialUser, onUserUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -78,8 +96,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
   // Projects state
   const [projects, setProjects] = useState(() => {
-    const savedProjects = localStorage.getItem(projectStorageKey);
-    return savedProjects ? JSON.parse(savedProjects) : [];
+    return readStoredProjects(projectStorageKey);
   });
 
   const [user, setUser] = useState(() => normalizeProfile(initialUser));
@@ -133,17 +150,12 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
   useEffect(() => {
     deferState(() => {
-      try {
-        const savedProjects = localStorage.getItem(projectStorageKey);
-        setProjects(savedProjects ? JSON.parse(savedProjects) : []);
-      } catch {
-        setProjects([]);
-      }
+      setProjects(readStoredProjects(projectStorageKey));
     });
   }, [projectStorageKey]);
 
   useEffect(() => {
-    localStorage.setItem(projectStorageKey, JSON.stringify(projects));
+    writeStoredProjects(projectStorageKey, projects);
   }, [projects, projectStorageKey]);
 
   const [projectForm, setProjectForm] = useState({
@@ -329,7 +341,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       setSuccessMessage("Project added successfully!");
     }
     setProjects(updatedProjects);
-    localStorage.setItem("user_projects", JSON.stringify(updatedProjects));
+    writeStoredProjects(projectStorageKey, updatedProjects);
     setShowProjectModal(false);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -339,7 +351,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
       const updatedProjects = projects.filter(p => p.id !== projectId);
       setProjects(updatedProjects);
-      localStorage.setItem("user_projects", JSON.stringify(updatedProjects));
+      writeStoredProjects(projectStorageKey, updatedProjects);
       setSuccessMessage("Project deleted successfully!");
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);

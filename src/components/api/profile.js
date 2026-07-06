@@ -1,5 +1,23 @@
 import { API_BASE_URL } from "../../config/api";
 
+const normalizeActorRole = (user = {}) => {
+  const role = String(user?.dbRole || user?.role || "").trim().toLowerCase();
+  return role === "client" ? "student" : role;
+};
+
+const examManagerHeaders = (user, includeJson = false) => {
+  const headers = {
+    "x-user-id": String(user?.id || ""),
+    "x-user-role": normalizeActorRole(user),
+  };
+  return includeJson
+    ? {
+        "Content-Type": "application/json",
+        ...headers,
+      }
+    : headers;
+};
+
 export const profileApi = {
   async getUsers() {
     const res = await fetch(`${API_BASE_URL}/users`);
@@ -71,8 +89,10 @@ export const profileApi = {
     return data;
   },
 
-  async getExamByMajor(major) {
-    const res = await fetch(`${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}`);
+  async getExamByMajor(major, user = null) {
+    const res = await fetch(`${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}`, {
+      headers: user ? examManagerHeaders(user) : undefined,
+    });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Could not load exam.");
     return data;
@@ -90,14 +110,10 @@ export const profileApi = {
   },
 
   async addExamQuestion(major, user, payload) {
-    const actorRole = user?.dbRole || user?.role;
+    const actorRole = normalizeActorRole(user);
     const res = await fetch(`${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}/questions`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": String(user?.id || ""),
-        "x-user-role": String(actorRole || ""),
-      },
+      headers: examManagerHeaders(user, true),
       body: JSON.stringify({
         ...payload,
         actorUserId: user?.id,
@@ -110,16 +126,12 @@ export const profileApi = {
   },
 
   async updateExamQuestion(major, questionId, user, payload) {
-    const actorRole = user?.dbRole || user?.role;
+    const actorRole = normalizeActorRole(user);
     const res = await fetch(
       `${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}/questions/${encodeURIComponent(questionId)}`,
       {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": String(user?.id || ""),
-          "x-user-role": String(actorRole || ""),
-        },
+        headers: examManagerHeaders(user, true),
         body: JSON.stringify({
           ...payload,
           actorUserId: user?.id,
@@ -133,15 +145,11 @@ export const profileApi = {
   },
 
   async deleteExamQuestion(major, questionId, user) {
-    const actorRole = user?.dbRole || user?.role;
     const res = await fetch(
       `${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}/questions/${encodeURIComponent(questionId)}`,
       {
         method: "DELETE",
-        headers: {
-          "x-user-id": String(user?.id || ""),
-          "x-user-role": String(actorRole || ""),
-        },
+        headers: examManagerHeaders(user),
       },
     );
     const data = await res.json().catch(() => ({}));
