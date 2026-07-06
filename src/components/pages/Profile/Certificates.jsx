@@ -59,21 +59,24 @@ const certificateFileName = (certificate) =>
 const certificateImage = (title, color = "#2563eb") =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(title || "Certificate")}&background=${color.replace("#", "")}&color=fff&size=500`;
 
+// Professional certificate template, rendered standalone (used for print + download).
 const buildCertificateHtml = (certificate) => {
   const accent =
     certificate.accentColor ||
     MAJOR_COLORS[certificate.studentMajor] ||
-    "#2563eb";
+    "#b8860b";
   const studentName =
     certificate.studentName || certificate.studentEmail || "Student";
   const major = certificate.studentMajor || certificate.examMajor || "Major";
-  const skills = (certificate.skills || [major]).join(" &bull; ");
+  const skills = (certificate.skills || [major]).join("  •  ");
 
   return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
   <title>${escapeHtml(studentName)} Certificate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     @page { size: landscape; margin: 0; }
     * { box-sizing: border-box; }
@@ -82,96 +85,174 @@ const buildCertificateHtml = (certificate) => {
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background: #eef2ff;
-      color: #111827;
-      font-family: Georgia, "Times New Roman", serif;
+      background: #dfe4ee;
+      color: #1a1a1a;
+      font-family: "EB Garamond", Georgia, serif;
     }
     .certificate {
-      width: min(1100px, 96vw);
+      width: min(1150px, 96vw);
       aspect-ratio: 1.414 / 1;
-      background: #ffffff;
-      border: 18px solid ${accent};
-      padding: 48px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(184,134,11,0.05) 0%, rgba(184,134,11,0) 55%),
+        #fffdf8;
       position: relative;
-      box-shadow: 0 24px 70px rgba(17, 24, 39, 0.18);
+      box-shadow: 0 30px 80px rgba(15, 15, 15, 0.28);
       display: flex;
       flex-direction: column;
       justify-content: center;
       text-align: center;
+      overflow: hidden;
     }
-    .certificate:before {
+    /* outer + inner ornamental border */
+    .certificate::before {
       content: "";
       position: absolute;
-      inset: 18px;
-      border: 2px solid ${accent};
-      opacity: 0.35;
+      inset: 14px;
+      border: 3px solid ${accent};
       pointer-events: none;
     }
+    .certificate::after {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border: 1px solid ${accent};
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .corner {
+      position: absolute;
+      width: 46px;
+      height: 46px;
+      border: 2px solid ${accent};
+      z-index: 2;
+    }
+    .corner.tl { top: 26px; left: 26px; border-right: none; border-bottom: none; }
+    .corner.tr { top: 26px; right: 26px; border-left: none; border-bottom: none; }
+    .corner.bl { bottom: 26px; left: 26px; border-right: none; border-top: none; }
+    .corner.br { bottom: 26px; right: 26px; border-left: none; border-top: none; }
+
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 46%;
+      transform: translate(-50%, -50%);
+      opacity: 0.05;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 40px 64px;
+    }
+
+    .crest {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 10px;
+      border-radius: 50%;
+      background: #fff;
+      padding: 4px;
+      box-shadow: 0 0 0 3px ${accent}, 0 6px 18px rgba(0,0,0,0.18);
+    }
+    .crest img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+
+    .issuer {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(15px, 2vw, 19px);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #3f3f3f;
+      margin: 0 0 2px;
+    }
     .kicker {
-      font: 700 15px Arial, sans-serif;
-      letter-spacing: 0.26em;
+      font: 600 12px/1.4 "EB Garamond", Arial, sans-serif;
+      letter-spacing: 0.32em;
       text-transform: uppercase;
       color: ${accent};
-      margin-bottom: 18px;
+      margin: 10px 0 6px;
     }
     h1 {
       margin: 0;
-      font-size: clamp(46px, 7vw, 76px);
-      line-height: 1;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(38px, 5.2vw, 56px);
+      letter-spacing: 0.02em;
+      color: #16181d;
+      line-height: 1.05;
+    }
+    .divider {
+      width: 90px;
+      height: 2px;
+      background: ${accent};
+      margin: 18px auto;
+      opacity: 0.7;
     }
     .presented {
-      margin: 34px 0 10px;
-      font: 500 18px Arial, sans-serif;
+      margin: 4px 0 6px;
+      font: 500 15px/1.5 "EB Garamond", Arial, sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: #6b7280;
     }
     .student {
-      font-size: clamp(36px, 5vw, 58px);
-      font-weight: 700;
-      border-bottom: 2px solid #d1d5db;
-      width: min(720px, 82%);
-      margin: 0 auto 28px;
-      padding-bottom: 8px;
+      font-family: "Great Vibes", cursive;
+      font-size: clamp(38px, 5.4vw, 60px);
+      color: #16181d;
+      margin: 4px auto 14px;
+      line-height: 1.15;
     }
     .body {
-      max-width: 760px;
+      max-width: 720px;
       margin: 0 auto;
-      font: 20px/1.6 Arial, sans-serif;
-      color: #374151;
+      font: 400 17px/1.7 "EB Garamond", Arial, sans-serif;
+      color: #3d3d3d;
     }
     .course {
-      color: #111827;
-      font-weight: 700;
+      color: #16181d;
+      font-weight: 600;
+      border-bottom: 1px solid ${accent};
+    }
+    .skills {
+      display: block;
+      margin-top: 8px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: ${accent};
     }
     .footer {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 28px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
       align-items: end;
-      margin-top: 54px;
-      font: 14px Arial, sans-serif;
+      margin-top: 42px;
+      font: 500 13px/1.4 "EB Garamond", Arial, sans-serif;
       color: #4b5563;
     }
-    .line {
-      border-top: 1px solid #9ca3af;
-      padding-top: 10px;
-    }
-    .seal {
-      width: 120px;
-      height: 120px;
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      color: white;
-      background: ${accent};
-      font: 800 18px Arial, sans-serif;
-      letter-spacing: 0.12em;
-    }
+    .footer .label { color: #9ca3af; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+    .line { border-top: 1px solid #9ca3af; padding-top: 8px; }
     .credential {
       position: absolute;
-      left: 48px;
-      bottom: 26px;
-      font: 12px Arial, sans-serif;
-      color: #6b7280;
+      left: 40px;
+      bottom: 40px;
+      z-index: 2;
+      font: 500 11px "EB Garamond", Arial, sans-serif;
+      letter-spacing: 0.04em;
+      color: #9ca3af;
+    }
+    .verify {
+      position: absolute;
+      right: 40px;
+      bottom: 40px;
+      z-index: 2;
+      font: 500 11px "EB Garamond", Arial, sans-serif;
+      letter-spacing: 0.04em;
+      color: #9ca3af;
+      text-align: right;
     }
     @media print {
       body { background: white; }
@@ -181,21 +262,42 @@ const buildCertificateHtml = (certificate) => {
 </head>
 <body>
   <main class="certificate">
-    <div class="kicker">Certificate of Achievement</div>
-    <h1>${escapeHtml(certificate.issuer || "Elearning Academy")}</h1>
-    <div class="presented">This certificate is proudly presented to</div>
-    <div class="student">${escapeHtml(studentName)}</div>
-    <p class="body">
-      For successfully demonstrating achievement in <span class="course">${escapeHtml(major)}</span>
-      through ${escapeHtml(certificate.title || "academic completion")}.<br />
-      <span>${skills}</span>
-    </p>
-    <div class="footer">
-      <div class="line">Issued ${escapeHtml(formatDate(certificate.issueDate))}</div>
-      <div class="seal">VERIFIED</div>
-      <div class="line">${escapeHtml(certificate.grade || "Complete")}</div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <img class="watermark" src="${logo}" alt="" />
+    <div class="content">
+      <div class="crest"><img src="${logo}" alt="University Seal" /></div>
+      <p class="issuer">${escapeHtml(certificate.issuer || "Royal University of Phnom Penh")}</p>
+      <p class="kicker">Certificate of Achievement</p>
+      <h1>${escapeHtml(certificate.title || "Academic Achievement")}</h1>
+      <div class="divider"></div>
+      <p class="presented">This certificate is proudly presented to</p>
+      <div class="student">${escapeHtml(studentName)}</div>
+      <p class="body">
+        For successfully demonstrating outstanding achievement in
+        <span class="course">${escapeHtml(major)}</span>, fulfilling all requirements
+        with distinction.
+        <span class="skills">${skills}</span>
+      </p>
+      <div class="footer">
+        <div>
+          <p class="label">Date Issued</p>
+          <div class="line">${escapeHtml(formatDate(certificate.issueDate))}</div>
+        </div>
+        <div>
+          <p class="label">Grade</p>
+          <div class="line">${escapeHtml(certificate.grade || "Complete")}</div>
+        </div>
+        <div>
+          <p class="label">Headteacher Signature</p>
+          <div class="line">&nbsp;</div>
+        </div>
+      </div>
     </div>
-    <div class="credential">Credential ID: ${escapeHtml(certificate.credentialId || "PREVIEW")}</div>
+    <div class="credential">Credential ID&nbsp;&nbsp;${escapeHtml(certificate.credentialId || "PREVIEW")}</div>
+    <div class="verify">Verified Digital Record</div>
   </main>
 </body>
 </html>`;
@@ -456,8 +558,11 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
         .cert-admin-root {
           min-height: calc(100vh - 65px);
           padding: 0;
-          background: #020617;
-          color: #e5e7eb;
+          background:
+            radial-gradient(circle at top left, rgba(79, 70, 229, 0.22), transparent 30rem),
+            radial-gradient(circle at top right, rgba(6, 182, 212, 0.14), transparent 28rem),
+            linear-gradient(180deg, #060817 0%, #0b1024 100%);
+          color: #f1f5f9;
           font-family: 'DM Sans', sans-serif;
         }
         .cert-admin-root.embedded {
@@ -473,15 +578,17 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           padding: 0;
         }
         .admin-panel {
-          background: #0f172a;
-          border: 1px solid #1e293b;
+          background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(24, 31, 58, 0.98));
+          border: 1px solid rgba(129, 140, 248, 0.22);
           border-radius: 16px;
-          box-shadow: 0 18px 50px rgba(2, 6, 23, 0.24);
+          box-shadow: 0 18px 50px rgba(2, 6, 23, 0.26);
         }
         .admin-card {
-          background: #0f172a;
-          border: 1px solid #1e293b;
+          background:
+            linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(24, 31, 58, 0.96));
+          border: 1px solid rgba(129, 140, 248, 0.22);
           border-radius: 16px;
+          box-shadow: 0 14px 34px rgba(2, 6, 23, 0.18);
         }
         .admin-input {
           width: 100%;
@@ -509,11 +616,12 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           transition: all 0.15s ease;
         }
         .admin-btn.primary {
-          background: #4f46e5;
+          background: linear-gradient(135deg, #4f46e5, #7c3aed);
           color: white;
+          box-shadow: 0 10px 22px rgba(79, 70, 229, 0.24);
         }
         .admin-btn.primary:hover {
-          background: #6366f1;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
         }
         .admin-btn.secondary {
           background: #1e293b;
@@ -538,9 +646,9 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           cursor: not-allowed;
         }
         .major-pill {
-          border: 1px solid #334155;
-          color: #cbd5e1;
-          background: #0f172a;
+          border: 1px solid rgba(148, 163, 184, 0.26);
+          color: #dbeafe;
+          background: rgba(15, 23, 42, 0.72);
           border-radius: 999px;
           padding: 8px 12px;
           font-size: 13px;
@@ -548,8 +656,9 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
         }
         .major-pill.active {
           color: #fff;
-          border-color: #6366f1;
-          background: #312e81;
+          border-color: #818cf8;
+          background: linear-gradient(135deg, #4338ca, #6d28d9);
+          box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
         }
         .student-row {
           display: grid;
@@ -557,7 +666,7 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           gap: 16px;
           align-items: center;
           padding: 12px 16px;
-          border-top: 1px solid #1e293b;
+          border-top: 1px solid rgba(148, 163, 184, 0.16);
         }
         .students-panel {
           width: 100%;
@@ -570,37 +679,123 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
         }
         .certificate-card {
           overflow: hidden;
-          background: #0f172a;
-          border: 1px solid #1e293b;
+          background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(24, 31, 58, 0.96));
+          border: 1px solid rgba(129, 140, 248, 0.22);
           border-radius: 16px;
+          box-shadow: 0 18px 40px rgba(2, 6, 23, 0.18);
         }
+
+        .cert-admin-root h1,
+        .cert-admin-root h2,
+        .cert-admin-root h3,
+        .cert-admin-root .text-white {
+          color: #f8fbff !important;
+        }
+
+        .cert-admin-root .text-slate-400,
+        .cert-admin-root .text-slate-500,
+        .cert-admin-root .text-slate-600 {
+          color: #9fb0d0 !important;
+        }
+
+        .cert-admin-root .student-row:hover {
+          background: rgba(99, 102, 241, 0.08);
+        }
+
+        /* --- Professional certificate preview (modal) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&family=EB+Garamond:wght@400;500;600&display=swap');
+
         .certificate-preview {
           aspect-ratio: 1.414 / 1;
           min-height: 420px;
           margin: 20px;
-          padding: clamp(24px, 5vw, 48px);
-          border: 14px solid var(--cert-accent);
-          outline: 2px solid color-mix(in srgb, var(--cert-accent) 30%, transparent);
-          outline-offset: -28px;
+          padding: clamp(28px, 5vw, 56px) clamp(24px, 6vw, 64px);
+          position: relative;
           display: flex;
           flex-direction: column;
           justify-content: center;
           text-align: center;
-          background: #fff;
-          color: #111827;
+          background: #fffdf8;
+          color: #16181d;
+          font-family: "EB Garamond", Georgia, serif;
+          overflow: hidden;
         }
-        .certificate-preview h2 {
-          font-family: Georgia, "Times New Roman", serif;
-          font-size: clamp(32px, 6vw, 60px);
+        .certificate-preview::before {
+          content: "";
+          position: absolute;
+          inset: 12px;
+          border: 3px solid var(--cert-accent);
+          pointer-events: none;
+        }
+        .certificate-preview::after {
+          content: "";
+          position: absolute;
+          inset: 19px;
+          border: 1px solid var(--cert-accent);
+          opacity: 0.55;
+          pointer-events: none;
+        }
+        .cert-corner {
+          position: absolute;
+          width: 34px;
+          height: 34px;
+          border: 2px solid var(--cert-accent);
+          z-index: 2;
+        }
+        .cert-corner.tl { top: 22px; left: 22px; border-right: none; border-bottom: none; }
+        .cert-corner.tr { top: 22px; right: 22px; border-left: none; border-bottom: none; }
+        .cert-corner.bl { bottom: 22px; left: 22px; border-right: none; border-top: none; }
+        .cert-corner.br { bottom: 22px; right: 22px; border-left: none; border-top: none; }
+        .cert-watermark {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 42%;
+          transform: translate(-50%, -50%);
+          opacity: 0.05;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .cert-body-content { position: relative; z-index: 1; }
+        .cert-crest {
+          width: 72px;
+          height: 72px;
+          margin: 0 auto 8px;
+          border-radius: 50%;
+          background: #fff;
+          padding: 3px;
+          box-shadow: 0 0 0 3px var(--cert-accent), 0 6px 16px rgba(0,0,0,0.16);
+        }
+        .cert-crest img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+        .cert-issuer {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-weight: 700;
+          font-size: 16px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #3f3f3f;
           margin: 0;
         }
+        .certificate-preview h2 {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-weight: 600;
+          font-size: clamp(30px, 5vw, 48px);
+          margin: 6px 0 0;
+          color: #16181d;
+        }
+        .cert-divider {
+          width: 80px;
+          height: 2px;
+          background: var(--cert-accent);
+          opacity: 0.7;
+          margin: 14px auto;
+        }
         .student-name {
-          font-family: Georgia, "Times New Roman", serif;
-          font-size: clamp(28px, 5vw, 48px);
-          border-bottom: 1.5px solid #d1d5db;
-          width: min(660px, 85%);
-          margin: 14px auto 24px;
-          padding-bottom: 8px;
+          font-family: "Great Vibes", cursive;
+          font-size: clamp(32px, 5vw, 50px);
+          color: #16181d;
+          margin: 4px auto 12px;
+          line-height: 1.2;
         }
         .modal-backdrop {
           position: fixed;
@@ -659,8 +854,6 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           .certificate-preview {
             min-height: 0;
             margin: 12px;
-            border-width: 8px;
-            outline-offset: -18px;
           }
         }
         @media (max-width: 640px) {
@@ -691,7 +884,9 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           />
         )}
 
-        <aside className={`${embedded ? "hidden" : "hidden md:flex"} fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-30 flex-col`}>
+        <aside
+          className={`${embedded ? "hidden" : "hidden md:flex"} fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-30 flex-col`}
+        >
           <SidebarContent />
         </aside>
 
@@ -1119,63 +1314,93 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
                 "--cert-accent":
                   selectedCertificate.accentColor ||
                   MAJOR_COLORS[selectedCertificate.studentMajor] ||
-                  "#2563eb",
+                  "#b8860b",
               }}
             >
-              <p
-                className="text-sm font-black uppercase tracking-[0.24em] mb-4"
-                style={{
-                  color:
-                    selectedCertificate.accentColor ||
-                    MAJOR_COLORS[selectedCertificate.studentMajor] ||
-                    "#2563eb",
-                }}
-              >
-                Certificate of Achievement
-              </p>
-              <h2>{selectedCertificate.issuer || "Elearning Academy"}</h2>
-              <p className="text-gray-500 mt-8 mb-2">
-                This certificate is proudly presented to
-              </p>
-              <div className="student-name">
-                {selectedCertificate.studentName ||
-                  selectedCertificate.studentEmail ||
-                  "Student"}
-              </div>
-              <p className="max-w-2xl mx-auto text-gray-600 leading-7">
-                For successfully demonstrating achievement in{" "}
-                <span className="font-bold text-gray-900">
-                  {selectedCertificate.studentMajor ||
-                    selectedCertificate.examMajor ||
-                    "Major"}
-                </span>{" "}
-                through{" "}
-                <span className="font-bold text-gray-900">
-                  {selectedCertificate.title}
-                </span>
-                .
-              </p>
-              <div className="grid grid-cols-3 gap-4 items-end mt-10 text-sm text-gray-600">
-                <div className="border-t border-gray-300 pt-2">
-                  Issued {formatDate(selectedCertificate.issueDate)}
+              <div className="cert-corner tl"></div>
+              <div className="cert-corner tr"></div>
+              <div className="cert-corner bl"></div>
+              <div className="cert-corner br"></div>
+              <img className="cert-watermark" src={logo} alt="" />
+              <div className="cert-body-content">
+                <div className="cert-crest">
+                  <img src={logo} alt="University Seal" />
                 </div>
-                <div
-                  className="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white font-black tracking-widest"
+                <p className="cert-issuer">
+                  {selectedCertificate.issuer ||
+                    "Royal University of Phnom Penh"}
+                </p>
+                <p
+                  className="text-xs font-black uppercase tracking-[0.28em] mt-3"
                   style={{
-                    background:
+                    color:
                       selectedCertificate.accentColor ||
                       MAJOR_COLORS[selectedCertificate.studentMajor] ||
-                      "#2563eb",
+                      "#b8860b",
                   }}
                 >
-                  OK
+                  Certificate of Achievement
+                </p>
+                <h2>{selectedCertificate.title || "Academic Achievement"}</h2>
+                <div className="cert-divider"></div>
+                <p className="text-gray-500 uppercase tracking-wide text-sm">
+                  This certificate is proudly presented to
+                </p>
+                <div className="student-name">
+                  {selectedCertificate.studentName ||
+                    selectedCertificate.studentEmail ||
+                    "Student"}
                 </div>
-                <div className="border-t border-gray-300 pt-2">
-                  {selectedCertificate.grade || "Complete"}
+                <p className="max-w-2xl mx-auto text-gray-600 leading-7">
+                  For successfully demonstrating outstanding achievement in{" "}
+                  <span
+                    className="font-semibold text-gray-900"
+                    style={{
+                      borderBottom: `1px solid ${
+                        selectedCertificate.accentColor ||
+                        MAJOR_COLORS[selectedCertificate.studentMajor] ||
+                        "#b8860b"
+                      }`,
+                    }}
+                  >
+                    {selectedCertificate.studentMajor ||
+                      selectedCertificate.examMajor ||
+                      "Major"}
+                  </span>
+                  , fulfilling all requirements with distinction.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-10 text-sm text-gray-600">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">
+                      Date Issued
+                    </p>
+                    <div className="border-t border-gray-300 pt-2">
+                      {formatDate(selectedCertificate.issueDate)}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">
+                      Grade
+                    </p>
+                    <div className="border-t border-gray-300 pt-2">
+                      {selectedCertificate.grade || "Complete"}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">
+                      Headteacher Signature
+                    </p>
+                    <div className="border-t border-gray-300 pt-2">
+                      &nbsp;
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-6">
+              <p className="text-[11px] text-gray-400 absolute left-8 bottom-6 z-10">
                 Credential ID: {selectedCertificate.credentialId || "PREVIEW"}
+              </p>
+              <p className="text-[11px] text-gray-400 absolute right-8 bottom-6 z-10">
+                Verified Digital Record
               </p>
             </div>
           </div>

@@ -28,9 +28,41 @@ import {
   RefreshCw,
   Layers,
   Menu,
+  Moon,
+  Settings,
+  Sun,
 } from "lucide-react";
 
 const API_BASE = API_BASE_URL;
+
+const getStoredTheme = () => {
+  try {
+    return JSON.parse(localStorage.getItem("learnflow_settings") || "{}").theme || "light";
+  } catch {
+    return "light";
+  }
+};
+
+const applyStoredTheme = (theme) => {
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  document.documentElement.classList.toggle("dark-mode", isDark);
+
+  try {
+    const settings = JSON.parse(
+      localStorage.getItem("learnflow_settings") || "{}",
+    );
+    localStorage.setItem(
+      "learnflow_settings",
+      JSON.stringify({ ...settings, theme }),
+    );
+  } catch {
+    localStorage.setItem("learnflow_settings", JSON.stringify({ theme }));
+  }
+};
 
 // ─────────────────────────────────────────────────────────────
 //  YOUTUBE HELPERS
@@ -1035,6 +1067,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const [toast, setToast] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [themeMode, setThemeMode] = useState(getStoredTheme);
 
   // ========== CASCADING DROPDOWN STATES ==========
   const [years, setYears] = useState([]);
@@ -1049,6 +1082,12 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
+  };
+
+  const handleThemeChange = (theme) => {
+    setThemeMode(theme);
+    applyStoredTheme(theme);
+    showToast(`${theme === "dark" ? "Dark" : "Light"} mode enabled.`);
   };
 
   // Load initial data - filter lessons by teacher's major
@@ -1268,6 +1307,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
     { id: "by-lesson", icon: Layers, label: "By Lesson" },
     { id: "lessons", icon: BookOpen, label: "Lessons" },
     { id: "exam", icon: CheckCircle, label: "Exam Questions" },
+    { id: "settings", icon: Settings, label: "Settings" },
   ];
 
   const sidebarStyle = {
@@ -1344,19 +1384,17 @@ const TeacherDashboard = ({ user, onLogout }) => {
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         style={mobileMenuButtonStyle}
-        className="mobile-menu-button"
+        className={`mobile-menu-button ${mobileMenuOpen ? "is-open" : ""}`}
+        aria-label={mobileMenuOpen ? "Close teacher menu" : "Open teacher menu"}
       >
-        <Menu size={20} />
+        {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       {/* Mobile Overlay */}
       <div
         onClick={() => setMobileMenuOpen(false)}
-        style={{
-          ...mobileOverlayStyle,
-          display: mobileMenuOpen ? "block" : "none",
-        }}
-        className="mobile-overlay"
+        style={mobileOverlayStyle}
+        className={`mobile-overlay ${mobileMenuOpen ? "is-open" : ""}`}
       />
 
       <div
@@ -1366,19 +1404,16 @@ const TeacherDashboard = ({ user, onLogout }) => {
         <aside
           style={{
             ...sidebarStyle,
-            transform:
-              window.innerWidth <= 768 && !mobileMenuOpen
-                ? "translateX(-100%)"
-                : "translateX(0)",
+            transform: "translateX(0)",
             transition: "transform 0.3s ease",
-            position: window.innerWidth <= 768 ? "fixed" : "sticky",
+            position: "sticky",
             top: 0,
             left: 0,
             height: "100vh",
             overflowY: "auto",
             zIndex: 16,
           }}
-          className="sidebar"
+          className={`sidebar ${mobileMenuOpen ? "is-open" : ""}`}
         >
           <div
             style={{
@@ -1574,10 +1609,10 @@ const TeacherDashboard = ({ user, onLogout }) => {
         </aside>
 
         {/* MAIN CONTENT */}
-        <main style={mainStyle}>
+        <main style={mainStyle} className="teacher-main">
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
-            <div style={{ padding: "24px 20px" }}>
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
               <div style={{ marginBottom: 28 }}>
                 <h1
                   style={{
@@ -1614,6 +1649,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
               {/* Stats grid */}
               <div
+                className="teacher-stats-grid"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
@@ -1792,6 +1828,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                   </div>
                 ) : (
                   <div
+                    className="teacher-video-grid"
                     style={{
                       display: "grid",
                       gridTemplateColumns:
@@ -1821,7 +1858,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
           {/* EXAM QUESTIONS TAB */}
           {activeTab === "exam" && (
-            <div style={{ padding: "24px 20px" }}>
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
               <div style={{ marginBottom: 20 }}>
                 <h1
                   style={{
@@ -1853,7 +1890,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
           {/* ALL VIDEOS TAB */}
           {activeTab === "videos" && (
-            <div style={{ padding: "24px 20px" }}>
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
               <div
                 style={{
                   display: "flex",
@@ -1987,6 +2024,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                 </div>
               ) : (
                 <div
+                  className="teacher-video-grid"
                   style={{
                     display: "grid",
                     gridTemplateColumns:
@@ -2012,7 +2050,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
           {/* BY LESSON TAB */}
           {activeTab === "by-lesson" && (
-            <div style={{ padding: "24px 20px" }}>
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
               <div
                 style={{
                   display: "flex",
@@ -2190,6 +2228,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                       {expandedLesson === lesson.id && (
                         <div style={{ padding: "16px 20px" }}>
                           <div
+                            className="teacher-video-grid compact"
                             style={{
                               display: "grid",
                               gridTemplateColumns:
@@ -2218,7 +2257,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
           {/* LESSONS TAB */}
           {activeTab === "lessons" && (
-            <div style={{ padding: "24px 20px" }}>
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
               <div style={{ marginBottom: 24 }}>
                 <h1
                   style={{
@@ -2241,6 +2280,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                 </p>
               </div>
               <div
+                className="teacher-lessons-grid"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
@@ -2374,6 +2414,293 @@ const TeacherDashboard = ({ user, onLogout }) => {
               </div>
             </div>
           )}
+
+          {/* SETTINGS TAB */}
+          {activeTab === "settings" && (
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
+              <div style={{ marginBottom: 24 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: "clamp(18px, 5vw, 22px)",
+                    fontWeight: 700,
+                    color: "#0f172a",
+                  }}
+                >
+                  Settings
+                </h1>
+                <p
+                  style={{
+                    margin: "3px 0 0",
+                    color: "#64748b",
+                    fontSize: "13.5px",
+                  }}
+                >
+                  Manage your teacher account and dashboard preferences.
+                </p>
+              </div>
+
+              <div
+                className="teacher-settings-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "minmax(0, 1.1fr) minmax(280px, 0.9fr)",
+                  gap: 16,
+                  alignItems: "start",
+                }}
+              >
+                <section
+                  className="teacher-settings-card"
+                  style={{
+                    background: "#fff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "14px",
+                    padding: "22px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      marginBottom: 22,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: "16px",
+                        background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "20px",
+                        fontWeight: 800,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {(user?.name || "T")[0].toUpperCase()}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          color: "#0f172a",
+                          fontSize: "17px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        {user?.name || "Teacher"}
+                      </p>
+                      <p
+                        style={{
+                          margin: "3px 0 0",
+                          color: "#64748b",
+                          fontSize: "13px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {user?.email || "No email available"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {[
+                    ["Full Name", user?.name || "Teacher"],
+                    ["Email Address", user?.email || "Not set"],
+                    ["Role", user?.role || "teacher"],
+                    ["Teaching Major", teacherMajor || "Not assigned"],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "150px minmax(0, 1fr)",
+                        gap: 12,
+                        padding: "12px 0",
+                        borderTop: "1px solid #f1f5f9",
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#94a3b8",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {label}
+                      </span>
+                      <span
+                        style={{
+                          color: "#334155",
+                          fontSize: "14px",
+                          fontWeight: 600,
+                          minWidth: 0,
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        {value}
+                      </span>
+                    </div>
+                  ))}
+                </section>
+
+                <section
+                  className="teacher-settings-card"
+                  style={{
+                    background: "#fff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "14px",
+                    padding: "22px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "12px",
+                      background: "#eef2ff",
+                      color: "#6366f1",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 14,
+                    }}
+                  >
+                    <Settings size={20} />
+                  </div>
+                  <h2
+                    style={{
+                      margin: 0,
+                      fontSize: "16px",
+                      fontWeight: 800,
+                      color: "#0f172a",
+                    }}
+                  >
+                    Dashboard Actions
+                  </h2>
+                  <p
+                    style={{
+                      margin: "6px 0 18px",
+                      color: "#64748b",
+                      fontSize: "13.5px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    Choose your display mode, refresh your data, or sign out of
+                    the teacher dashboard.
+                  </p>
+
+                  <div style={{ marginBottom: 18 }}>
+                    <p
+                      style={{
+                        margin: "0 0 10px",
+                        color: "#334155",
+                        fontSize: "13px",
+                        fontWeight: 800,
+                      }}
+                    >
+                      Appearance
+                    </p>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 8,
+                      }}
+                    >
+                      {[
+                        { id: "light", label: "Light", icon: Sun },
+                        { id: "dark", label: "Dark", icon: Moon },
+                      ].map(({ id, label, icon: Icon }) => {
+                        const active = themeMode === id;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => handleThemeChange(id)}
+                            style={{
+                              padding: "11px 10px",
+                              borderRadius: "10px",
+                              border: `1px solid ${active ? "#6366f1" : "#e5e7eb"}`,
+                              background: active ? "#eef2ff" : "#fff",
+                              color: active ? "#4f46e5" : "#475569",
+                              fontSize: "13px",
+                              fontWeight: 800,
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 7,
+                              fontFamily: "'DM Sans', sans-serif",
+                            }}
+                          >
+                            <Icon size={15} />
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={loadData}
+                      style={{
+                        width: "100%",
+                        padding: "11px 14px",
+                        borderRadius: "10px",
+                        border: "1px solid #dbeafe",
+                        background: "#eff6ff",
+                        color: "#2563eb",
+                        fontSize: "13.5px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      <RefreshCw size={15} />
+                      Refresh Dashboard
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      style={{
+                        width: "100%",
+                        padding: "11px 14px",
+                        borderRadius: "10px",
+                        border: "1px solid #fecaca",
+                        background: "#fef2f2",
+                        color: "#dc2626",
+                        fontSize: "13.5px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      <LogOut size={15} />
+                      Sign Out
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          )}
         </main>
 
         {/* VIDEO FORM MODAL */}
@@ -2498,13 +2825,103 @@ const TeacherDashboard = ({ user, onLogout }) => {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
         @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        html.dark-mode .teacher-main {
+          background: #0a0a14 !important;
+          color: #e8e8f5 !important;
+        }
+
+        html.dark-mode .teacher-main h1,
+        html.dark-mode .teacher-main h2,
+        html.dark-mode .teacher-main h3 {
+          color: #f0f0fa !important;
+        }
+
+        html.dark-mode .teacher-main p,
+        html.dark-mode .teacher-main span {
+          color: #aaaad0 !important;
+        }
+
+        html.dark-mode .teacher-settings-card,
+        html.dark-mode .teacher-stats-grid > div,
+        html.dark-mode .teacher-video-grid > div,
+        html.dark-mode .teacher-lessons-grid > div {
+          background: #14142b !important;
+          border-color: #2a2a4a !important;
+          color: #e8e8f5 !important;
+        }
+
+        html.dark-mode .teacher-settings-card button:not([style*="linear-gradient"]) {
+          background-color: #1a1a35 !important;
+          border-color: #3a3a5c !important;
+        }
         
         @media (max-width: 768px) {
           .mobile-menu-button {
             display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            z-index: 30 !important;
+            transition: left 0.25s ease, background 0.2s ease;
+          }
+          .mobile-menu-button.is-open {
+            left: 208px !important;
+            background: #1e293b !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.22) !important;
+          }
+          .mobile-overlay {
+            display: none !important;
+          }
+          .mobile-overlay.is-open {
+            display: block !important;
+          }
+          .teacher-main {
+            padding-top: 54px;
+          }
+          .teacher-content-section {
+            padding: 18px 20px 24px !important;
           }
           .sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 25 !important;
+            transform: translateX(-100%) !important;
             box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+          }
+          .sidebar.is-open {
+            transform: translateX(0) !important;
+          }
+          .teacher-video-grid,
+          .teacher-lessons-grid,
+          .teacher-settings-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 560px) {
+          .teacher-content-section {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+          }
+          .teacher-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .mobile-menu-button.is-open {
+            left: calc(100vw - 56px) !important;
+          }
+          .teacher-content-section {
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+          }
+          .teacher-stats-grid {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>

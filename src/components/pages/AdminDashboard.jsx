@@ -2527,13 +2527,15 @@ const AdminDashboard = ({ user, onLogout }) => {
       </main>
       <style>{`
         .admin-dashboard-light {
-          background: #f8fafc !important;
+          background:
+            radial-gradient(circle at top right, rgba(99,102,241,0.14), transparent 34rem),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
           color: #0f172a !important;
         }
 
         .admin-dashboard-light [class*="bg-slate-950"],
         .admin-dashboard-light [class*="bg-slate-900"] {
-          background-color: #ffffff !important;
+          background-color: rgba(255,255,255,0.94) !important;
         }
 
         .admin-dashboard-light [class*="bg-slate-800"] {
@@ -2542,7 +2544,7 @@ const AdminDashboard = ({ user, onLogout }) => {
 
         .admin-dashboard-light [class*="border-slate-800"],
         .admin-dashboard-light [class*="border-slate-700"] {
-          border-color: #cbd5e1 !important;
+          border-color: #d8e2f0 !important;
         }
 
         .admin-dashboard-light [class*="text-white"],
@@ -2554,6 +2556,45 @@ const AdminDashboard = ({ user, onLogout }) => {
         .admin-dashboard-light [class*="text-slate-400"],
         .admin-dashboard-light [class*="text-slate-500"] {
           color: #475569 !important;
+        }
+
+        .admin-dashboard-light aside {
+          box-shadow: 12px 0 34px rgba(15,23,42,0.06);
+        }
+
+        .admin-dashboard-light .cert-admin-root {
+          color: #e6edf8 !important;
+        }
+
+        .admin-dashboard-light .cert-admin-root .admin-panel,
+        .admin-dashboard-light .cert-admin-root .admin-card,
+        .admin-dashboard-light .cert-admin-root .certificate-card {
+          background:
+            linear-gradient(145deg, rgba(15,23,42,0.98), rgba(24,31,58,0.98)) !important;
+          border-color: rgba(129,140,248,0.22) !important;
+          box-shadow: 0 18px 44px rgba(15,23,42,0.16) !important;
+        }
+
+        .admin-dashboard-light .cert-admin-root [class*="text-white"],
+        .admin-dashboard-light .cert-admin-root [class*="text-slate-200"],
+        .admin-dashboard-light .cert-admin-root [class*="text-slate-300"] {
+          color: #f8fbff !important;
+        }
+
+        .admin-dashboard-light .cert-admin-root [class*="text-slate-400"],
+        .admin-dashboard-light .cert-admin-root [class*="text-slate-500"],
+        .admin-dashboard-light .cert-admin-root [class*="text-slate-600"] {
+          color: #9fb0d0 !important;
+        }
+
+        .admin-dashboard-light .cert-admin-root .student-row {
+          border-color: rgba(148,163,184,0.16) !important;
+        }
+
+        .admin-dashboard-light .cert-admin-root .admin-input {
+          background: #ffffff !important;
+          color: #0f172a !important;
+          border-color: rgba(129,140,248,0.38) !important;
         }
 
         .admin-dashboard-light input,

@@ -176,7 +176,6 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   const navLinks = [
     { name: "Home", href: "/home", icon: Home },
     { name: "My Lessons", href: "/lessons", icon: BookOpen },
-    { name: "Exam", href: "/exam", icon: ClipboardCheck },
     { name: "Projects", href: "/projects", icon: FolderGit2 },
     { name: "Calendar", href: "/calendar", icon: Calendar },
   ];
