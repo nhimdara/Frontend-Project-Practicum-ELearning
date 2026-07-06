@@ -59,6 +59,43 @@ const certificateFileName = (certificate) =>
 const certificateImage = (title, color = "#2563eb") =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(title || "Certificate")}&background=${color.replace("#", "")}&color=fff&size=500`;
 
+const getCertificateLogoSrc = () => {
+  if (/^(https?:|data:|blob:)/.test(logo)) return logo;
+  if (typeof window === "undefined") return logo;
+  return new URL(logo, window.location.origin).href;
+};
+
+const printPopupWhenReady = (popup) => {
+  const print = () => {
+    popup.focus();
+    popup.print();
+  };
+
+  const waitForImages = Promise.all(
+    Array.from(popup.document.images).map(
+      (image) =>
+        new Promise((resolve) => {
+          if (image.complete) {
+            resolve();
+            return;
+          }
+          image.onload = resolve;
+          image.onerror = resolve;
+        }),
+    ),
+  );
+
+  const waitForFonts = popup.document.fonts?.ready || Promise.resolve();
+  const fallbackTimer = new Promise((resolve) =>
+    window.setTimeout(resolve, 2500),
+  );
+
+  Promise.race([
+    Promise.all([waitForImages, waitForFonts]),
+    fallbackTimer,
+  ]).finally(print);
+};
+
 // Professional certificate template, rendered standalone (used for print + download).
 const buildCertificateHtml = (certificate) => {
   const accent =
@@ -68,6 +105,7 @@ const buildCertificateHtml = (certificate) => {
   const studentName =
     certificate.studentName || certificate.studentEmail || "Student";
   const major = certificate.studentMajor || certificate.examMajor || "Major";
+  const logoSrc = escapeHtml(getCertificateLogoSrc());
   const skills = (certificate.skills || [major]).join("  •  ");
 
   return `<!doctype html>
@@ -78,8 +116,12 @@ const buildCertificateHtml = (certificate) => {
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    @page { size: landscape; margin: 0; }
+    @page { size: A4 landscape; margin: 0; }
     * { box-sizing: border-box; }
+    html {
+      margin: 0;
+      padding: 0;
+    }
     body {
       margin: 0;
       min-height: 100vh;
@@ -255,8 +297,29 @@ const buildCertificateHtml = (certificate) => {
       text-align: right;
     }
     @media print {
-      body { background: white; }
-      .certificate { width: 100vw; height: 100vh; box-shadow: none; }
+      html,
+      body {
+        width: 297mm;
+        height: 210mm;
+        min-height: 0;
+        overflow: hidden;
+      }
+      body {
+        display: block;
+        background: white;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .certificate {
+        width: 297mm;
+        height: 210mm;
+        max-width: none;
+        aspect-ratio: auto;
+        box-shadow: none;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
     }
   </style>
 </head>
@@ -266,9 +329,9 @@ const buildCertificateHtml = (certificate) => {
     <div class="corner tr"></div>
     <div class="corner bl"></div>
     <div class="corner br"></div>
-    <img class="watermark" src="${logo}" alt="" />
+    <img class="watermark" src="${logoSrc}" alt="" />
     <div class="content">
-      <div class="crest"><img src="${logo}" alt="University Seal" /></div>
+      <div class="crest"><img src="${logoSrc}" alt="University Seal" /></div>
       <p class="issuer">${escapeHtml(certificate.issuer || "Royal University of Phnom Penh")}</p>
       <p class="kicker">Certificate of Achievement</p>
       <h1>${escapeHtml(certificate.title || "Academic Achievement")}</h1>
@@ -541,15 +604,14 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
   };
 
   const printCertificate = (certificate) => {
-    const popup = window.open("", "_blank", "noopener,noreferrer");
+    const popup = window.open("", "_blank");
     if (!popup) {
       downloadCertificate(certificate);
       return;
     }
     popup.document.write(buildCertificateHtml(certificate));
     popup.document.close();
-    popup.focus();
-    popup.print();
+    printPopupWhenReady(popup);
   };
 
   return (

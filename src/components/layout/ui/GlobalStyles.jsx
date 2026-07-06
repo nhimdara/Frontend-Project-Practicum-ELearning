@@ -124,8 +124,7 @@ textarea:focus {
 }
 
 /* Light mode polish */
-html:not(.dark-mode) .bg-white,
-html:not(.dark-mode) [class*="bg-white/"] {
+html:not(.dark-mode) .bg-white {
   background-color: rgba(255, 255, 255, 0.92) !important;
 }
 
@@ -320,8 +319,7 @@ html.dark-mode .hover\\:shadow-xl:hover {
 
 /* Stats cards & glass morphism */
 html.dark-mode [class*="stat-card"],
-html.dark-mode .glass-card,
-html.dark-mode [class*="backdrop-blur"] {
+html.dark-mode .glass-card {
   background: rgba(21, 23, 51, 0.78) !important;
   backdrop-filter: blur(12px);
   border: 1px solid rgba(165, 180, 252, 0.18);
@@ -485,19 +483,6 @@ html.dark-mode ::-webkit-scrollbar-thumb:hover {
   background: #4a4a80;
 }
 
-/* Fix for white backgrounds with opacity */
-html.dark-mode .bg-white\\/10 {
-  background-color: rgba(26, 26, 53, 0.3) !important;
-}
-
-html.dark-mode .bg-white\\/20 {
-  background-color: rgba(26, 26, 53, 0.5) !important;
-}
-
-html.dark-mode .bg-white\\/30 {
-  background-color: rgba(26, 26, 53, 0.7) !important;
-}
-
 /* Level badges */
 html.dark-mode .bg-green-100 { 
   background-color: rgba(16, 185, 129, 0.2) !important; 
@@ -557,10 +542,7 @@ html.dark-mode .sett-root {
 html:not(.dark-mode) .prof-card,
 html:not(.dark-mode) .content-panel,
 html:not(.dark-mode) .sett-card,
-html:not(.dark-mode) .glass-card,
-html:not(.dark-mode) .modal-panel,
-html:not(.dark-mode) [class*="rounded-2xl"][class*="shadow"],
-html:not(.dark-mode) [class*="rounded-3xl"][class*="shadow"] {
+html:not(.dark-mode) .modal-panel {
   background: rgba(255, 255, 255, 0.94) !important;
   border-color: #dbe4f0 !important;
   box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
@@ -682,7 +664,6 @@ html:not(.dark-mode) .bg-gradient-to-br.from-white {
     linear-gradient(180deg, #fbfdff, #eef4ff) !important;
 }
 
-html.dark-mode [class*="bg-white/"],
 html.dark-mode [class*="bg-gray-50/"],
 html.dark-mode [class*="bg-slate-50/"] {
   background-color: rgba(21, 23, 51, 0.82) !important;
