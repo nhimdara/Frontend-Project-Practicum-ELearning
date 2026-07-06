@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { profileApi } from "../../api/profile";
-import ExamQuestionForm from "../ExamQuestionForm";
 
 const deferState = (fn) => {
   if (typeof queueMicrotask === "function") {
@@ -211,10 +210,6 @@ const ExamPage = ({ user }) => {
           box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04),
             0 8px 24px rgba(15, 23, 42, 0.04);
           overflow: hidden;
-        }
-
-        .exam-manager {
-          margin-bottom: 20px;
         }
 
         .exam-intro {
@@ -602,20 +597,6 @@ const ExamPage = ({ user }) => {
           </div>
 
           {error && <div className="exam-error">{error}</div>}
-
-          <section className="exam-manager">
-            <ExamQuestionForm
-              user={user}
-              defaultMajor={major}
-              lockMajor={Boolean(user?.major)}
-              onQuestionsChange={(data) => {
-                setExam(data);
-                setAnswers({});
-                setResult(null);
-                setExamStarted(false);
-              }}
-            />
-          </section>
 
           {resultTone && (
             <div

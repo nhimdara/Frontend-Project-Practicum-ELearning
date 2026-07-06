@@ -53,7 +53,7 @@ function ExamQuestionForm({
 
   const selectedMajor = form.major;
   const actorRole = normalizeRole(user?.dbRole || user?.role);
-  const canManage = ["admin", "teacher", "student"].includes(actorRole);
+  const canManage = ["admin", "teacher"].includes(actorRole);
 
   const optionEntries = useMemo(
     () =>
@@ -242,7 +242,7 @@ function ExamQuestionForm({
             </button>
             <div className="inline-flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
               <Plus className="h-4 w-4" />
-              Admin/Student
+              Admin/Teacher
             </div>
           </div>
         </div>
@@ -406,25 +406,27 @@ function ExamQuestionForm({
                       {(question.options || []).filter(Boolean).join(" | ")}
                     </p>
                   </div>
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => startEdit(question)}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700"
-                    >
-                      <Edit3 className="h-3.5 w-3.5" />
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      disabled={deletingId === question.id}
-                      onClick={() => handleDelete(question)}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-60"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      {deletingId === question.id ? "Deleting" : "Delete"}
-                    </button>
-                  </div>
+                  {canManage && (
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(question)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700"
+                      >
+                        <Edit3 className="h-3.5 w-3.5" />
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deletingId === question.id}
+                        onClick={() => handleDelete(question)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-60"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {deletingId === question.id ? "Deleting" : "Delete"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </article>
             ))}
