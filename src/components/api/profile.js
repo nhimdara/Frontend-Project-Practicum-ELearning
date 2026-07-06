@@ -108,6 +108,46 @@ export const profileApi = {
     if (!res.ok) throw new Error(data.error || "Could not add exam question.");
     return data;
   },
+
+  async updateExamQuestion(major, questionId, user, payload) {
+    const actorRole = user?.dbRole || user?.role;
+    const res = await fetch(
+      `${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}/questions/${encodeURIComponent(questionId)}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": String(user?.id || ""),
+          "x-user-role": String(actorRole || ""),
+        },
+        body: JSON.stringify({
+          ...payload,
+          actorUserId: user?.id,
+          actorRole,
+        }),
+      },
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Could not update exam question.");
+    return data;
+  },
+
+  async deleteExamQuestion(major, questionId, user) {
+    const actorRole = user?.dbRole || user?.role;
+    const res = await fetch(
+      `${API_BASE_URL}/exams/by-major/${encodeURIComponent(major)}/questions/${encodeURIComponent(questionId)}`,
+      {
+        method: "DELETE",
+        headers: {
+          "x-user-id": String(user?.id || ""),
+          "x-user-role": String(actorRole || ""),
+        },
+      },
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Could not delete exam question.");
+    return data;
+  },
 };
 
 export function syncStoredSession(profile) {
