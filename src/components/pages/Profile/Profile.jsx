@@ -7,6 +7,9 @@ import {
   Upload, Image as ImageIcon
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
+import { API_BASE_URL } from "../../../config/api";
+
+const PROJECT_MAJOR_PREFIX = "major:";
 
 const makeAvatar = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=6366f1&color=fff&size=128`;
@@ -29,6 +32,7 @@ const normalizeProfile = (source = {}) => {
     displayRole:
       role === "client" ? "Student" : role ? role.charAt(0).toUpperCase() + role.slice(1) : "Student",
     joinDate: source.joinDate || source.created_at || new Date().toISOString(),
+    major: source.major || "",
     progress: Number(source.progress || 0),
     coursesEnrolled: Number(source.coursesEnrolled || 0),
     certificates: Number(source.certificates || 0),
@@ -87,6 +91,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   const [newSkill, setNewSkill] = useState("");
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [projectSubmitting, setProjectSubmitting] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -278,11 +283,11 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       setProjectForm({
         title: project.title,
         description: project.description,
-        technologies: [...project.technologies],
+        technologies: [...(project.technologies || [])],
         image: project.image,
         github: project.github || "",
         live: project.live || "",
-        featured: project.featured || false,
+        featured: false,
         category: project.category || "Software",
         completedDate: project.completedDate || new Date().toISOString().split('T')[0]
       });
@@ -324,27 +329,86 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     });
   };
 
-  const handleSaveProject = () => {
-    let updatedProjects;
-    if (editingProject) {
-      updatedProjects = projects.map(p => 
-        p.id === editingProject.id ? { ...projectForm, id: p.id } : p
-      );
-      setSuccessMessage("Project updated successfully!");
-    } else {
-      const newProject = {
-        ...projectForm,
-        id: projects.length + 1,
-        image: projectForm.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(projectForm.title)}&background=6366f1&color=fff&size=128`
-      };
-      updatedProjects = [...projects, newProject];
-      setSuccessMessage("Project added successfully!");
+  const handleSaveProject = async () => {
+    if (!projectForm.title || !projectForm.description || projectSubmitting) {
+      return;
     }
-    setProjects(updatedProjects);
-    writeStoredProjects(projectStorageKey, updatedProjects);
-    setShowProjectModal(false);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+
+    setProjectSubmitting(true);
+    setProfileError("");
+    const studentMajor = user.major || initialUser?.major || editForm.major || "";
+    const majorTag = studentMajor ? `${PROJECT_MAJOR_PREFIX}${studentMajor}` : null;
+
+    const projectPayload = {
+      title: projectForm.title.trim(),
+      description: projectForm.description.trim(),
+      image: projectForm.image.trim(),
+      github_url: projectForm.github.trim(),
+      live_url: projectForm.live.trim(),
+      tags: majorTag
+        ? [...new Set([...projectForm.technologies, majorTag])]
+        : projectForm.technologies,
+      major: studentMajor,
+      student_major: studentMajor,
+      student_id: user.id || initialUser?.id || null,
+      student_name: user.name || initialUser?.name || "",
+      featured: false,
+      is_active: false,
+      teacher_approved: false,
+      admin_approved: false,
+      approval_status: "teacher_pending",
+    };
+
+    try {
+      const method = editingProject?.id ? "PUT" : "POST";
+      const url = editingProject?.id
+        ? `${API_BASE_URL}/projects/${editingProject.id}`
+        : `${API_BASE_URL}/projects`;
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(projectPayload),
+      });
+      const savedProject = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(savedProject.error || "Could not submit project request.");
+      }
+
+      const requestedProject = {
+        ...projectForm,
+        id: savedProject.id || editingProject?.id || Date.now(),
+        image:
+          projectForm.image ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(projectForm.title)}&background=6366f1&color=fff&size=128`,
+        featured: false,
+        is_active: false,
+        major: studentMajor,
+        student_major: studentMajor,
+        teacher_approved: false,
+        admin_approved: false,
+        approval_status: "teacher_pending",
+        approvalStatus: "teacher_pending",
+      };
+
+      const updatedProjects = editingProject
+        ? projects.map((p) => (p.id === editingProject.id ? requestedProject : p))
+        : [...projects, requestedProject];
+
+      setProjects(updatedProjects);
+      writeStoredProjects(projectStorageKey, updatedProjects);
+      setShowProjectModal(false);
+      setSuccessMessage(
+        editingProject
+          ? "Project request updated. It will show publicly after approval."
+          : "Project request submitted. It will show publicly after teacher and admin approval.",
+      );
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      setProfileError(err.message);
+    } finally {
+      setProjectSubmitting(false);
+    }
   };
 
   const handleDeleteProject = (projectId) => {
@@ -787,7 +851,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-900">
-                {editingProject ? "Edit Project" : "Add New Project"}
+                {editingProject ? "Edit Project Request" : "Request Project Approval"}
               </h3>
               <button
                 onClick={() => setShowProjectModal(false)}
@@ -934,27 +998,23 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  name="featured"
-                  checked={projectForm.featured}
-                  onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
-                  className="w-4 h-4 text-indigo-600"
-                />
-                <label htmlFor="featured" className="text-sm font-medium text-gray-700">
-                  Featured Project
-                </label>
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                Your project will be saved as pending and will not appear on the
+                public Projects page until a teacher approves it first, then an
+                admin gives final approval.
               </div>
 
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={handleSaveProject}
                   className="flex-1 primary-btn"
-                  disabled={!projectForm.title || !projectForm.description}
+                  disabled={!projectForm.title || !projectForm.description || projectSubmitting}
                 >
-                  {editingProject ? "Update Project" : "Add Project"}
+                  {projectSubmitting
+                    ? "Submitting..."
+                    : editingProject
+                      ? "Update Request"
+                      : "Submit Request"}
                 </button>
                 <button
                   onClick={() => setShowProjectModal(false)}
@@ -1182,13 +1242,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                 <>
                   {/* Projects Header */}
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900">My Projects ({projects.length})</h3>
+                    <h3 className="text-xl font-bold text-gray-900">My Project Requests ({projects.length})</h3>
                     <button
                       onClick={() => handleOpenProjectModal()}
                       className="primary-btn inline-flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
-                      Add Project
+                      Request Approval
                     </button>
                   </div>
 
@@ -1213,11 +1273,19 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                                 <h4 className="text-lg font-bold text-gray-900">{project.title}</h4>
                                 <p className="text-sm text-gray-500 mt-1">{project.description}</p>
                               </div>
-                              {project.featured && (
-                                <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">
-                                  ⭐ Featured
-                                </span>
-                              )}
+                              <span
+                                className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                  project.is_active
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : "bg-amber-100 text-amber-700"
+                                }`}
+                              >
+                                {project.is_active
+                                  ? "Approved"
+                                  : project.teacher_approved
+                                    ? "Waiting for admin"
+                                    : "Waiting for teacher"}
+                              </span>
                             </div>
 
                             {/* Technologies */}
@@ -1282,14 +1350,14 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                     {projects.length === 0 && (
                       <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
                         <FolderGit2 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                        <h4 className="text-lg font-semibold text-gray-700 mb-1">No projects yet</h4>
-                        <p className="text-sm text-gray-500 mb-4">Start adding your projects to showcase your work</p>
+                        <h4 className="text-lg font-semibold text-gray-700 mb-1">No project requests yet</h4>
+                        <p className="text-sm text-gray-500 mb-4">Submit a project for teacher review, then admin approval</p>
                         <button
                           onClick={() => handleOpenProjectModal()}
                           className="primary-btn inline-flex items-center gap-2"
                         >
                           <Plus className="h-4 w-4" />
-                          Add Your First Project
+                          Submit Your First Request
                         </button>
                       </div>
                     )}

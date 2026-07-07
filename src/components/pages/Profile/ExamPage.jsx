@@ -686,6 +686,129 @@ const ExamPage = ({ user }) => {
           animation: exam-spin 0.85s linear infinite;
         }
 
+        html.dark-mode .exam-root {
+          background:
+            radial-gradient(circle at top left, rgba(99, 102, 241, 0.22), transparent 30rem),
+            radial-gradient(circle at top right, rgba(6, 182, 212, 0.14), transparent 28rem),
+            linear-gradient(160deg, #070816, #10122a) !important;
+          color: #f4f7ff;
+        }
+
+        html.dark-mode .form-header,
+        html.dark-mode .form-card,
+        html.dark-mode .progress-card,
+        html.dark-mode .question-card,
+        html.dark-mode .submit-card,
+        html.dark-mode .result-panel,
+        html.dark-mode .state-card {
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .form-header-strip,
+        html.dark-mode .progress-fill {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+        }
+
+        html.dark-mode .form-eyebrow,
+        html.dark-mode .answered-badge {
+          color: #aebcff !important;
+        }
+
+        html.dark-mode .form-title,
+        html.dark-mode .intro-stat strong,
+        html.dark-mode .progress-copy,
+        html.dark-mode .question-text,
+        html.dark-mode .result-title,
+        html.dark-mode .state-card strong {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .form-description,
+        html.dark-mode .intro-stat span,
+        html.dark-mode .intro-note,
+        html.dark-mode .question-number,
+        html.dark-mode .submit-hint,
+        html.dark-mode .result-message,
+        html.dark-mode .state-card {
+          color: #a8b1d6 !important;
+        }
+
+        html.dark-mode .form-meta-row {
+          border-top-color: #2b315f !important;
+        }
+
+        html.dark-mode .form-chip,
+        html.dark-mode .intro-stat,
+        html.dark-mode .score-pill {
+          background: #10142e !important;
+          border-color: #2b315f !important;
+          color: #d7def7 !important;
+        }
+
+        html.dark-mode .progress-track {
+          background: #23274c !important;
+        }
+
+        html.dark-mode .option-row {
+          color: #d7def7 !important;
+        }
+
+        html.dark-mode .option-row:hover {
+          background: rgba(99, 102, 241, 0.12) !important;
+          border-color: rgba(129, 140, 248, 0.32) !important;
+        }
+
+        html.dark-mode .option-row.selected {
+          background: rgba(99, 102, 241, 0.20) !important;
+          border-color: rgba(165, 180, 252, 0.46) !important;
+        }
+
+        html.dark-mode .question-card.needs-answer {
+          border-color: #fca5a5 !important;
+          box-shadow: inset 4px 0 0 #ef4444, 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .required-star,
+        html.dark-mode .required-note {
+          color: #fca5a5 !important;
+        }
+
+        html.dark-mode .exam-button.secondary {
+          background: #10142e !important;
+          border-color: #2b315f !important;
+          color: #d7def7 !important;
+        }
+
+        html.dark-mode .exam-button.secondary:hover:not(:disabled) {
+          background: #1c1f42 !important;
+        }
+
+        html.dark-mode .result-panel.success {
+          border-color: rgba(110, 231, 183, 0.38) !important;
+        }
+
+        html.dark-mode .result-panel.danger {
+          border-color: rgba(252, 165, 165, 0.38) !important;
+        }
+
+        html.dark-mode .result-icon {
+          background: rgba(16, 185, 129, 0.18) !important;
+          color: #6ee7b7 !important;
+        }
+
+        html.dark-mode .result-panel.danger .result-icon,
+        html.dark-mode .exam-error {
+          background: rgba(127, 29, 29, 0.22) !important;
+          color: #fecaca !important;
+        }
+
+        html.dark-mode .exam-error {
+          border-color: rgba(248, 113, 113, 0.32) !important;
+        }
+
         @keyframes exam-spin {
           to {
             transform: rotate(360deg);

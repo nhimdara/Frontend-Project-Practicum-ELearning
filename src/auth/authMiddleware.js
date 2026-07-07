@@ -88,14 +88,20 @@ function saveSession(user) {
   const safe = { ...user };
   delete safe.password;
   const normalizedRole = safe.role === "student" ? "client" : safe.role;
+  const loginAt = new Date().toISOString();
+  const tokenSource =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${safe.email}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
   const session = {
     ...safe,
     role: normalizedRole,
     dbRole: safe.role,
-    token: btoa(safe.email + ":" + Date.now()),
-    loginAt: new Date().toISOString(),
+    token: btoa(`${safe.email}:${loginAt}:${tokenSource}`),
+    loginAt,
   };
 
+  localStorage.removeItem(SESSION_KEY);
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   return session;
 }
@@ -199,6 +205,7 @@ export async function loginMiddleware(email, password) {
     return { success: false, error: "Please enter your email and password." };
   }
 
+  localStorage.removeItem(SESSION_KEY);
   const user = findUser(email);
   if (!user) {
     try {
@@ -253,67 +260,10 @@ export async function loginMiddleware(email, password) {
 }
 
 // ── REGISTER ─────────────────────────────────────────────────
-export function registerMiddleware(name, email, password) {
-  if (!name || name.trim().length < 2) {
-    return { success: false, error: "Name must be at least 2 characters." };
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { success: false, error: "Please enter a valid email address." };
-  }
-
-  if (password.length < 6) {
-    return { success: false, error: "Password must be at least 6 characters." };
-  }
-
-  const normalizedEmail = email.toLowerCase().trim();
-
-  if (
-    normalizedEmail === ADMIN_ACCOUNT.email ||
-    normalizedEmail === TEACHER_ACCOUNT.email
-  ) {
-    return { success: false, error: "This email address is not available." };
-  }
-
-  const clients = loadClients();
-  if (clients.find((u) => u.email === normalizedEmail)) {
-    return {
-      success: false,
-      error: "An account with this email already exists.",
-    };
-  }
-
-  const newUser = {
-    id: "user-" + Date.now(),
-    name: name.trim(),
-    email: normalizedEmail,
-    password,
-    role: "client",
-    major: null,
-    joinDate: new Date().toISOString().split("T")[0],
-    achievements: ["New Member"],
-    progress: 0,
-    coursesEnrolled: 0,
-    certificates: 0,
-  };
-
-  clients.push(newUser);
-  saveClients(clients);
-  localStorage.setItem("has_registered", "true");
-
-  const session = saveSession({
-    ...newUser,
-    needsMajorSelect: true,
-  });
-
+export function registerMiddleware() {
   return {
-    success: true,
-    user: session,
-    role: "client",
-    major: null,
-    needsMajorSelect: true,
-    redirect: "/select-major",
+    success: false,
+    error: "Student self-registration is disabled. Please contact an administrator.",
   };
 }
 
@@ -328,8 +278,7 @@ export function routeGuardMiddleware(requiredRole = null) {
   const session = getSession();
 
   if (!session) {
-    const hasRegistered = !!localStorage.getItem("has_registered");
-    return { allowed: false, redirect: hasRegistered ? "/login" : "/" };
+    return { allowed: false, redirect: "/login" };
   }
 
   const normalizedRole =

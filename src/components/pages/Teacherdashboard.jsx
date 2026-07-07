@@ -31,9 +31,29 @@ import {
   Moon,
   Settings,
   Sun,
+  ClipboardCheck,
 } from "lucide-react";
 
 const API_BASE = API_BASE_URL;
+const TEACHER_APPROVED_TAG = "teacher-approved";
+const PROJECT_MAJOR_PREFIX = "major:";
+
+const normalizeProjectTags = (tags) =>
+  Array.isArray(tags)
+    ? tags
+    : String(tags || "")
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+
+const getProjectMajor = (project) => {
+  const explicitMajor = project.major || project.student_major;
+  if (explicitMajor) return explicitMajor;
+  const majorTag = normalizeProjectTags(project.tags).find((tag) =>
+    tag.startsWith(PROJECT_MAJOR_PREFIX),
+  );
+  return majorTag ? majorTag.slice(PROJECT_MAJOR_PREFIX.length) : "";
+};
 
 const getStoredTheme = () => {
   try {
@@ -154,6 +174,36 @@ async function deleteVideoAPI(id) {
     throw new Error(error.error || "Failed to delete video");
   }
   return res.json();
+}
+
+async function fetchProjectsFromAPI() {
+  const res = await fetch(`${API_BASE}/projects?include_inactive=1`);
+  if (!res.ok) throw new Error(`Failed to fetch projects: ${res.status}`);
+  return res.json();
+}
+
+async function approveProjectAPI(project) {
+  const projectTags = normalizeProjectTags(project.tags);
+  const res = await fetch(`${API_BASE}/projects/${project.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...project,
+      image: project.image || project.image_url || "",
+      tags: [...new Set([...projectTags, TEACHER_APPROVED_TAG])],
+      github_url: project.github_url || project.github || "",
+      live_url: project.live_url || project.demo_url || "",
+      major: getProjectMajor(project),
+      student_major: getProjectMajor(project),
+      teacher_approved: true,
+      admin_approved: false,
+      approval_status: "admin_pending",
+      is_active: false,
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Failed to approve project");
+  return data;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1057,6 +1107,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
 const TeacherDashboard = ({ user, onLogout }) => {
   const [videos, setVideos] = useState([]);
   const [lessons, setLessons] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -1080,6 +1131,10 @@ const TeacherDashboard = ({ user, onLogout }) => {
   // ========== TEACHER'S MAJOR from session ==========
   const teacherMajor = user?.major || null;
 
+  useEffect(() => {
+    applyStoredTheme(themeMode);
+  }, [themeMode]);
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
@@ -1094,11 +1149,13 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [videosData, lessonsData] = await Promise.all([
+      const [videosData, lessonsData, projectsData] = await Promise.all([
         fetchVideosFromAPI(),
         fetchLessonsFromAPI(),
+        fetchProjectsFromAPI(),
       ]);
       setVideos(dedupeVideosByLessonSlot(videosData));
+      setProjects(Array.isArray(projectsData) ? projectsData : []);
 
       // Filter lessons by teacher's selected major
       if (teacherMajor) {
@@ -1300,12 +1357,60 @@ const TeacherDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const handleApproveProject = async (project) => {
+    try {
+      await approveProjectAPI(project);
+      setProjects((prev) =>
+        prev.map((item) =>
+          item.id === project.id
+            ? {
+                ...item,
+                tags: [
+                  ...new Set([
+                    ...normalizeProjectTags(item.tags),
+                    TEACHER_APPROVED_TAG,
+                  ]),
+                ],
+                teacher_approved: true,
+                admin_approved: false,
+                approval_status: "admin_pending",
+                is_active: false,
+              }
+            : item,
+        ),
+      );
+      showToast("Project sent to admin for final approval.");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  };
+
+  const pendingProjects = projects.filter(
+    (project) => {
+      const tags = normalizeProjectTags(project.tags);
+      const projectMajor = getProjectMajor(project);
+      const matchesTeacherMajor =
+        !teacherMajor || !projectMajor || projectMajor === teacherMajor;
+      return (
+        matchesTeacherMajor &&
+        (project.is_active === false ||
+          project.is_active === 0 ||
+          project.is_active === "0") &&
+        project.teacher_approved !== true &&
+        project.teacher_approved !== 1 &&
+        project.teacher_approved !== "1" &&
+        !tags.includes(TEACHER_APPROVED_TAG)
+      );
+    },
+  );
+
   // Sidebar nav
   const navItems = [
     { id: "overview", icon: LayoutDashboard, label: "Overview" },
     { id: "videos", icon: Video, label: "All Videos" },
     { id: "by-lesson", icon: Layers, label: "By Lesson" },
     { id: "lessons", icon: BookOpen, label: "Lessons" },
+    { id: "projects", icon: ClipboardCheck, label: "Project Requests" },
     { id: "exam", icon: CheckCircle, label: "Exam Questions" },
     { id: "settings", icon: Settings, label: "Settings" },
   ];
@@ -1357,7 +1462,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", minHeight: "100vh" }}>
+      <div className="teacher-dashboard-root" style={{ display: "flex", minHeight: "100vh" }}>
         <aside style={sidebarStyle} />
         <main style={mainStyle}>
           <div
@@ -1398,6 +1503,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
       />
 
       <div
+        className="teacher-dashboard-root"
         style={{ display: "flex", minHeight: "100vh", position: "relative" }}
       >
         {/* SIDEBAR */}
@@ -1853,6 +1959,157 @@ const TeacherDashboard = ({ user, onLogout }) => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* PROJECT REQUESTS TAB */}
+          {activeTab === "projects" && (
+            <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
+              <div style={{ marginBottom: 20 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: "26px",
+                    fontWeight: 700,
+                    color: "#111827",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Project Requests
+                </h1>
+                <p style={{ margin: "4px 0 0", color: "#6b7280", fontSize: "14px" }}>
+                  Review student projects for your teaching major first, then send
+                  approved requests to admin.
+                </p>
+              </div>
+
+              {pendingProjects.length === 0 ? (
+                <div
+                  style={{
+                    background: "#fff",
+                    border: "2px dashed #e5e7eb",
+                    borderRadius: "16px",
+                    padding: "48px 20px",
+                    textAlign: "center",
+                  }}
+                >
+                  <ClipboardCheck size={40} color="#d1d5db" style={{ marginBottom: 12 }} />
+                  <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: 600, color: "#374151" }}>
+                    No pending project requests
+                  </p>
+                  <p style={{ margin: 0, fontSize: "13px", color: "#9ca3af" }}>
+                    Requests you approve move to admin for final publishing.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gap: 14 }}>
+                  {pendingProjects.map((project) => (
+                    <div
+                      key={project.id}
+                      style={{
+                        background: "#fff",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "16px",
+                        padding: "18px",
+                        display: "flex",
+                        gap: 14,
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 84,
+                          height: 64,
+                          borderRadius: 12,
+                          background: "#eef2ff",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {project.image || project.image_url ? (
+                          <img
+                            src={project.image || project.image_url}
+                            alt={project.title}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        ) : (
+                          <ClipboardCheck size={24} color="#6366f1" style={{ margin: 20 }} />
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                          <div>
+                            <h3 style={{ margin: 0, fontSize: 16, color: "#111827" }}>
+                              {project.title}
+                            </h3>
+                            <p style={{ margin: "5px 0 10px", color: "#6b7280", fontSize: 13 }}>
+                              {project.description || "No description"}
+                            </p>
+                            <p style={{ margin: "0 0 10px", color: "#6366f1", fontSize: 12, fontWeight: 700 }}>
+                              Major: {getProjectMajor(project) || teacherMajor || "Not set"}
+                            </p>
+                          </div>
+                          <span
+                            style={{
+                              height: "fit-content",
+                              padding: "4px 10px",
+                              borderRadius: 999,
+                              background: "#fffbeb",
+                              color: "#92400e",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Teacher review
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+                          {normalizeProjectTags(project.tags)
+                            .filter(
+                              (tag) =>
+                                tag !== TEACHER_APPROVED_TAG &&
+                                !tag.startsWith(PROJECT_MAJOR_PREFIX),
+                            )
+                            .map((tag) => (
+                            <span
+                              key={tag}
+                              style={{
+                                padding: "3px 8px",
+                                borderRadius: 999,
+                                background: "#f3f4f6",
+                                color: "#4b5563",
+                                fontSize: 12,
+                              }}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => handleApproveProject(project)}
+                          style={{
+                            border: "none",
+                            borderRadius: 10,
+                            background: "#10b981",
+                            color: "#fff",
+                            padding: "9px 14px",
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: "pointer",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 7,
+                          }}
+                        >
+                          <CheckCircle size={15} />
+                          Send to Admin
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -2826,34 +3083,208 @@ const TeacherDashboard = ({ user, onLogout }) => {
         @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main {
+          background:
+            radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 34rem),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h1,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h2,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h3 {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main p,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main span {
+          color: #475569 !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main input,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main select,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main textarea {
+          background: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #d8e2f0 !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main .teacher-content-section > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-stats-grid > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-video-grid > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-lessons-grid > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-settings-card {
+          background: rgba(255,255,255,0.94) !important;
+          border-color: #d8e2f0 !important;
+          color: #0f172a !important;
+          box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar {
+          background: rgba(255,255,255,0.96) !important;
+          border-right: 1px solid #d8e2f0 !important;
+          box-shadow: 12px 0 34px rgba(15,23,42,0.06);
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar p {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar button {
+          color: #475569 !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
+          color: #ffffff !important;
+        }
+
         html.dark-mode .teacher-main {
-          background: #0a0a14 !important;
-          color: #e8e8f5 !important;
+          background:
+            radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 30rem),
+            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
+          color: #f4f7ff !important;
         }
 
         html.dark-mode .teacher-main h1,
         html.dark-mode .teacher-main h2,
         html.dark-mode .teacher-main h3 {
-          color: #f0f0fa !important;
+          color: #f4f7ff !important;
         }
 
         html.dark-mode .teacher-main p,
         html.dark-mode .teacher-main span {
-          color: #aaaad0 !important;
+          color: #a8b1d6 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar {
+          background:
+            linear-gradient(180deg, rgba(13, 16, 36, 0.98), rgba(16, 18, 42, 0.98)) !important;
+          border-right: 1px solid #2b315f !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar button {
+          color: #a8b1d6 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar button:hover {
+          background: rgba(99, 102, 241, 0.14) !important;
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar button[style*="rgba(99,102,241,0.15)"] {
+          background: rgba(99, 102, 241, 0.22) !important;
+          color: #c7d2fe !important;
         }
 
         html.dark-mode .teacher-settings-card,
+        html.dark-mode .teacher-main .teacher-content-section > div,
         html.dark-mode .teacher-stats-grid > div,
         html.dark-mode .teacher-video-grid > div,
         html.dark-mode .teacher-lessons-grid > div {
-          background: #14142b !important;
-          border-color: #2a2a4a !important;
-          color: #e8e8f5 !important;
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
         }
 
         html.dark-mode .teacher-settings-card button:not([style*="linear-gradient"]) {
-          background-color: #1a1a35 !important;
-          border-color: #3a3a5c !important;
+          background-color: #10142e !important;
+          border-color: #2b315f !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main input,
+        html.dark-mode .teacher-dashboard-root .teacher-main select,
+        html.dark-mode .teacher-dashboard-root .teacher-main textarea {
+          background: #10142e !important;
+          color: #f4f7ff !important;
+          border-color: #2b315f !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #fff"],
+        html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: #fff"],
+        html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: #fff"] {
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(249, 250, 251)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f9fafb"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(243, 244, 246)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f3f4f6"],
+        html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: rgb(243, 244, 246)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: #f3f4f6"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(243, 244, 246)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #f3f4f6"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(238, 242, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #eef2ff"] {
+          background: #10142e !important;
+          border-color: #2b315f !important;
+          color: #d7def7 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div {
+          background:
+            linear-gradient(145deg, rgba(21, 23, 51, 0.98), rgba(28, 31, 66, 0.94)) !important;
+          border: 1px solid rgba(129, 140, 248, 0.28) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div:hover {
+          border-color: rgba(165, 180, 252, 0.48) !important;
+          box-shadow: 0 20px 46px rgba(79, 70, 229, 0.18) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid button,
+        html.dark-mode .teacher-dashboard-root [class*="teacher-video-grid"] button {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: rgb(99, 102, 241)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: #6366f1"] {
+          color: #c7d2fe !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main h1[style*="color"],
+        html.dark-mode .teacher-dashboard-root .teacher-main h2[style*="color"],
+        html.dark-mode .teacher-dashboard-root .teacher-main h3[style*="color"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(17, 24, 39)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #111827"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(15, 23, 42)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #0f172a"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(17, 24, 39)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #111827"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(15, 23, 42)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #0f172a"] {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(107, 114, 128)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #6b7280"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(107, 114, 128)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #6b7280"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(156, 163, 175)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #9ca3af"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(156, 163, 175)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #9ca3af"] {
+          color: #a8b1d6 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid rgb(229, 231, 235)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid #e5e7eb"] {
+          border-color: #2b315f !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(15, 23, 42)"],
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #0f172a"],
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(17, 24, 39)"],
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #111827"] {
+          background: rgba(255, 255, 255, 0.96) !important;
+          border-color: #d8e2f0 !important;
+          color: #0f172a !important;
         }
         
         @media (max-width: 768px) {

@@ -13,6 +13,9 @@ import {
 
 import projectImage from "./../assets/image/projectbanner.jpg";
 
+const TEACHER_APPROVED_TAG = "teacher-approved";
+const PROJECT_MAJOR_PREFIX = "major:";
+
 const ProjectsPage = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -32,7 +35,15 @@ const ProjectsPage = () => {
     fetch(`${API_BASE_URL}/projects`)
       .then((res) => res.json())
       .then((data) => {
-        setProjects(data);
+        const visibleProjects = Array.isArray(data)
+          ? data.filter(
+              (project) =>
+                project.is_active !== false &&
+                project.is_active !== 0 &&
+                project.is_active !== "0",
+            )
+          : [];
+        setProjects(visibleProjects);
       })
       .catch((err) => {
         console.error("Failed to fetch projects:", err);
@@ -211,7 +222,13 @@ const ProjectsPage = () => {
                         .split(",")
                         .map((tag) => tag.trim())
                         .filter(Boolean)
-                  ).map((tag) => (
+                  )
+                    .filter(
+                      (tag) =>
+                        tag !== TEACHER_APPROVED_TAG &&
+                        !tag.startsWith(PROJECT_MAJOR_PREFIX),
+                    )
+                    .map((tag) => (
                     <span
                       key={tag}
                       className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full hover:bg-indigo-100 hover:text-indigo-700 transition-colors"

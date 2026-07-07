@@ -58,11 +58,15 @@ function ExamQuestionForm({
   dark = false,
   onQuestionsChange,
 }) {
+  const getPageDarkMode = () =>
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark-mode");
   const initialMajor = MAJORS.includes(defaultMajor) ? defaultMajor : "ITE";
   const [form, setForm] = useState({
     ...emptyQuestionForm,
     major: initialMajor,
   });
+  const [pageDarkMode, setPageDarkMode] = useState(getPageDarkMode);
   const [questions, setQuestions] = useState([]);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
@@ -92,20 +96,39 @@ function ExamQuestionForm({
     form.question.trim().length >= 5 &&
     cleanOptions.length >= 2 &&
     selectedCleanIndex >= 0;
+  const isDark = dark || pageDarkMode;
 
-  const panelClass = dark
-    ? "w-full rounded-2xl border border-slate-800 bg-slate-900/80 p-5"
-    : "w-full rounded-2xl border border-slate-200 bg-white p-5";
-  const labelClass = dark
-    ? "text-xs font-semibold uppercase tracking-wide text-slate-400"
+  const panelClass = isDark
+    ? "exam-question-panel w-full rounded-2xl border border-indigo-400/20 bg-[#151733]/95 p-5 shadow-2xl shadow-black/30"
+    : "exam-question-panel w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60";
+  const labelClass = isDark
+    ? "text-xs font-semibold uppercase tracking-wide text-indigo-200"
     : "text-xs font-semibold uppercase tracking-wide text-slate-500";
-  const inputClass = dark
-    ? "w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-indigo-400 disabled:opacity-60"
-    : "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-500 disabled:opacity-60";
-  const mutedTextClass = dark ? "text-slate-400" : "text-slate-500";
-  const questionCardClass = dark
-    ? "rounded-xl border border-slate-800 bg-slate-950/70 p-3"
-    : "rounded-xl border border-slate-200 bg-slate-50 p-3";
+  const inputClass = isDark
+    ? "w-full rounded-xl border border-indigo-400/25 bg-[#10142e] px-3 py-2.5 text-sm text-slate-50 outline-none placeholder:text-slate-500 focus:border-indigo-300 disabled:opacity-60"
+    : "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-500 disabled:opacity-60";
+  const mutedTextClass = isDark ? "text-slate-300" : "text-slate-500";
+  const questionCardClass = isDark
+    ? "exam-question-card rounded-xl border border-indigo-400/20 bg-[#10142e] p-4 shadow-lg shadow-black/20"
+    : "exam-question-card rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm shadow-slate-200/70";
+  const secondaryButtonClass = isDark
+    ? "inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-400/25 bg-[#10142e] px-3 py-2 text-xs font-semibold text-indigo-100 transition hover:border-indigo-300 hover:bg-indigo-500/15 disabled:opacity-60"
+    : "inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-60";
+  const pillClass = isDark
+    ? "inline-flex items-center gap-2 rounded-xl border border-indigo-400/20 bg-indigo-500/15 px-3 py-2 text-xs font-semibold text-indigo-100"
+    : "inline-flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700";
+  const cancelButtonClass = isDark
+    ? "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-900 px-5 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-slate-800"
+    : "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50";
+  const editButtonClass = isDark
+    ? "inline-flex items-center justify-center gap-1.5 rounded-lg border border-indigo-300/35 bg-indigo-500/15 px-3 py-2 text-xs font-semibold text-indigo-100 transition hover:bg-indigo-500/25"
+    : "inline-flex items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100";
+  const deleteButtonClass = isDark
+    ? "inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300/35 bg-rose-500/15 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-500/25 disabled:opacity-60"
+    : "inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60";
+  const dividerClass = isDark
+    ? "mt-6 border-t border-indigo-400/20 pt-5"
+    : "mt-6 border-t border-slate-200 pt-5";
 
   const clearAlerts = () => {
     setMessage("");
@@ -143,6 +166,19 @@ function ExamQuestionForm({
     refreshQuestions(selectedMajor);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMajor]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    const observer = new MutationObserver(() => {
+      setPageDarkMode(getPageDarkMode());
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    setPageDarkMode(getPageDarkMode());
+    return () => observer.disconnect();
+  }, []);
 
   const updateOption = (index, value) => {
     setForm((prev) => ({
@@ -229,14 +265,14 @@ function ExamQuestionForm({
   };
 
   return (
-    <div className={panelClass}>
+    <div className={`exam-question-form ${panelClass}`}>
       <form onSubmit={handleSubmit}>
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className={labelClass}>Student exam</p>
             <h2
               className={
-                dark
+                isDark
                   ? "mt-1 text-lg font-bold text-white"
                   : "mt-1 text-lg font-bold text-slate-900"
               }
@@ -252,14 +288,14 @@ function ExamQuestionForm({
               type="button"
               onClick={() => refreshQuestions(selectedMajor)}
               disabled={loadingQuestions}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 disabled:opacity-60"
+              className={secondaryButtonClass}
             >
               <RefreshCw
                 className={`h-4 w-4 ${loadingQuestions ? "animate-spin" : ""}`}
               />
               Refresh
             </button>
-            <div className="inline-flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
+            <div className={pillClass}>
               <Plus className="h-4 w-4" />
               Admin/Teacher
             </div>
@@ -347,7 +383,7 @@ function ExamQuestionForm({
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className={cancelButtonClass}
               >
                 <X className="h-4 w-4" />
                 Cancel
@@ -382,13 +418,13 @@ function ExamQuestionForm({
         </div>
       )}
 
-      <div className="mt-6 border-t border-slate-200 pt-5">
+      <div className={dividerClass}>
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className={labelClass}>Question list</p>
             <h3
               className={
-                dark
+                isDark
                   ? "mt-1 text-base font-bold text-white"
                   : "mt-1 text-base font-bold text-slate-900"
               }
@@ -414,7 +450,7 @@ function ExamQuestionForm({
                     <p className={labelClass}>Question {index + 1}</p>
                     <p
                       className={
-                        dark
+                        isDark
                           ? "mt-1 text-sm font-semibold text-slate-100"
                           : "mt-1 text-sm font-semibold text-slate-900"
                       }
@@ -430,7 +466,7 @@ function ExamQuestionForm({
                       <button
                         type="button"
                         onClick={() => startEdit(question)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700"
+                        className={editButtonClass}
                       >
                         <Edit3 className="h-3.5 w-3.5" />
                         Edit
@@ -439,7 +475,7 @@ function ExamQuestionForm({
                         type="button"
                         disabled={deletingId === question.id}
                         onClick={() => handleDelete(question)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-60"
+                        className={deleteButtonClass}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         {deletingId === question.id ? "Deleting" : "Delete"}

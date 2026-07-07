@@ -764,6 +764,159 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
           background: rgba(99, 102, 241, 0.08);
         }
 
+        html:not(.dark-mode) .cert-admin-root {
+          background:
+            radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 34rem),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root.embedded {
+          background: transparent !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-panel,
+        html:not(.dark-mode) .cert-admin-root .admin-card,
+        html:not(.dark-mode) .cert-admin-root .certificate-card {
+          background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.96)) !important;
+          border-color: #dbe6f5 !important;
+          box-shadow: 0 18px 42px rgba(37, 56, 88, 0.09) !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-card {
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(244, 247, 255, 0.96)) !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .students-panel {
+          background:
+            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root h1,
+        html:not(.dark-mode) .cert-admin-root h2,
+        html:not(.dark-mode) .cert-admin-root h3,
+        html:not(.dark-mode) .cert-admin-root .text-white,
+        html:not(.dark-mode) .cert-admin-root .text-slate-200,
+        html:not(.dark-mode) .cert-admin-root .text-slate-300 {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .text-slate-400,
+        html:not(.dark-mode) .cert-admin-root .text-slate-500,
+        html:not(.dark-mode) .cert-admin-root .text-slate-600,
+        html:not(.dark-mode) .cert-admin-root p {
+          color: #64748b !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-input {
+          background: #ffffff !important;
+          border-color: #c8d7ee !important;
+          color: #0f172a !important;
+          box-shadow:
+            inset 0 1px 0 rgba(15, 23, 42, 0.03),
+            0 10px 22px rgba(37, 56, 88, 0.05);
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-input.pl-10 {
+          padding-left: 2.5rem !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-input::placeholder {
+          color: #718096 !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .student-row {
+          border-top-color: #e6eef8 !important;
+          background: rgba(255, 255, 255, 0.64);
+        }
+
+        html:not(.dark-mode) .cert-admin-root .student-row:hover {
+          background: #f3f7ff !important;
+          box-shadow: inset 3px 0 0 #6366f1;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .students-panel > .hidden {
+          border-top-color: #dbe6f5 !important;
+          background: linear-gradient(180deg, #f7faff, #f0f5ff) !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .student-row .text-white,
+        html:not(.dark-mode) .cert-admin-root .major-pill.active,
+        html:not(.dark-mode) .cert-admin-root .admin-btn.primary {
+          color: #ffffff !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .student-row p.text-white {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .major-pill,
+        html:not(.dark-mode) .cert-admin-root .admin-btn.secondary {
+          background: #ffffff !important;
+          color: #334155 !important;
+          border-color: #c8d7ee !important;
+          box-shadow: 0 8px 18px rgba(37, 56, 88, 0.05);
+        }
+
+        html:not(.dark-mode) .cert-admin-root .major-pill:hover,
+        html:not(.dark-mode) .cert-admin-root .admin-btn.secondary:hover {
+          background: #f0f5ff !important;
+          color: #1e293b !important;
+          border-color: #aebff8 !important;
+          transform: translateY(-1px);
+        }
+
+        html:not(.dark-mode) .cert-admin-root .major-pill.active {
+          background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+          border-color: transparent !important;
+          color: #ffffff !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-btn.danger {
+          background: #fff5f5 !important;
+          color: #991b1b !important;
+          border-color: #fecaca !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .admin-btn.danger:hover {
+          background: #fee2e2 !important;
+          color: #7f1d1d !important;
+        }
+
+        html:not(.dark-mode) .cert-admin-root .certificate-card .text-white,
+        html:not(.dark-mode) .cert-admin-root .certificate-card .text-white\\/70,
+        html:not(.dark-mode) .cert-admin-root .certificate-card .text-indigo-200 {
+          color: #ffffff !important;
+        }
+
+        html.dark-mode .cert-admin-root {
+          background:
+            radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 30rem),
+            radial-gradient(circle at top right, rgba(6, 182, 212, 0.13), transparent 28rem),
+            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .cert-admin-root.embedded {
+          background: transparent !important;
+        }
+
+        html.dark-mode .cert-admin-root .admin-panel,
+        html.dark-mode .cert-admin-root .admin-card,
+        html.dark-mode .cert-admin-root .certificate-card {
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .cert-admin-root .admin-input {
+          background: #10142e !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+        }
+
         /* --- Professional certificate preview (modal) --- */
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&family=EB+Garamond:wght@400;500;600&display=swap');
 

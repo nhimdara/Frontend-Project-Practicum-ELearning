@@ -34,7 +34,6 @@ import AdminDashboard from "./components/pages/AdminDashboard";
 import TeacherDashboard from "./components/pages/Teacherdashboard";
 import MajorSelectPage from "./components/pages/Majorselectpage";
 
-import RegisterPage from "./components/layout/auth/Registerpage";
 import LoginPage from "./components/layout/auth/Loginpage";
 
 import AIChat from "./components/service/AIChat";
@@ -160,7 +159,7 @@ const AppInner = () => {
   };
 
   const openAuthModal = (mode) => {
-    setIsLogin(mode === "signin");
+    setIsLogin(true);
     setIsAuthModalOpen(true);
   };
 
@@ -174,14 +173,6 @@ const AppInner = () => {
     onLogout: handleLogout,
     onAuthModalOpen: openAuthModal,
   };
-
-  const hasRegistered = (() => {
-    try {
-      return !!localStorage.getItem("has_registered");
-    } catch {
-      return false;
-    }
-  })();
 
   return (
     <Routes>
@@ -205,12 +196,14 @@ const AppInner = () => {
             />
           ) : (
             <div className="min-h-screen flex flex-col">
-              <RegisterPage onAuthSuccess={handleAuthSuccess} />
+              <LoginPage onAuthSuccess={handleAuthSuccess} />
               <Footer />
             </div>
           )
         }
       />
+
+      <Route path="/register" element={<Navigate to="/login" replace />} />
 
       <Route
         path="/login"
@@ -337,50 +330,58 @@ const AppInner = () => {
       <Route
         path="/home"
         element={
-          <PageLayout {...layoutProps}>
-            <HomePage onAuthModalOpen={openAuthModal} />
-            <AuthModal
-              isOpen={isAuthModalOpen}
-              onClose={() => setIsAuthModalOpen(false)}
-              isLogin={isLogin}
-              setIsLogin={setIsLogin}
-              onAuthSuccess={handleAuthSuccess}
-            />
-          </PageLayout>
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <HomePage onAuthModalOpen={openAuthModal} />
+              <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                isLogin={isLogin}
+                setIsLogin={setIsLogin}
+                onAuthSuccess={handleAuthSuccess}
+              />
+            </PageLayout>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/lessons"
         element={
-          <PageLayout {...layoutProps}>
-            <LessonsPage />
-          </PageLayout>
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <LessonsPage />
+            </PageLayout>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/projects"
         element={
-          <PageLayout {...layoutProps}>
-            <ProjectsPage />
-          </PageLayout>
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <ProjectsPage />
+            </PageLayout>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/calendar"
         element={
-          <PageLayout {...layoutProps}>
-            <CalendarPage />
-          </PageLayout>
+          <ProtectedRoute requiredRole="client">
+            <PageLayout {...layoutProps}>
+              <CalendarPage />
+            </PageLayout>
+          </ProtectedRoute>
         }
       />
 
       {/* Catch-all */}
       <Route
         path="*"
-        element={<Navigate to={hasRegistered ? "/login" : "/"} replace />}
+        element={<Navigate to="/login" replace />}
       />
     </Routes>
   );

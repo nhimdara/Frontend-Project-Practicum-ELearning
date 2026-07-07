@@ -38,6 +38,8 @@ import {
 import logo from "./../assets/image/logo.png";
 
 const API_BASE = API_BASE_URL;
+const TEACHER_APPROVED_TAG = "teacher-approved";
+const PROJECT_MAJOR_PREFIX = "major:";
 const MAJORS = ["ITE", "IT", "Mathematics"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 const COLORS = [
@@ -49,6 +51,25 @@ const COLORS = [
   "#7c3aed",
 ];
 
+const getStoredTheme = () => {
+  try {
+    return JSON.parse(localStorage.getItem("learnflow_settings") || "{}").theme || "light";
+  } catch {
+    return "light";
+  }
+};
+
+const applyThemeMode = (theme) => {
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.classList.toggle("dark-mode", isDark);
+  try {
+    localStorage.setItem("learnflow_settings", JSON.stringify({ theme }));
+  } catch {}
+};
+
 function getCurrentAcademicYear(startYear) {
   const start = Number.parseInt(startYear, 10);
   if (Number.isNaN(start)) return 1;
@@ -59,7 +80,7 @@ const DEFAULT_ADMIN_SETTINGS = {
   defaultMajor: "ITE",
   publishNewLessons: true,
   compactTables: false,
-  themeMode: "dark",
+  themeMode: getStoredTheme(),
   profileName: "",
   profileEmail: "",
 };
@@ -110,7 +131,29 @@ const emptyProjectForm = {
   live_url: "",
   featured: false,
   is_active: true,
+  teacher_approved: true,
+  admin_approved: true,
+  approval_status: "approved",
 };
+
+const isProjectActive = (project) =>
+  project.is_active !== false &&
+  project.is_active !== 0 &&
+  project.is_active !== "0";
+
+const isTeacherApprovedProject = (project) =>
+  project.teacher_approved === true ||
+  project.teacher_approved === 1 ||
+  project.teacher_approved === "1" ||
+  project.approval_status === "admin_pending" ||
+  project.approval_status === "approved" ||
+  (Array.isArray(project.tags)
+    ? project.tags.includes(TEACHER_APPROVED_TAG)
+    : String(project.tags || "")
+        .split(",")
+        .map((tag) => tag.trim())
+        .includes(TEACHER_APPROVED_TAG)) ||
+  isProjectActive(project);
 
 const AdminDashboard = ({ user, onLogout }) => {
   const location = useLocation();
@@ -147,18 +190,22 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [health, setHealth] = useState(null);
   const [adminSettings, setAdminSettings] = useState(() => {
     try {
+      const globalTheme = getStoredTheme();
       const saved = JSON.parse(
         localStorage.getItem("learnflow_admin_settings") || "{}",
       );
       return {
         ...DEFAULT_ADMIN_SETTINGS,
+        themeMode: globalTheme,
         profileName: user?.name || "",
         profileEmail: user?.email || "",
         ...saved,
+        themeMode: saved.themeMode || globalTheme,
       };
     } catch {
       return {
         ...DEFAULT_ADMIN_SETTINGS,
+        themeMode: getStoredTheme(),
         profileName: user?.name || "",
         profileEmail: user?.email || "",
       };
@@ -176,6 +223,10 @@ const AdminDashboard = ({ user, onLogout }) => {
       setActiveTab(location.state.activeTab);
     }
   }, [location.state?.activeTab]);
+
+  useEffect(() => {
+    applyThemeMode(adminSettings.themeMode);
+  }, [adminSettings.themeMode]);
 
   // ── Fetch users ───────────────────────────────────────────
   const refreshUsers = useCallback(async () => {
@@ -385,7 +436,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       project.title?.toLowerCase().includes(searchText) ||
       project.description?.toLowerCase().includes(searchText) ||
       tagText.toLowerCase().includes(searchText);
-    const isActive = project.is_active !== false && project.is_active !== 0;
+    const isActive = isProjectActive(project);
     const matchesStatus =
       projectStatusFilter === "all" ||
       (projectStatusFilter === "active" && isActive) ||
@@ -539,14 +590,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       );
     } catch {}
 
-    document.documentElement.classList.toggle(
-      "dark-mode",
-      adminSettings.themeMode === "dark",
-    );
-    localStorage.setItem(
-      "learnflow_settings",
-      JSON.stringify({ theme: adminSettings.themeMode }),
-    );
+    applyThemeMode(adminSettings.themeMode);
     setStudentForm((prev) => ({
       ...prev,
       major: adminSettings.defaultMajor,
@@ -731,11 +775,23 @@ const AdminDashboard = ({ user, onLogout }) => {
       title: project.title || "",
       description: project.description || "",
       image: project.image || project.image_url || "",
-      tags: Array.isArray(project.tags) ? project.tags.join(", ") : project.tags || "",
+      tags: (Array.isArray(project.tags)
+        ? project.tags
+        : String(project.tags || "")
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+      )
+        .filter((tag) => tag !== TEACHER_APPROVED_TAG)
+        .filter((tag) => !tag.startsWith(PROJECT_MAJOR_PREFIX))
+        .join(", "),
       github_url: project.github_url || project.github || "",
       live_url: project.live_url || project.demo_url || "",
       featured: Boolean(project.featured),
-      is_active: project.is_active !== false && project.is_active !== 0,
+      is_active: isProjectActive(project),
+      teacher_approved: isTeacherApprovedProject(project),
+      admin_approved: isProjectActive(project),
+      approval_status: project.approval_status || (isProjectActive(project) ? "approved" : "admin_pending"),
     });
     setProjectMessage("");
     setActiveTab("projects");
@@ -754,10 +810,23 @@ const AdminDashboard = ({ user, onLogout }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...projectForm,
+          is_active: projectForm.is_active && projectForm.teacher_approved,
+          admin_approved: projectForm.is_active && projectForm.teacher_approved,
+          approval_status:
+            projectForm.is_active && projectForm.teacher_approved
+              ? "approved"
+              : projectForm.teacher_approved
+                ? "admin_pending"
+                : "teacher_pending",
           tags: projectForm.tags
             .split(",")
             .map((tag) => tag.trim())
-            .filter(Boolean),
+            .filter(
+              (tag) =>
+                tag &&
+                tag !== TEACHER_APPROVED_TAG &&
+                !tag.startsWith(PROJECT_MAJOR_PREFIX),
+            ),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -785,6 +854,46 @@ const AdminDashboard = ({ user, onLogout }) => {
       refreshProjects();
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+  const approveProject = async (project) => {
+    try {
+      const res = await fetch(`${API_BASE}/projects/${project.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...project,
+          image: project.image || project.image_url || "",
+          tags: Array.isArray(project.tags)
+            ? project.tags.filter(
+                (tag) =>
+                  tag !== TEACHER_APPROVED_TAG &&
+                  !tag.startsWith(PROJECT_MAJOR_PREFIX),
+              )
+            : String(project.tags || "")
+                .split(",")
+                .map((tag) => tag.trim())
+                .filter(
+                  (tag) =>
+                    tag &&
+                    tag !== TEACHER_APPROVED_TAG &&
+                    !tag.startsWith(PROJECT_MAJOR_PREFIX),
+                ),
+          github_url: project.github_url || project.github || "",
+          live_url: project.live_url || project.demo_url || "",
+          teacher_approved: true,
+          admin_approved: true,
+          approval_status: "approved",
+          is_active: true,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not approve project.");
+      setProjectMessage("Project final approved and visible.");
+      refreshProjects();
+    } catch (err) {
+      setProjectMessage(err.message);
     }
   };
 
@@ -878,9 +987,7 @@ const AdminDashboard = ({ user, onLogout }) => {
 
   return (
     <div
-      className={`min-h-screen bg-slate-950 text-white ${
-        adminSettings.themeMode === "light" ? "admin-dashboard-light" : ""
-      }`}
+      className="admin-dashboard-root min-h-screen bg-slate-950 text-white"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       {/* ── Mobile sidebar overlay ── */}
@@ -2273,7 +2380,6 @@ const AdminDashboard = ({ user, onLogout }) => {
               <ExamQuestionForm
                 user={user}
                 defaultMajor={adminSettings.defaultMajor || "ITE"}
-                dark
               />
             </div>
           )}
@@ -2373,13 +2479,19 @@ const AdminDashboard = ({ user, onLogout }) => {
                       <input
                         type="checkbox"
                         checked={projectForm.is_active}
+                        disabled={!projectForm.teacher_approved}
                         onChange={(e) =>
                           updateProjectForm("is_active", e.target.checked)
                         }
                       />
-                      Visible
+                      Visible after admin approval
                     </label>
                   </div>
+                  {!projectForm.teacher_approved && (
+                    <p className="text-xs text-amber-300">
+                      Waiting for teacher approval before admin can publish.
+                    </p>
+                  )}
 
                   <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500">
                     <Save className="h-4 w-4" />
@@ -2470,8 +2582,13 @@ const AdminDashboard = ({ user, onLogout }) => {
                     </thead>
                     <tbody>
                       {filteredProjects.map((project) => {
-                        const isActive =
-                          project.is_active !== false && project.is_active !== 0;
+                        const isActive = isProjectActive(project);
+                        const teacherApproved = isTeacherApprovedProject(project);
+                        const statusLabel = isActive
+                          ? "Visible"
+                          : teacherApproved
+                            ? "Needs admin approval"
+                            : "Needs teacher approval";
                         return (
                           <tr
                             key={project.id}
@@ -2502,7 +2619,14 @@ const AdminDashboard = ({ user, onLogout }) => {
                             </td>
                             <td className="py-3.5 px-5">
                               <div className="flex flex-wrap gap-1.5 min-w-[180px]">
-                                {(project.tags || []).slice(0, 3).map((tag) => (
+                                {(project.tags || [])
+                                  .filter(
+                                    (tag) =>
+                                      tag !== TEACHER_APPROVED_TAG &&
+                                      !tag.startsWith(PROJECT_MAJOR_PREFIX),
+                                  )
+                                  .slice(0, 3)
+                                  .map((tag) => (
                                   <span
                                     key={tag}
                                     className="px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-slate-300 text-xs"
@@ -2510,7 +2634,11 @@ const AdminDashboard = ({ user, onLogout }) => {
                                     {tag}
                                   </span>
                                 ))}
-                                {(project.tags || []).length === 0 && (
+                                {(project.tags || []).filter(
+                                  (tag) =>
+                                    tag !== TEACHER_APPROVED_TAG &&
+                                    !tag.startsWith(PROJECT_MAJOR_PREFIX),
+                                ).length === 0 && (
                                   <span className="text-slate-500 text-xs">
                                     No tags
                                   </span>
@@ -2529,7 +2657,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                                       : "bg-slate-500/10 text-slate-400 border-slate-500/20"
                                   }`}
                                 >
-                                  {isActive ? "Visible" : "Hidden"}
+                                  {statusLabel}
                                 </span>
                                 {project.featured && (
                                   <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -2540,6 +2668,15 @@ const AdminDashboard = ({ user, onLogout }) => {
                             </td>
                             <td className="py-3.5 px-5">
                               <div className="flex items-center gap-2">
+                                {!isActive && teacherApproved && (
+                                  <button
+                                    onClick={() => approveProject(project)}
+                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-400"
+                                    title="Final approve project"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                  </button>
+                                )}
                                 <button
                                   onClick={() => editProject(project)}
                                   className="p-1.5 rounded-lg hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-400"
@@ -2805,87 +2942,255 @@ const AdminDashboard = ({ user, onLogout }) => {
         </div>
       </main>
       <style>{`
-        .admin-dashboard-light {
+        html:not(.dark-mode) .admin-dashboard-root {
           background:
             radial-gradient(circle at top right, rgba(99,102,241,0.14), transparent 34rem),
             linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
           color: #0f172a !important;
         }
 
-        .admin-dashboard-light [class*="bg-slate-950"],
-        .admin-dashboard-light [class*="bg-slate-900"] {
-          background-color: rgba(255,255,255,0.94) !important;
+        html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-950"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-900"] {
+          background:
+            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96)) !important;
+          box-shadow: 0 16px 38px rgba(37,56,88,0.07);
         }
 
-        .admin-dashboard-light [class*="bg-slate-800"] {
-          background-color: #f1f5f9 !important;
+        html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-800"] {
+          background-color: #f1f5ff !important;
         }
 
-        .admin-dashboard-light [class*="border-slate-800"],
-        .admin-dashboard-light [class*="border-slate-700"] {
-          border-color: #d8e2f0 !important;
+        html:not(.dark-mode) .admin-dashboard-root [class*="border-slate-800"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="border-slate-700"] {
+          border-color: #dbe6f5 !important;
         }
 
-        .admin-dashboard-light [class*="text-white"],
-        .admin-dashboard-light [class*="text-slate-200"],
-        .admin-dashboard-light [class*="text-slate-300"] {
+        html:not(.dark-mode) .admin-dashboard-root [class*="text-white"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-200"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-300"] {
           color: #0f172a !important;
         }
 
-        .admin-dashboard-light [class*="text-slate-400"],
-        .admin-dashboard-light [class*="text-slate-500"] {
+        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-400"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-500"] {
           color: #475569 !important;
         }
 
-        .admin-dashboard-light aside {
+        html:not(.dark-mode) .admin-dashboard-root header,
+        html:not(.dark-mode) .admin-dashboard-root aside {
+          background: rgba(255,255,255,0.88) !important;
+          backdrop-filter: blur(18px);
+          border-color: #dbe6f5 !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root aside {
           box-shadow: 12px 0 34px rgba(15,23,42,0.06);
         }
 
-        .admin-dashboard-light .cert-admin-root {
-          color: #e6edf8 !important;
+        html:not(.dark-mode) .admin-dashboard-root aside nav button:not([class*="bg-indigo-600"]):hover,
+        html:not(.dark-mode) .admin-dashboard-root button[class*="hover:bg-slate-800"]:hover {
+          background: #edf3ff !important;
+          color: #1e293b !important;
         }
 
-        .admin-dashboard-light .cert-admin-root .admin-panel,
-        .admin-dashboard-light .cert-admin-root .admin-card,
-        .admin-dashboard-light .cert-admin-root .certificate-card {
+        html:not(.dark-mode) .admin-dashboard-root [class*="bg-indigo-600"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="bg-red-600"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="bg-emerald-600"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="from-indigo-500"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="from-cyan-500"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="from-violet-500"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="to-violet-600"],
+        html:not(.dark-mode) .admin-dashboard-root [class*="to-indigo-600"] {
+          color: #ffffff !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root button[class*="bg-indigo-600"],
+        html:not(.dark-mode) .admin-dashboard-root .exam-question-form button[type="submit"] {
+          background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+          border-color: transparent !important;
+          box-shadow: 0 12px 24px rgba(79,70,229,0.22);
+          color: #ffffff !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root button[class*="bg-red-600"] {
+          background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+          color: #ffffff !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root table thead tr,
+        html:not(.dark-mode) .admin-dashboard-root tr[class*="bg-slate-800"],
+        html:not(.dark-mode) .admin-dashboard-root tr[class*="bg-slate-950"] {
+          background: linear-gradient(180deg, #f7faff, #eef4ff) !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root tbody tr:hover,
+        html:not(.dark-mode) .admin-dashboard-root [class*="hover:bg-slate-800/40"]:hover {
+          background: #f3f7ff !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .rounded-2xl,
+        html:not(.dark-mode) .admin-dashboard-root .rounded-xl {
+          border-color: #dbe6f5;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root input[class*="pl-10"] {
+          padding-left: 2.5rem !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root input[class*="pl-9"] {
+          padding-left: 2.25rem !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-panel,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-card,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .certificate-card {
           background:
-            linear-gradient(145deg, rgba(15,23,42,0.98), rgba(24,31,58,0.98)) !important;
-          border-color: rgba(129,140,248,0.22) !important;
-          box-shadow: 0 18px 44px rgba(15,23,42,0.16) !important;
+            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96)) !important;
+          border-color: #dbe6f5 !important;
+          box-shadow: 0 18px 42px rgba(37,56,88,0.09) !important;
         }
 
-        .admin-dashboard-light .cert-admin-root [class*="text-white"],
-        .admin-dashboard-light .cert-admin-root [class*="text-slate-200"],
-        .admin-dashboard-light .cert-admin-root [class*="text-slate-300"] {
-          color: #f8fbff !important;
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-card {
+          background:
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,247,255,0.96)) !important;
         }
 
-        .admin-dashboard-light .cert-admin-root [class*="text-slate-400"],
-        .admin-dashboard-light .cert-admin-root [class*="text-slate-500"],
-        .admin-dashboard-light .cert-admin-root [class*="text-slate-600"] {
-          color: #9fb0d0 !important;
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root h1,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root h2,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root h3,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-white"],
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-200"],
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-300"] {
+          color: #0f172a !important;
         }
 
-        .admin-dashboard-light .cert-admin-root .student-row {
-          border-color: rgba(148,163,184,0.16) !important;
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-400"],
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-500"],
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-600"] {
+          color: #64748b !important;
         }
 
-        .admin-dashboard-light .cert-admin-root .admin-input {
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row {
+          border-color: #e6eef8 !important;
+          background: rgba(255,255,255,0.64) !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row:hover {
+          background: #f3f7ff !important;
+          box-shadow: inset 3px 0 0 #6366f1;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .major-pill,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.secondary {
+          background: #ffffff !important;
+          color: #334155 !important;
+          border-color: #c8d7ee !important;
+          box-shadow: 0 8px 18px rgba(37,56,88,0.05);
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.secondary:hover {
+          background: #f0f5ff !important;
+          color: #0f172a !important;
+          border-color: #aebff8 !important;
+          transform: translateY(-1px);
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.danger {
+          background: #fff5f5 !important;
+          color: #991b1b !important;
+          border-color: #fecaca !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .students-panel [class*="border-slate-800"] {
+          border-color: #dbe6f5 !important;
+          background: linear-gradient(180deg, #f7faff, #f0f5ff) !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-input {
           background: #ffffff !important;
           color: #0f172a !important;
-          border-color: rgba(129,140,248,0.38) !important;
+          border-color: #c8d7ee !important;
+          box-shadow:
+            inset 0 1px 0 rgba(15,23,42,0.03),
+            0 10px 22px rgba(37,56,88,0.05);
         }
 
-        .admin-dashboard-light input,
-        .admin-dashboard-light select,
-        .admin-dashboard-light textarea {
-          background-color: #ffffff !important;
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-input.pl-10 {
+          padding-left: 2.5rem !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row .text-white,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .major-pill.active,
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.primary {
+          color: #ffffff !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row p.text-white {
           color: #0f172a !important;
         }
 
-        .admin-dashboard-light input::placeholder,
-        .admin-dashboard-light textarea::placeholder {
+        html:not(.dark-mode) .admin-dashboard-root input,
+        html:not(.dark-mode) .admin-dashboard-root select,
+        html:not(.dark-mode) .admin-dashboard-root textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #c8d7ee !important;
+          box-shadow:
+            inset 0 1px 0 rgba(15,23,42,0.03),
+            0 10px 22px rgba(37,56,88,0.04);
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root input::placeholder,
+        html:not(.dark-mode) .admin-dashboard-root textarea::placeholder {
           color: #64748b !important;
+        }
+
+        html.dark-mode .admin-dashboard-root {
+          background:
+            radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 30rem),
+            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .admin-dashboard-root div[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .admin-dashboard-root div[style*="background: #fff"],
+        html.dark-mode .admin-dashboard-root article[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .admin-dashboard-root article[style*="background: #fff"],
+        html.dark-mode .admin-dashboard-root section[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .admin-dashboard-root section[style*="background: #fff"] {
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .admin-dashboard-root h1[style*="color"],
+        html.dark-mode .admin-dashboard-root h2[style*="color"],
+        html.dark-mode .admin-dashboard-root h3[style*="color"],
+        html.dark-mode .admin-dashboard-root p[style*="color: rgb(17, 24, 39)"],
+        html.dark-mode .admin-dashboard-root p[style*="color: #111827"],
+        html.dark-mode .admin-dashboard-root p[style*="color: rgb(15, 23, 42)"],
+        html.dark-mode .admin-dashboard-root p[style*="color: #0f172a"],
+        html.dark-mode .admin-dashboard-root span[style*="color: rgb(17, 24, 39)"],
+        html.dark-mode .admin-dashboard-root span[style*="color: #111827"],
+        html.dark-mode .admin-dashboard-root span[style*="color: rgb(15, 23, 42)"],
+        html.dark-mode .admin-dashboard-root span[style*="color: #0f172a"] {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .admin-dashboard-root p[style*="color: rgb(107, 114, 128)"],
+        html.dark-mode .admin-dashboard-root p[style*="color: #6b7280"],
+        html.dark-mode .admin-dashboard-root span[style*="color: rgb(107, 114, 128)"],
+        html.dark-mode .admin-dashboard-root span[style*="color: #6b7280"],
+        html.dark-mode .admin-dashboard-root p[style*="color: rgb(156, 163, 175)"],
+        html.dark-mode .admin-dashboard-root p[style*="color: #9ca3af"],
+        html.dark-mode .admin-dashboard-root span[style*="color: rgb(156, 163, 175)"],
+        html.dark-mode .admin-dashboard-root span[style*="color: #9ca3af"] {
+          color: #a8b1d6 !important;
         }
       `}</style>
     </div>

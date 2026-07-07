@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import logo from "../../assets/image/logo.png";
 import banner from "../../assets/image/banner.jpg";
 import { loginMiddleware } from "../../../auth/authMiddleware";
@@ -160,16 +159,16 @@ const LoginPage = ({ onAuthSuccess }) => {
                 </div>
                 <div>
                   <p className="text-gray-300 text-sm font-semibold mb-1">
-                    New to ELearning?
+                    Need an account?
                   </p>
                   <p className="text-gray-400 text-xs">
-                    Join our community of learners and start your journey today.
-                    <Link
+                    Student accounts are created by your administrator.
+                    {/* <Link
                       to="/"
                       className="text-cyan-400 font-bold ml-1 hover:underline"
                     >
                       Create account →
-                    </Link>
+                    </Link> */}
                   </p>
                 </div>
               </div>
@@ -584,10 +583,9 @@ const LoginPage = ({ onAuthSuccess }) => {
                   </button>
                 </div>
 
-                {/* Register Link */}
                 <p className="text-center text-gray-500 text-sm">
-                  New to ELearning?{" "}
-                  <Link
+                  Need access? Contact your administrator for a student account.
+                  {/* <Link
                     to="/"
                     className="text-cyan-400 font-bold hover:text-cyan-300 hover:underline transition-all inline-flex items-center gap-1"
                   >
@@ -605,7 +603,7 @@ const LoginPage = ({ onAuthSuccess }) => {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                  </Link>
+                  </Link> */}
                 </p>
               </div>
             </div>
