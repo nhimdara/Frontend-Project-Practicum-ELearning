@@ -148,14 +148,18 @@ function ExamQuestionForm({
       setLoadingQuestions(true);
       setError("");
       const data = await profileApi.getExamByMajor(major, user);
-      setQuestions(
-        Array.isArray(data?.questions)
-          ? data.questions.map(normalizeExamQuestion)
-          : [],
-      );
-      onQuestionsChange?.(data);
+      const normalizedQuestions = Array.isArray(data?.questions)
+        ? data.questions.map(normalizeExamQuestion)
+        : [];
+      setQuestions(normalizedQuestions);
+      onQuestionsChange?.({
+        ...data,
+        major,
+        questions: normalizedQuestions,
+      });
     } catch (err) {
       setQuestions([]);
+      onQuestionsChange?.({ major, questions: [] });
       setError(err.message);
     } finally {
       setLoadingQuestions(false);

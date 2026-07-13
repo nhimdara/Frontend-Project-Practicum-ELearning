@@ -6,6 +6,8 @@
 // ─────────────────────────────────────────────────────────────
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 import { API_BASE_URL } from "../../config/api";
 import Certificates from "./Profile/Certificates";
 import ExamQuestionForm from "./ExamQuestionForm";
@@ -34,6 +36,7 @@ import {
   FolderKanban,
   Award,
   ClipboardCheck,
+  Download,
 } from "lucide-react";
 import logo from "./../assets/image/logo.png";
 
@@ -188,6 +191,14 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [projectStatusFilter, setProjectStatusFilter] = useState("all");
   const [settingsMessage, setSettingsMessage] = useState("");
   const [health, setHealth] = useState(null);
+  const [examReportData, setExamReportData] = useState({
+    major: "",
+    questions: [],
+  });
+  const [certificateReportData, setCertificateReportData] = useState({
+    selectedMajor: "all",
+    certificates: [],
+  });
   const [adminSettings, setAdminSettings] = useState(() => {
     try {
       const globalTheme = getStoredTheme();
@@ -445,17 +456,339 @@ const AdminDashboard = ({ user, onLogout }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const getActiveReport = () => {
+    const generatedAt = new Date().toLocaleString();
+
+    if (activeTab === "overview") {
+      return {
+        name: "dashboard-overview",
+        title: "Dashboard Overview Report",
+        headers: ["Metric", "Value", "Details"],
+        rows: [
+          ["Registered Users", totalUsers, `${newToday} joined today`],
+          ["Active Users", activeUsers, `${totalUsers - activeUsers} inactive`],
+          ["Students", students.length, "Student and client accounts"],
+          ["Teachers", teachers.length, "Teacher accounts"],
+          ["Lessons", lessons.length, `${publishedLessonCount} published`],
+          ["Projects", projects.length, `${projects.filter((project) => project.featured).length} featured`],
+          ["Generated", generatedAt, displayUser.name],
+        ],
+      };
+    }
+
+    if (activeTab === "users") {
+      return {
+        name: "student-report",
+        title: "Student Management Report",
+        headers: [
+          "ID",
+          "Name",
+          "Email",
+          "Major",
+          "Academic Year",
+          "Status",
+          "Joined",
+          "Progress",
+        ],
+        rows: filtered.map((student) => [
+          student.id,
+          student.name,
+          student.email,
+          student.major || "",
+          getCurrentAcademicYear(student.startYear || new Date().getFullYear()),
+          student.status || "active",
+          student.joinDate || "",
+          Number(student.progress ?? 0) / 100,
+        ]),
+      };
+    }
+
+    if (activeTab === "teachers") {
+      return {
+        name: "teacher-report",
+        title: "Teacher Management Report",
+        headers: ["ID", "Name", "Email", "Major", "Status", "Joined"],
+        rows: teachers.map((teacher) => [
+          teacher.id,
+          teacher.name,
+          teacher.email,
+          teacher.major || "",
+          teacher.status || "active",
+          teacher.joinDate || "",
+        ]),
+      };
+    }
+
+    if (activeTab === "lessons" || activeTab === "courses") {
+      return {
+        name: "lesson-report",
+        title: "Lesson Management Report",
+        headers: [
+          "ID",
+          "Title",
+          "Major",
+          "Year",
+          "Semester",
+          "Category",
+          "Level",
+          "Credits",
+          "Hours",
+          "Status",
+        ],
+        rows: filteredLessons.map((lesson) => [
+          lesson.id,
+          lesson.title,
+          lesson.major || "",
+          lesson.year || "",
+          lesson.semester || "",
+          lesson.category || "",
+          lesson.level || "",
+          lesson.credit ?? "",
+          lesson.hours ?? "",
+          isLessonPublished(lesson) ? "Published" : "Draft",
+        ]),
+      };
+    }
+
+    if (activeTab === "projects") {
+      return {
+        name: "project-report",
+        title: "Project Management Report",
+        headers: [
+          "ID",
+          "Title",
+          "Tags",
+          "Status",
+          "Featured",
+          "Approval",
+          "GitHub URL",
+          "Live URL",
+        ],
+        rows: filteredProjects.map((project) => [
+          project.id,
+          project.title,
+          Array.isArray(project.tags) ? project.tags.join(", ") : project.tags || "",
+          isProjectActive(project) ? "Active" : "Hidden",
+          project.featured ? "Yes" : "No",
+          project.approval_status || "",
+          project.github_url || project.github || "",
+          project.live_url || project.demo_url || "",
+        ]),
+      };
+    }
+
+    if (activeTab === "exams") {
+      return {
+        name: `exam-question-report-${examReportData.major || "all"}`,
+        title: `${examReportData.major || "All Majors"} Exam Question Report`,
+        headers: [
+          "No.",
+          "Major",
+          "Question",
+          "Option A",
+          "Option B",
+          "Option C",
+          "Option D",
+          "Correct Answer",
+        ],
+        rows: (examReportData.questions || []).map((question, index) => {
+          const options = Array.isArray(question.options)
+            ? question.options.slice(0, 4)
+            : [];
+          while (options.length < 4) options.push("");
+          const correctIndex = Math.min(
+            3,
+            Math.max(0, Number(question.correctAnswer ?? 0)),
+          );
+          const correctOption = options[correctIndex] || "";
+          return [
+            index + 1,
+            examReportData.major || "",
+            question.question || "",
+            ...options,
+            `${String.fromCharCode(65 + correctIndex)}${correctOption ? ` - ${correctOption}` : ""}`,
+          ];
+        }),
+      };
+    }
+
+    if (activeTab === "certificates") {
+      return {
+        name: `certificate-report-${certificateReportData.selectedMajor || "all"}`,
+        title: "Certificate Management Report",
+        headers: [
+          "ID",
+          "Student",
+          "Email",
+          "Major",
+          "Certificate",
+          "Issue Date",
+          "Grade",
+          "Credential ID",
+          "Issuer",
+        ],
+        rows: (certificateReportData.certificates || []).map((certificate) => [
+          certificate.id,
+          certificate.studentName || "",
+          certificate.studentEmail || "",
+          certificate.studentMajor || certificate.examMajor || "",
+          certificate.title || "",
+          certificate.issueDate || "",
+          certificate.grade || "",
+          certificate.credentialId || "",
+          certificate.issuer || "Royal University of Phnom Penh",
+        ]),
+      };
+    }
+
+    return null;
+  };
+
+  const generateActiveReport = async () => {
+    const report = getActiveReport();
+    if (!report) return;
+
+    try {
+      const landscape = report.headers.length > 6;
+      const doc = new jsPDF({
+        orientation: landscape ? "landscape" : "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const totalPagesPlaceholder = "{total_pages_count_string}";
+      const generatedAt = new Date().toLocaleString();
+      const progressIndex = report.headers.indexOf("Progress");
+      const body = report.rows.map((row) =>
+        row.map((value, index) => {
+          if (index === progressIndex && typeof value === "number") {
+            return `${Math.round(value * 100)}%`;
+          }
+          return value ?? "";
+        }),
+      );
+
+      doc.setProperties({
+        title: report.title,
+        subject: "LearnFlow administration report",
+        author: displayUser.name || "LearnFlow Admin",
+        creator: "LearnFlow",
+      });
+
+      autoTable(doc, {
+        head: [report.headers],
+        body,
+        startY: 118,
+        margin: { top: 76, right: 30, bottom: 42, left: 30 },
+        theme: "striped",
+        showHead: "everyPage",
+        rowPageBreak: "avoid",
+        styles: {
+          font: "helvetica",
+          fontSize: landscape ? 7 : 8,
+          textColor: [51, 65, 85],
+          cellPadding: landscape ? 3.5 : 5,
+          lineColor: [226, 232, 240],
+          lineWidth: 0.3,
+          overflow: "linebreak",
+          valign: "middle",
+        },
+        headStyles: {
+          fillColor: [79, 70, 229],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          halign: "left",
+          lineColor: [67, 56, 202],
+          lineWidth: 0.5,
+        },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        didParseCell: (data) => {
+          if (data.section !== "body") return;
+          const header = report.headers[data.column.index];
+          if (["ID", "Academic Year", "Credits", "Hours", "Value"].includes(header)) {
+            data.cell.styles.halign = "right";
+          }
+          if (["Status", "Approval", "Featured"].includes(header)) {
+            const value = String(data.cell.raw ?? "").toLowerCase();
+            const positive = ["active", "published", "approved", "yes"].some(
+              (text) => value.includes(text),
+            );
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.textColor = positive ? [4, 120, 87] : [180, 83, 9];
+          }
+        },
+        willDrawPage: (data) => {
+          doc.setFillColor(30, 41, 59);
+          doc.rect(0, 0, pageWidth, 60, "F");
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(17);
+          doc.setTextColor(255, 255, 255);
+          doc.text(report.title, 30, 30);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(203, 213, 225);
+          doc.text(`LearnFlow Administration - Generated ${generatedAt}`, 30, 46);
+
+          if (data.pageNumber === 1) {
+            doc.setFillColor(238, 242, 255);
+            doc.roundedRect(30, 74, 150, 29, 4, 4, "F");
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8);
+            doc.setTextColor(67, 56, 202);
+            doc.text("TOTAL RECORDS", 41, 86);
+            doc.setFontSize(14);
+            doc.setTextColor(15, 23, 42);
+            doc.text(String(report.rows.length), 41, 99);
+          }
+        },
+        didDrawPage: (data) => {
+          doc.setDrawColor(226, 232, 240);
+          doc.line(30, pageHeight - 30, pageWidth - 30, pageHeight - 30);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7);
+          doc.setTextColor(100, 116, 139);
+          doc.text("LearnFlow Admin - Confidential", 30, pageHeight - 17);
+          doc.text(
+            `Page ${data.pageNumber} of ${totalPagesPlaceholder}`,
+            pageWidth - 30,
+            pageHeight - 17,
+            { align: "right" },
+          );
+        },
+      });
+
+      if (typeof doc.putTotalPages === "function") {
+        doc.putTotalPages(totalPagesPlaceholder);
+      }
+      const date = new Date().toISOString().slice(0, 10);
+      doc.save(`${report.name}-${date}.pdf`);
+    } catch (err) {
+      console.error("generateReport:", err);
+      alert(
+        `Could not generate the PDF report.${err?.message ? ` ${err.message}` : ""}`,
+      );
+    }
+  };
+
+  const activeReport = getActiveReport();
+
   const generatedEmailPreview = (() => {
-    const clean = studentForm.name
+    const nameParts = studentForm.name
       .toLowerCase()
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "")
-      .slice(0, 32);
-    if (!clean) return "";
-    const end = String(studentForm.endYear).slice(-2);
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
+    if (nameParts.length === 0) return "";
+    const firstName = nameParts[0].slice(0, 24);
+    const lastName = (nameParts.length > 1
+      ? nameParts[nameParts.length - 1]
+      : firstName
+    ).slice(0, 24);
     const start = String(studentForm.startYear).slice(-2);
-    return `${clean}.${end}${start}@elearning.com`;
+    const end = String(studentForm.endYear).slice(-2);
+    return `${firstName}.${lastName}.${start}${end}@elearning.com`;
   })();
 
   const updateStudentForm = (field, value) => {
@@ -473,13 +806,19 @@ const AdminDashboard = ({ user, onLogout }) => {
     const typedEmail = teacherForm.email.trim();
     if (typedEmail) return typedEmail.toLowerCase();
 
-    const clean = teacherForm.name
+    const nameParts = teacherForm.name
       .toLowerCase()
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "")
-      .slice(0, 32);
-    return clean ? `${clean}.teacher@elearning.com` : "";
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
+    if (nameParts.length === 0) return "";
+    const firstName = nameParts[0].slice(0, 24);
+    const lastName = (nameParts.length > 1
+      ? nameParts[nameParts.length - 1]
+      : firstName
+    ).slice(0, 24);
+    return `${firstName}.${lastName}.teacher@elearning.com`;
   })();
 
   const updateTeacherForm = (field, value) => {
@@ -1151,6 +1490,17 @@ const AdminDashboard = ({ user, onLogout }) => {
           </div>
 
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
+            {activeReport && (
+              <button
+                type="button"
+                onClick={generateActiveReport}
+                title={`Generate ${activeReport.title}`}
+                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Generate Report</span>
+              </button>
+            )}
             <button
               onClick={() => {
                 refreshUsers();
@@ -1298,6 +1648,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                     <input
                       value={studentForm.name}
                       onChange={(e) => updateStudentForm("name", e.target.value)}
+                      placeholder="Student Name"
                       className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
                     />
                   </div>
@@ -1594,7 +1945,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                     <input
                       value={teacherForm.name}
                       onChange={(e) => updateTeacherForm("name", e.target.value)}
-                      placeholder="teachername"
+                      placeholder="Teacher Name"
                       className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
                     />
                   </div>
@@ -2380,12 +2731,18 @@ const AdminDashboard = ({ user, onLogout }) => {
               <ExamQuestionForm
                 user={user}
                 defaultMajor={adminSettings.defaultMajor || "ITE"}
+                onQuestionsChange={setExamReportData}
               />
             </div>
           )}
 
           {activeTab === "certificates" && (
-            <Certificates user={user} onLogout={onLogout} embedded />
+            <Certificates
+              user={user}
+              onLogout={onLogout}
+              embedded
+              onReportDataChange={setCertificateReportData}
+            />
           )}
 
           {/* ── Projects Tab ── */}

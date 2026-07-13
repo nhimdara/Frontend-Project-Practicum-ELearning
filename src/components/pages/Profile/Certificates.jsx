@@ -366,7 +366,12 @@ const buildCertificateHtml = (certificate) => {
 </html>`;
 };
 
-const Certificates = ({ user, onLogout, embedded = false }) => {
+const Certificates = ({
+  user,
+  onLogout,
+  embedded = false,
+  onReportDataChange,
+}) => {
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [certificates, setCertificates] = useState([]);
@@ -440,6 +445,14 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
       return matchesMajor && matchesSearch;
     });
   }, [certificates, searchTerm, selectedMajor]);
+
+  useEffect(() => {
+    onReportDataChange?.({
+      certificates: visibleCertificates,
+      selectedMajor,
+      searchTerm,
+    });
+  }, [onReportDataChange, searchTerm, selectedMajor, visibleCertificates]);
 
   const stats = useMemo(() => {
     const counts = {
@@ -1089,7 +1102,7 @@ const Certificates = ({ user, onLogout, embedded = false }) => {
       `}</style>
 
       <div
-        className={`${embedded ? "min-h-0" : "min-h-screen"} bg-slate-950 text-white`}
+        className={`${embedded ? "min-h-0" : "min-h-screen"} text-white`}
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
         {!embedded && sidebarOpen && (
