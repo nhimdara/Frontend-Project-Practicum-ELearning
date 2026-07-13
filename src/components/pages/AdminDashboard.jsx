@@ -1256,7 +1256,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-slate-800">
+      <div className="admin-brand px-6 py-5 border-b border-slate-800">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
             <img src={logo} alt="Elearning Logo" className="w-full h-full" />
@@ -1273,12 +1273,12 @@ const AdminDashboard = ({ user, onLogout }) => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="admin-nav flex-1 px-3 py-4 space-y-1">
         {NAV.map((item) => (
           <button
             key={item.id}
             onClick={() => handleTabChange(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            className={`admin-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               activeTab === item.id
                 ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
                 : "text-slate-400 hover:text-white hover:bg-slate-800"
@@ -1299,7 +1299,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       </nav>
 
       {/* User + logout */}
-      <div className="px-4 py-4 border-t border-slate-800">
+      <div className="admin-sidebar-footer px-4 py-4 border-t border-slate-800">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-sm font-bold shrink-0">
             {displayUser.name?.charAt(0) || "A"}
@@ -1438,13 +1438,13 @@ const AdminDashboard = ({ user, onLogout }) => {
       )}
 
       {/* ── Desktop sidebar (fixed, hidden on mobile) ── */}
-      <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-30 flex-col">
+      <aside className="admin-sidebar hidden md:flex fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-30 flex-col">
         <SidebarContent />
       </aside>
 
       {/* ── Mobile sidebar (slide-in drawer) ── */}
       <aside
-        className={`fixed left-0 top-0 h-full w-72 bg-slate-900 border-r border-slate-800 z-50 flex flex-col md:hidden
+        className={`admin-sidebar fixed left-0 top-0 h-full w-72 bg-slate-900 border-r border-slate-800 z-50 flex flex-col md:hidden
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
@@ -1459,9 +1459,9 @@ const AdminDashboard = ({ user, onLogout }) => {
       </aside>
 
       {/* ── Main content ── */}
-      <main className="md:ml-64 min-h-screen">
+      <main className="admin-main md:ml-64 min-h-screen">
         {/* Topbar */}
-        <header className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 md:px-8 py-4 flex items-center justify-between gap-3">
+        <header className="admin-topbar sticky top-0 z-20 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 md:px-8 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             {/* Hamburger — mobile only */}
             <button
@@ -1529,7 +1529,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         </header>
 
         {/* Page body */}
-        <div className="px-4 md:px-8 py-5 md:py-6">
+        <div className="admin-page-body px-4 md:px-8 py-5 md:py-6">
           {/* API error */}
           {apiError && (
             <div className="mb-4 flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
@@ -3098,7 +3098,9 @@ const AdminDashboard = ({ user, onLogout }) => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500">API URL</span>
-                      <span className="text-slate-300 text-xs">{API_BASE}</span>
+                      <span className="text-slate-300 text-xs break-all text-right ml-4">
+                        {API_BASE}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500">DB lessons</span>
@@ -3299,6 +3301,155 @@ const AdminDashboard = ({ user, onLogout }) => {
         </div>
       </main>
       <style>{`
+        .admin-dashboard-root {
+          --admin-primary: #5b42e8;
+          --admin-primary-dark: #4338ca;
+          --admin-surface: rgba(255,255,255,0.96);
+          --admin-border: #d9e4f2;
+          --admin-text: #0f172a;
+          --admin-muted: #64748b;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .admin-sidebar {
+          overflow: hidden;
+          isolation: isolate;
+        }
+
+        .admin-brand {
+          min-height: 76px;
+          display: flex;
+          align-items: center;
+        }
+
+        .admin-nav {
+          overflow-y: auto;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(99,102,241,0.25) transparent;
+        }
+
+        .admin-nav-item {
+          min-height: 42px;
+          position: relative;
+          letter-spacing: -0.01em;
+        }
+
+        .admin-nav-item:hover {
+          transform: translateX(2px);
+        }
+
+        .admin-sidebar-footer {
+          margin-top: auto;
+        }
+
+        .admin-main {
+          min-width: 0;
+          background:
+            radial-gradient(circle at 92% 4%, rgba(99,102,241,0.12), transparent 30rem),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+        }
+
+        .admin-topbar {
+          min-height: 76px;
+          box-sizing: border-box;
+        }
+
+        .admin-topbar > div:first-child h1 {
+          font-size: clamp(17px, 1.5vw, 21px);
+          letter-spacing: -0.025em;
+        }
+
+        .admin-page-body {
+          width: min(100%, 1680px);
+          margin: 0 auto;
+          box-sizing: border-box;
+          animation: adminFadeUp 0.26s ease-out;
+        }
+
+        @keyframes adminFadeUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-page-body .rounded-2xl {
+          border-radius: 18px !important;
+        }
+
+        .admin-page-body .rounded-xl {
+          border-radius: 12px;
+        }
+
+        .admin-page-body form,
+        .admin-page-body .rounded-2xl.border {
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .admin-page-body .rounded-2xl.border:hover {
+          border-color: rgba(99,102,241,0.34) !important;
+        }
+
+        .admin-page-body input,
+        .admin-page-body select,
+        .admin-page-body textarea {
+          min-height: 42px;
+          transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .admin-page-body textarea {
+          min-height: 96px;
+        }
+
+        .admin-page-body input:focus,
+        .admin-page-body select:focus,
+        .admin-page-body textarea:focus {
+          border-color: #6366f1 !important;
+          box-shadow: 0 0 0 3px rgba(99,102,241,0.13) !important;
+        }
+
+        .admin-dashboard-root button {
+          transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease;
+        }
+
+        .admin-dashboard-root button:focus-visible,
+        .admin-dashboard-root input:focus-visible,
+        .admin-dashboard-root select:focus-visible,
+        .admin-dashboard-root textarea:focus-visible {
+          outline: 3px solid rgba(99,102,241,0.24) !important;
+          outline-offset: 2px;
+        }
+
+        .admin-dashboard-root button[class*="bg-indigo-600"]:hover,
+        .admin-dashboard-root button[class*="bg-emerald-600"]:hover,
+        .admin-dashboard-root button[class*="bg-red-600"]:hover {
+          transform: translateY(-1px);
+        }
+
+        .admin-page-body table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+        }
+
+        .admin-page-body table thead th {
+          position: sticky;
+          top: 0;
+          z-index: 2;
+          white-space: nowrap;
+        }
+
+        .admin-page-body table tbody tr {
+          transition: background 0.16s ease;
+        }
+
+        .admin-page-body table td,
+        .admin-page-body table th {
+          vertical-align: middle;
+        }
+
+        .admin-page-body label {
+          letter-spacing: -0.005em;
+        }
+
         html:not(.dark-mode) .admin-dashboard-root {
           background:
             radial-gradient(circle at top right, rgba(99,102,241,0.14), transparent 34rem),
@@ -3311,6 +3462,10 @@ const AdminDashboard = ({ user, onLogout }) => {
           background:
             linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96)) !important;
           box-shadow: 0 16px 38px rgba(37,56,88,0.07);
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .admin-page-body [class*="bg-slate-950"] {
+          box-shadow: none;
         }
 
         html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-800"] {
@@ -3342,6 +3497,21 @@ const AdminDashboard = ({ user, onLogout }) => {
 
         html:not(.dark-mode) .admin-dashboard-root aside {
           box-shadow: 12px 0 34px rgba(15,23,42,0.06);
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .admin-topbar {
+          background: rgba(255,255,255,0.82) !important;
+          box-shadow: 0 1px 0 rgba(148,163,184,0.16);
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .admin-nav-item[class*="bg-indigo-600"] {
+          background: linear-gradient(135deg, #5b42e8, #7c3aed) !important;
+          box-shadow: 0 10px 24px rgba(91,66,232,0.24) !important;
+        }
+
+        html:not(.dark-mode) .admin-dashboard-root .admin-page-body > div > .rounded-2xl,
+        html:not(.dark-mode) .admin-dashboard-root .admin-page-body form.rounded-2xl {
+          box-shadow: 0 14px 36px rgba(37,56,88,0.075);
         }
 
         html:not(.dark-mode) .admin-dashboard-root aside nav button:not([class*="bg-indigo-600"]):hover,
@@ -3513,6 +3683,24 @@ const AdminDashboard = ({ user, onLogout }) => {
           color: #f4f7ff !important;
         }
 
+        html.dark-mode .admin-dashboard-root {
+          --admin-surface: rgba(21,23,51,0.96);
+          --admin-border: #2b315f;
+          --admin-text: #f4f7ff;
+          --admin-muted: #a8b1d6;
+        }
+
+        html.dark-mode .admin-dashboard-root .admin-main {
+          background:
+            radial-gradient(circle at 92% 4%, rgba(99,102,241,0.18), transparent 30rem),
+            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
+        }
+
+        html.dark-mode .admin-dashboard-root .admin-topbar {
+          background: rgba(7,8,22,0.82) !important;
+          border-color: #2b315f !important;
+        }
+
         html.dark-mode .admin-dashboard-root div[style*="background: rgb(255, 255, 255)"],
         html.dark-mode .admin-dashboard-root div[style*="background: #fff"],
         html.dark-mode .admin-dashboard-root article[style*="background: rgb(255, 255, 255)"],
@@ -3548,6 +3736,44 @@ const AdminDashboard = ({ user, onLogout }) => {
         html.dark-mode .admin-dashboard-root span[style*="color: rgb(156, 163, 175)"],
         html.dark-mode .admin-dashboard-root span[style*="color: #9ca3af"] {
           color: #a8b1d6 !important;
+        }
+
+        @media (max-width: 1024px) {
+          .admin-page-body {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+          }
+        }
+
+        @media (max-width: 767px) {
+          .admin-topbar {
+            min-height: 66px;
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+          }
+
+          .admin-page-body {
+            padding: 16px 14px 28px !important;
+          }
+
+          .admin-page-body .rounded-2xl {
+            border-radius: 15px !important;
+          }
+
+          .admin-page-body table thead th {
+            position: static;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .admin-topbar [title^="Generate"] span {
+            display: none !important;
+          }
+
+          .admin-page-body {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+          }
         }
       `}</style>
     </div>

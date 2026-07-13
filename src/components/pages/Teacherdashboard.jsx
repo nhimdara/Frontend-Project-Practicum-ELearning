@@ -1,5 +1,7 @@
 // TeacherDashboard.jsx — Complete with major filtering
 import React, { useState, useEffect, useCallback } from "react";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 import { API_BASE_URL } from "../../config/api";
 import ExamQuestionForm from "./ExamQuestionForm";
 import logo from "./../assets/image/logo.png";
@@ -32,6 +34,7 @@ import {
   Settings,
   Sun,
   ClipboardCheck,
+  Download,
 } from "lucide-react";
 
 const API_BASE = API_BASE_URL;
@@ -1119,6 +1122,10 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [themeMode, setThemeMode] = useState(getStoredTheme);
+  const [examReportData, setExamReportData] = useState({
+    major: "",
+    questions: [],
+  });
 
   // ========== CASCADING DROPDOWN STATES ==========
   const [years, setYears] = useState([]);
@@ -1403,6 +1410,233 @@ const TeacherDashboard = ({ user, onLogout }) => {
       );
     },
   );
+
+  const getTeacherReport = () => {
+    const lessonTitle = (lessonId) =>
+      lessons.find((lesson) => String(lesson.id) === String(lessonId))?.title ||
+      "Unknown lesson";
+
+    if (activeTab === "overview") {
+      return {
+        name: "teacher-overview-report",
+        title: "Teacher Dashboard Overview Report",
+        headers: ["Metric", "Value", "Details"],
+        rows: [
+          ["Teacher", user?.name || "Teacher", user?.email || ""],
+          ["Major", teacherMajor || "All majors", "Teaching assignment"],
+          ["Lessons", lessons.length, "Available lessons"],
+          ["Videos", stats.totalVideos, `${stats.totalMinutes} total minutes`],
+          ["Free Videos", stats.freeVideos, `${stats.paidVideos} enrolled-only videos`],
+          ["Lessons With Video", stats.lessonsWithVideo, "Lessons containing video content"],
+          ["Pending Projects", pendingProjects.length, "Awaiting teacher review"],
+        ],
+      };
+    }
+
+    if (activeTab === "videos") {
+      return {
+        name: "teacher-video-report",
+        title: "Teacher Video Report",
+        headers: ["ID", "Title", "Lesson", "Duration", "Access", "Order", "Link"],
+        rows: filteredVideos.map((video) => [
+          video.id,
+          video.title,
+          lessonTitle(video.lesson_id),
+          `${video.duration_minutes || 0} min`,
+          video.is_free ? "Free" : "Enrolled only",
+          video.order_index || 1,
+          video.link || "",
+        ]),
+      };
+    }
+
+    if (activeTab === "by-lesson") {
+      return {
+        name: "teacher-videos-by-lesson-report",
+        title: "Videos By Lesson Report",
+        headers: ["Lesson", "Video", "Duration", "Access", "Order"],
+        rows: videosByLesson.flatMap(({ lesson, videos: lessonVideos }) =>
+          lessonVideos.map((video) => [
+            lesson.title,
+            video.title,
+            `${video.duration_minutes || 0} min`,
+            video.is_free ? "Free" : "Enrolled only",
+            video.order_index || 1,
+          ]),
+        ),
+      };
+    }
+
+    if (activeTab === "lessons") {
+      return {
+        name: "teacher-lesson-report",
+        title: "Teacher Lesson Report",
+        headers: ["ID", "Title", "Major", "Year", "Semester", "Level", "Credits", "Status"],
+        rows: filteredLessons.map((lesson) => [
+          lesson.id,
+          lesson.title,
+          lesson.major || "",
+          lesson.year || "",
+          lesson.semester || "",
+          lesson.level || "",
+          lesson.credit ?? "",
+          lesson.is_published === false || lesson.is_published === 0
+            ? "Draft"
+            : "Published",
+        ]),
+      };
+    }
+
+    if (activeTab === "projects") {
+      return {
+        name: "teacher-project-request-report",
+        title: "Teacher Project Request Report",
+        headers: ["ID", "Title", "Student", "Major", "Tags", "Status", "GitHub URL", "Live URL"],
+        rows: pendingProjects.map((project) => [
+          project.id,
+          project.title,
+          project.student_name || project.user_name || project.author || "",
+          getProjectMajor(project) || teacherMajor || "",
+          normalizeProjectTags(project.tags)
+            .filter((tag) => tag !== TEACHER_APPROVED_TAG && !tag.startsWith(PROJECT_MAJOR_PREFIX))
+            .join(", "),
+          "Teacher review",
+          project.github_url || project.github || "",
+          project.live_url || project.demo_url || "",
+        ]),
+      };
+    }
+
+    if (activeTab === "exam") {
+      return {
+        name: `teacher-exam-question-report-${examReportData.major || teacherMajor || "all"}`,
+        title: `${examReportData.major || teacherMajor || "All Majors"} Exam Question Report`,
+        headers: ["No.", "Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer"],
+        rows: (examReportData.questions || []).map((question, index) => {
+          const options = Array.isArray(question.options)
+            ? question.options.slice(0, 4)
+            : [];
+          while (options.length < 4) options.push("");
+          const correctIndex = Math.min(
+            3,
+            Math.max(0, Number(question.correctAnswer ?? 0)),
+          );
+          return [
+            index + 1,
+            question.question || "",
+            ...options,
+            `${String.fromCharCode(65 + correctIndex)}${options[correctIndex] ? ` - ${options[correctIndex]}` : ""}`,
+          ];
+        }),
+      };
+    }
+
+    return null;
+  };
+
+  const generateTeacherReport = () => {
+    const report = getTeacherReport();
+    if (!report) return;
+
+    try {
+      const landscape = report.headers.length > 6;
+      const doc = new jsPDF({
+        orientation: landscape ? "landscape" : "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const totalPagesPlaceholder = "{total_pages_count_string}";
+      const generatedAt = new Date().toLocaleString();
+
+      doc.setProperties({
+        title: report.title,
+        subject: "LearnFlow teacher report",
+        author: user?.name || "LearnFlow Teacher",
+        creator: "LearnFlow",
+      });
+
+      autoTable(doc, {
+        head: [report.headers],
+        body: report.rows.map((row) => row.map((value) => value ?? "")),
+        startY: 118,
+        margin: { top: 76, right: 30, bottom: 42, left: 30 },
+        theme: "striped",
+        showHead: "everyPage",
+        rowPageBreak: "avoid",
+        styles: {
+          font: "helvetica",
+          fontSize: landscape ? 7 : 8,
+          textColor: [51, 65, 85],
+          cellPadding: landscape ? 3.5 : 5,
+          lineColor: [226, 232, 240],
+          lineWidth: 0.3,
+          overflow: "linebreak",
+          valign: "middle",
+        },
+        headStyles: {
+          fillColor: [79, 70, 229],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          lineColor: [67, 56, 202],
+          lineWidth: 0.5,
+        },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        willDrawPage: (data) => {
+          doc.setFillColor(30, 41, 59);
+          doc.rect(0, 0, pageWidth, 60, "F");
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(17);
+          doc.setTextColor(255, 255, 255);
+          doc.text(report.title, 30, 30);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(203, 213, 225);
+          doc.text(`LearnFlow Teacher - Generated ${generatedAt}`, 30, 46);
+
+          if (data.pageNumber === 1) {
+            doc.setFillColor(238, 242, 255);
+            doc.roundedRect(30, 74, 150, 29, 4, 4, "F");
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8);
+            doc.setTextColor(67, 56, 202);
+            doc.text("TOTAL RECORDS", 41, 86);
+            doc.setFontSize(14);
+            doc.setTextColor(15, 23, 42);
+            doc.text(String(report.rows.length), 41, 99);
+          }
+        },
+        didDrawPage: (data) => {
+          doc.setDrawColor(226, 232, 240);
+          doc.line(30, pageHeight - 30, pageWidth - 30, pageHeight - 30);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`${user?.name || "Teacher"} - ${teacherMajor || "All majors"}`, 30, pageHeight - 17);
+          doc.text(
+            `Page ${data.pageNumber} of ${totalPagesPlaceholder}`,
+            pageWidth - 30,
+            pageHeight - 17,
+            { align: "right" },
+          );
+        },
+      });
+
+      if (typeof doc.putTotalPages === "function") {
+        doc.putTotalPages(totalPagesPlaceholder);
+      }
+      const date = new Date().toISOString().slice(0, 10);
+      doc.save(`${report.name}-${date}.pdf`);
+    } catch (err) {
+      console.error("generateTeacherReport:", err);
+      alert(
+        `Could not generate the PDF report.${err?.message ? ` ${err.message}` : ""}`,
+      );
+    }
+  };
+
+  const activeTeacherReport = getTeacherReport();
 
   // Sidebar nav
   const navItems = [
@@ -1716,6 +1950,39 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
         {/* MAIN CONTENT */}
         <main style={mainStyle} className="teacher-main">
+          {activeTeacherReport && (
+            <div
+              className="teacher-report-toolbar"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                padding: "16px 20px 0",
+              }}
+            >
+              <button
+                type="button"
+                onClick={generateTeacherReport}
+                title={`Generate ${activeTeacherReport.title}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  border: "none",
+                  borderRadius: 10,
+                  background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+                  color: "#fff",
+                  padding: "10px 14px",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 6px 18px rgba(79,70,229,0.22)",
+                }}
+              >
+                <Download size={16} />
+                Generate Report
+              </button>
+            </div>
+          )}
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
@@ -2141,6 +2408,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                 user={user}
                 defaultMajor={teacherMajor || "ITE"}
                 lockMajor={Boolean(teacherMajor)}
+                onQuestionsChange={setExamReportData}
               />
             </div>
           )}
@@ -2203,6 +2471,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
               {/* Filters */}
               <div
+                className="teacher-filter-bar"
                 style={{
                   display: "flex",
                   gap: 10,
@@ -3083,6 +3352,144 @@ const TeacherDashboard = ({ user, onLogout }) => {
         @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        .teacher-dashboard-root {
+          --teacher-primary: #4f46e5;
+          --teacher-primary-soft: #eef2ff;
+          --teacher-border: #dbe5f1;
+          --teacher-surface: rgba(255,255,255,0.94);
+          --teacher-text: #0f172a;
+          --teacher-muted: #64748b;
+        }
+
+        .teacher-main {
+          scroll-behavior: smooth;
+        }
+
+        .teacher-content-section,
+        .teacher-report-toolbar {
+          width: min(100%, 1540px);
+          margin-left: auto;
+          margin-right: auto;
+          box-sizing: border-box;
+        }
+
+        .teacher-content-section {
+          padding: 14px 24px 40px !important;
+          animation: slideUp 0.28s ease-out;
+        }
+
+        .teacher-report-toolbar {
+          padding: 20px 24px 0 !important;
+        }
+
+        .teacher-report-toolbar button {
+          min-height: 40px;
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+
+        .teacher-report-toolbar button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 26px rgba(79,70,229,0.3) !important;
+          filter: saturate(1.08);
+        }
+
+        .teacher-content-section > div:first-child {
+          position: relative;
+          overflow: hidden;
+          padding: 24px 26px !important;
+          border: 1px solid var(--teacher-border);
+          border-radius: 18px;
+          background:
+            radial-gradient(circle at 92% 12%, rgba(99,102,241,0.18), transparent 14rem),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(245,247,255,0.94));
+          box-shadow: 0 14px 38px rgba(15,23,42,0.07);
+        }
+
+        .teacher-content-section > div:first-child::before {
+          content: "";
+          position: absolute;
+          inset: 0 auto 0 0;
+          width: 4px;
+          background: linear-gradient(180deg, #4f46e5, #8b5cf6);
+        }
+
+        .teacher-content-section > div:first-child h1 {
+          font-size: clamp(22px, 2.4vw, 30px) !important;
+          letter-spacing: -0.03em !important;
+        }
+
+        .teacher-stats-grid {
+          grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+          gap: 16px !important;
+        }
+
+        .teacher-stats-grid > div,
+        .teacher-video-grid > div,
+        .teacher-lessons-grid > div,
+        .teacher-settings-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .teacher-stats-grid > div {
+          min-height: 142px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          border-radius: 18px !important;
+        }
+
+        .teacher-stats-grid > div:hover,
+        .teacher-video-grid > div:hover,
+        .teacher-lessons-grid > div:hover,
+        .teacher-settings-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(99,102,241,0.42) !important;
+          box-shadow: 0 20px 48px rgba(15,23,42,0.12) !important;
+        }
+
+        .teacher-video-grid {
+          grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
+          gap: 18px !important;
+          align-items: stretch;
+        }
+
+        .teacher-video-grid > div {
+          height: 100%;
+          border-radius: 18px !important;
+          overflow: hidden;
+        }
+
+        .teacher-lessons-grid {
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+          gap: 18px !important;
+        }
+
+        .teacher-lessons-grid > div,
+        .teacher-settings-card {
+          border-radius: 18px !important;
+        }
+
+        .teacher-filter-bar {
+          padding: 14px;
+          border: 1px solid var(--teacher-border);
+          border-radius: 14px;
+          background: var(--teacher-surface);
+          box-shadow: 0 8px 24px rgba(15,23,42,0.05);
+        }
+
+        .teacher-filter-bar input,
+        .teacher-filter-bar select {
+          min-height: 42px;
+        }
+
+        .teacher-dashboard-root button:focus-visible,
+        .teacher-dashboard-root input:focus-visible,
+        .teacher-dashboard-root select:focus-visible,
+        .teacher-dashboard-root textarea:focus-visible {
+          outline: 3px solid rgba(99,102,241,0.22) !important;
+          outline-offset: 2px;
+        }
+
         html:not(.dark-mode) .teacher-dashboard-root .teacher-main {
           background:
             radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 34rem),
@@ -3096,11 +3503,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
           color: #0f172a !important;
         }
 
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main p,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main span {
-          color: #475569 !important;
-        }
-
         html:not(.dark-mode) .teacher-dashboard-root .teacher-main input,
         html:not(.dark-mode) .teacher-dashboard-root .teacher-main select,
         html:not(.dark-mode) .teacher-dashboard-root .teacher-main textarea {
@@ -3109,7 +3511,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
           border-color: #d8e2f0 !important;
         }
 
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main .teacher-content-section > div,
         html:not(.dark-mode) .teacher-dashboard-root .teacher-stats-grid > div,
         html:not(.dark-mode) .teacher-dashboard-root .teacher-video-grid > div,
         html:not(.dark-mode) .teacher-dashboard-root .teacher-lessons-grid > div,
@@ -3151,11 +3552,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
           color: #f4f7ff !important;
         }
 
-        html.dark-mode .teacher-main p,
-        html.dark-mode .teacher-main span {
-          color: #a8b1d6 !important;
-        }
-
         html.dark-mode .teacher-dashboard-root .sidebar {
           background:
             linear-gradient(180deg, rgba(13, 16, 36, 0.98), rgba(16, 18, 42, 0.98)) !important;
@@ -3177,7 +3573,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
         }
 
         html.dark-mode .teacher-settings-card,
-        html.dark-mode .teacher-main .teacher-content-section > div,
         html.dark-mode .teacher-stats-grid > div,
         html.dark-mode .teacher-video-grid > div,
         html.dark-mode .teacher-lessons-grid > div {
@@ -3185,6 +3580,27 @@ const TeacherDashboard = ({ user, onLogout }) => {
           border-color: #2b315f !important;
           color: #f4f7ff !important;
           box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root {
+          --teacher-border: #2b315f;
+          --teacher-surface: rgba(21,23,51,0.96);
+          --teacher-text: #f4f7ff;
+          --teacher-muted: #a8b1d6;
+        }
+
+        html.dark-mode .teacher-content-section > div:first-child {
+          background:
+            radial-gradient(circle at 92% 12%, rgba(129,140,248,0.22), transparent 14rem),
+            linear-gradient(135deg, rgba(21,23,51,0.98), rgba(28,31,66,0.94)) !important;
+          border-color: #2b315f !important;
+          box-shadow: 0 18px 48px rgba(0,0,0,0.34) !important;
+        }
+
+        html.dark-mode .teacher-filter-bar {
+          background: rgba(21,23,51,0.96) !important;
+          border-color: #2b315f !important;
+          box-shadow: 0 14px 34px rgba(0,0,0,0.22);
         }
 
         html.dark-mode .teacher-settings-card button:not([style*="linear-gradient"]) {
@@ -3312,7 +3728,13 @@ const TeacherDashboard = ({ user, onLogout }) => {
             padding-top: 54px;
           }
           .teacher-content-section {
-            padding: 18px 20px 24px !important;
+            padding: 12px 18px 28px !important;
+          }
+          .teacher-report-toolbar {
+            padding: 14px 18px 0 !important;
+          }
+          .teacher-content-section > div:first-child {
+            padding: 20px !important;
           }
           .sidebar {
             position: fixed !important;
@@ -3340,6 +3762,20 @@ const TeacherDashboard = ({ user, onLogout }) => {
           .teacher-stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 12px !important;
+          }
+          .teacher-stats-grid > div {
+            min-height: 126px;
+            padding: 15px !important;
+          }
+          .teacher-report-toolbar button {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+
+        @media (min-width: 769px) and (max-width: 1280px) {
+          .teacher-stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
           }
         }
 
