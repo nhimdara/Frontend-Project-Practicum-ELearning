@@ -1,0 +1,443 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .teacher-dashboard-root {
+          --teacher-primary: #4f46e5;
+          --teacher-primary-soft: #eef2ff;
+          --teacher-border: #dbe5f1;
+          --teacher-surface: rgba(255,255,255,0.94);
+          --teacher-text: #0f172a;
+          --teacher-muted: #64748b;
+        }
+
+        .teacher-main {
+          scroll-behavior: smooth;
+        }
+
+        .teacher-content-section,
+        .teacher-report-toolbar {
+          width: min(100%, 1540px);
+          margin-left: auto;
+          margin-right: auto;
+          box-sizing: border-box;
+        }
+
+        .teacher-content-section {
+          padding: 14px 24px 40px !important;
+          animation: slideUp 0.28s ease-out;
+        }
+
+        .teacher-report-toolbar {
+          padding: 20px 24px 0 !important;
+        }
+
+        .teacher-report-toolbar button {
+          min-height: 40px;
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+
+        .teacher-report-toolbar button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 26px rgba(79,70,229,0.3) !important;
+          filter: saturate(1.08);
+        }
+
+        .teacher-content-section > div:first-child {
+          position: relative;
+          overflow: hidden;
+          padding: 24px 26px !important;
+          border: 1px solid var(--teacher-border);
+          border-radius: 18px;
+          background:
+            radial-gradient(circle at 92% 12%, rgba(99,102,241,0.18), transparent 14rem),
+            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(245,247,255,0.94));
+          box-shadow: 0 14px 38px rgba(15,23,42,0.07);
+        }
+
+        .teacher-content-section > div:first-child::before {
+          content: "";
+          position: absolute;
+          inset: 0 auto 0 0;
+          width: 4px;
+          background: linear-gradient(180deg, #4f46e5, #8b5cf6);
+        }
+
+        .teacher-content-section > div:first-child h1 {
+          font-size: clamp(22px, 2.4vw, 30px) !important;
+          letter-spacing: -0.03em !important;
+        }
+
+        .teacher-stats-grid {
+          grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+          gap: 16px !important;
+        }
+
+        .teacher-stats-grid > div,
+        .teacher-video-grid > div,
+        .teacher-lessons-grid > div,
+        .teacher-settings-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .teacher-stats-grid > div {
+          min-height: 142px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          border-radius: 18px !important;
+        }
+
+        .teacher-stats-grid > div:hover,
+        .teacher-video-grid > div:hover,
+        .teacher-lessons-grid > div:hover,
+        .teacher-settings-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(99,102,241,0.42) !important;
+          box-shadow: 0 20px 48px rgba(15,23,42,0.12) !important;
+        }
+
+        .teacher-video-grid {
+          grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
+          gap: 18px !important;
+          align-items: stretch;
+        }
+
+        .teacher-video-grid > div {
+          height: 100%;
+          border-radius: 18px !important;
+          overflow: hidden;
+        }
+
+        .teacher-lessons-grid {
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+          gap: 18px !important;
+        }
+
+        .teacher-lessons-grid > div,
+        .teacher-settings-card {
+          border-radius: 18px !important;
+        }
+
+        .teacher-filter-bar {
+          padding: 14px;
+          border: 1px solid var(--teacher-border);
+          border-radius: 14px;
+          background: var(--teacher-surface);
+          box-shadow: 0 8px 24px rgba(15,23,42,0.05);
+        }
+
+        .teacher-filter-bar input,
+        .teacher-filter-bar select {
+          min-height: 42px;
+        }
+
+        .teacher-dashboard-root button:focus-visible,
+        .teacher-dashboard-root input:focus-visible,
+        .teacher-dashboard-root select:focus-visible,
+        .teacher-dashboard-root textarea:focus-visible {
+          outline: 3px solid rgba(99,102,241,0.22) !important;
+          outline-offset: 2px;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main {
+          background:
+            radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 34rem),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h1,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h2,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h3 {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main input,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main select,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main textarea {
+          background: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #d8e2f0 !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-stats-grid > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-video-grid > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-lessons-grid > div,
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-settings-card {
+          background: rgba(255,255,255,0.94) !important;
+          border-color: #d8e2f0 !important;
+          color: #0f172a !important;
+          box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar {
+          background: rgba(255,255,255,0.96) !important;
+          border-right: 1px solid #d8e2f0 !important;
+          box-shadow: 12px 0 34px rgba(15,23,42,0.06);
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar p {
+          color: #0f172a !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar button {
+          color: #475569 !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
+          color: #ffffff !important;
+        }
+
+        html.dark-mode .teacher-main {
+          background:
+            radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 30rem),
+            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-main h1,
+        html.dark-mode .teacher-main h2,
+        html.dark-mode .teacher-main h3 {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar {
+          background:
+            linear-gradient(180deg, rgba(13, 16, 36, 0.98), rgba(16, 18, 42, 0.98)) !important;
+          border-right: 1px solid #2b315f !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar button {
+          color: #a8b1d6 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar button:hover {
+          background: rgba(99, 102, 241, 0.14) !important;
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .sidebar button[style*="rgba(99,102,241,0.15)"] {
+          background: rgba(99, 102, 241, 0.22) !important;
+          color: #c7d2fe !important;
+        }
+
+        html.dark-mode .teacher-settings-card,
+        html.dark-mode .teacher-stats-grid > div,
+        html.dark-mode .teacher-video-grid > div,
+        html.dark-mode .teacher-lessons-grid > div {
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root {
+          --teacher-border: #2b315f;
+          --teacher-surface: rgba(21,23,51,0.96);
+          --teacher-text: #f4f7ff;
+          --teacher-muted: #a8b1d6;
+        }
+
+        html.dark-mode .teacher-content-section > div:first-child {
+          background:
+            radial-gradient(circle at 92% 12%, rgba(129,140,248,0.22), transparent 14rem),
+            linear-gradient(135deg, rgba(21,23,51,0.98), rgba(28,31,66,0.94)) !important;
+          border-color: #2b315f !important;
+          box-shadow: 0 18px 48px rgba(0,0,0,0.34) !important;
+        }
+
+        html.dark-mode .teacher-filter-bar {
+          background: rgba(21,23,51,0.96) !important;
+          border-color: #2b315f !important;
+          box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+        }
+
+        html.dark-mode .teacher-settings-card button:not([style*="linear-gradient"]) {
+          background-color: #10142e !important;
+          border-color: #2b315f !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main input,
+        html.dark-mode .teacher-dashboard-root .teacher-main select,
+        html.dark-mode .teacher-dashboard-root .teacher-main textarea {
+          background: #10142e !important;
+          color: #f4f7ff !important;
+          border-color: #2b315f !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #fff"],
+        html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: #fff"],
+        html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: rgb(255, 255, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: #fff"] {
+          background: rgba(21, 23, 51, 0.96) !important;
+          border-color: #2b315f !important;
+          color: #f4f7ff !important;
+          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(249, 250, 251)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f9fafb"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(243, 244, 246)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f3f4f6"],
+        html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: rgb(243, 244, 246)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: #f3f4f6"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(243, 244, 246)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #f3f4f6"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(238, 242, 255)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #eef2ff"] {
+          background: #10142e !important;
+          border-color: #2b315f !important;
+          color: #d7def7 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div {
+          background:
+            linear-gradient(145deg, rgba(21, 23, 51, 0.98), rgba(28, 31, 66, 0.94)) !important;
+          border: 1px solid rgba(129, 140, 248, 0.28) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div:hover {
+          border-color: rgba(165, 180, 252, 0.48) !important;
+          box-shadow: 0 20px 46px rgba(79, 70, 229, 0.18) !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid button,
+        html.dark-mode .teacher-dashboard-root [class*="teacher-video-grid"] button {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: rgb(99, 102, 241)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: #6366f1"] {
+          color: #c7d2fe !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main h1[style*="color"],
+        html.dark-mode .teacher-dashboard-root .teacher-main h2[style*="color"],
+        html.dark-mode .teacher-dashboard-root .teacher-main h3[style*="color"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(17, 24, 39)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #111827"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(15, 23, 42)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #0f172a"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(17, 24, 39)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #111827"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(15, 23, 42)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #0f172a"] {
+          color: #f4f7ff !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(107, 114, 128)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #6b7280"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(107, 114, 128)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #6b7280"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(156, 163, 175)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #9ca3af"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(156, 163, 175)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #9ca3af"] {
+          color: #a8b1d6 !important;
+        }
+
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid rgb(229, 231, 235)"],
+        html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid #e5e7eb"] {
+          border-color: #2b315f !important;
+        }
+
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(15, 23, 42)"],
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #0f172a"],
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(17, 24, 39)"],
+        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #111827"] {
+          background: rgba(255, 255, 255, 0.96) !important;
+          border-color: #d8e2f0 !important;
+          color: #0f172a !important;
+        }
+        
+        @media (max-width: 768px) {
+          .mobile-menu-button {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            z-index: 30 !important;
+            transition: left 0.25s ease, background 0.2s ease;
+          }
+          .mobile-menu-button.is-open {
+            left: 208px !important;
+            background: #1e293b !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.22) !important;
+          }
+          .mobile-overlay {
+            display: none !important;
+          }
+          .mobile-overlay.is-open {
+            display: block !important;
+          }
+          .teacher-main {
+            padding-top: 54px;
+          }
+          .teacher-content-section {
+            padding: 12px 18px 28px !important;
+          }
+          .teacher-report-toolbar {
+            padding: 14px 18px 0 !important;
+          }
+          .teacher-content-section > div:first-child {
+            padding: 20px !important;
+          }
+          .sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 25 !important;
+            transform: translateX(-100%) !important;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+          }
+          .sidebar.is-open {
+            transform: translateX(0) !important;
+          }
+          .teacher-video-grid,
+          .teacher-lessons-grid,
+          .teacher-settings-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 560px) {
+          .teacher-content-section {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+          }
+          .teacher-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+          }
+          .teacher-stats-grid > div {
+            min-height: 126px;
+            padding: 15px !important;
+          }
+          .teacher-report-toolbar button {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+
+        @media (min-width: 769px) and (max-width: 1280px) {
+          .teacher-stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .mobile-menu-button.is-open {
+            left: calc(100vw - 56px) !important;
+          }
+          .teacher-content-section {
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+          }
+          .teacher-stats-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }

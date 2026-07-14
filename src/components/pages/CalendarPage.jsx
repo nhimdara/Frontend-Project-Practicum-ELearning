@@ -14,7 +14,9 @@ import lessonBanner from "./../assets/image/lessonpage.jpeg";
 const API_BASE = API_BASE_URL;
 
 async function fetchLessonsByMajor(major) {
-  const res = await fetch(`${API_BASE}/lessons/by-major/${major}`);
+  const res = await fetch(
+    `${API_BASE}/lessons/by-major/${encodeURIComponent(major)}`,
+  );
   if (!res.ok) throw new Error(`Server error: ${res.status}`);
   return res.json();
 }
@@ -240,38 +242,11 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
   );
 };
 
-const MajorSelector = ({ selectedMajor, onMajorChange }) => {
-  return (
-    <div className="flex flex-wrap justify-center gap-3 mb-10">
-      {MAJOR_OPTIONS.map((major) => (
-        <button
-          key={major.value}
-          onClick={() => onMajorChange(major.value)}
-          className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-2 ${
-            selectedMajor === major.value
-              ? `bg-gradient-to-r ${
-                  major.value === "ITE"
-                    ? "from-indigo-600 to-violet-600"
-                    : major.value === "IT"
-                      ? "from-cyan-600 to-blue-600"
-                      : "from-emerald-600 to-teal-600"
-                } text-white shadow-lg scale-105`
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105"
-          }`}
-        >
-          <span className="text-xl">{major.icon}</span>
-          <span>{major.label}</span>
-        </button>
-      ))}
-    </div>
-  );
-};
-
-const CalendarPage = () => {
+const CalendarPage = ({ user }) => {
+  const selectedMajor = user?.major?.trim() || "";
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedMajor, setSelectedMajor] = useState("ITE");
   const [activeYear, setActiveYear] = useState("Foundation");
   const [searchTerm, setSearchTerm] = useState("");
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -280,7 +255,8 @@ const CalendarPage = () => {
 
   // Fetch lessons when major changes
   useEffect(() => {
-    setLoading(true);
+    if (!selectedMajor) return;
+
     fetchLessonsByMajor(selectedMajor)
       .then((data) => {
         setLessons(data);
@@ -291,11 +267,6 @@ const CalendarPage = () => {
         setError(err.message);
       })
       .finally(() => setLoading(false));
-  }, [selectedMajor]);
-
-  // Reset active year when major changes
-  useEffect(() => {
-    setActiveYear("Foundation");
   }, [selectedMajor]);
 
   // Scroll and mouse effects
@@ -334,8 +305,21 @@ const CalendarPage = () => {
 
   const getMajorDisplayName = () => {
     const major = MAJOR_OPTIONS.find((m) => m.value === selectedMajor);
-    return major ? major.label : "ITE Programme";
+    return major ? major.label : selectedMajor;
   };
+
+  if (!selectedMajor) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+        <GraduationCap className="h-12 w-12 text-gray-400" />
+        <h2 className="text-xl font-bold text-gray-800">Major not assigned</h2>
+        <p className="text-gray-500 text-sm text-center">
+          Your account does not have a major assigned. Please contact an
+          administrator.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -425,11 +409,6 @@ const CalendarPage = () => {
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12 py-12">
-        <MajorSelector
-          selectedMajor={selectedMajor}
-          onMajorChange={setSelectedMajor}
-        />
-
         <div className="mb-8">
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />

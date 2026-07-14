@@ -1,3 +1,5 @@
+import { downloadDashboardReport } from "../DashboardShared/reportPdf";
+import "./adminDashboard.css";
 // ─────────────────────────────────────────────────────────────
 //  AdminDashboard.jsx — responsive version
 //  • Collapsible sidebar with hamburger on mobile
@@ -6,11 +8,9 @@
 // ─────────────────────────────────────────────────────────────
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
-import { API_BASE_URL } from "../../config/api";
-import Certificates from "./Profile/Certificates";
-import ExamQuestionForm from "./ExamQuestionForm";
+import { API_BASE_URL } from "../../../config/api";
+import CertificatesPage from "../CertificatesPage";
+import ExamQuestionForm from "../ExamQuestionForm";
 import {
   Shield,
   Users,
@@ -38,125 +38,28 @@ import {
   ClipboardCheck,
   Download,
 } from "lucide-react";
-import logo from "./../assets/image/logo.png";
+import logo from "../../assets/image/logo.png";
+import {
+  COLORS,
+  DEFAULT_ADMIN_SETTINGS,
+  LEVELS,
+  MAJORS,
+  emptyLessonForm,
+  emptyProjectForm,
+  emptyStudentForm,
+  emptyTeacherForm,
+} from "./dashboardConfig";
+import {
+  PROJECT_MAJOR_PREFIX,
+  TEACHER_APPROVED_TAG,
+  applyThemeMode,
+  getCurrentAcademicYear,
+  getStoredTheme,
+  isProjectActive,
+  isTeacherApprovedProject,
+} from "./dashboardUtils";
 
 const API_BASE = API_BASE_URL;
-const TEACHER_APPROVED_TAG = "teacher-approved";
-const PROJECT_MAJOR_PREFIX = "major:";
-const MAJORS = ["ITE", "IT", "Mathematics"];
-const LEVELS = ["Beginner", "Intermediate", "Advanced"];
-const COLORS = [
-  "#2563eb",
-  "#0891b2",
-  "#059669",
-  "#d97706",
-  "#dc2626",
-  "#7c3aed",
-];
-
-const getStoredTheme = () => {
-  try {
-    return JSON.parse(localStorage.getItem("learnflow_settings") || "{}").theme || "light";
-  } catch {
-    return "light";
-  }
-};
-
-const applyThemeMode = (theme) => {
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark-mode", isDark);
-  try {
-    localStorage.setItem("learnflow_settings", JSON.stringify({ theme }));
-  } catch {}
-};
-
-function getCurrentAcademicYear(startYear) {
-  const start = Number.parseInt(startYear, 10);
-  if (Number.isNaN(start)) return 1;
-  return Math.min(4, Math.max(1, new Date().getFullYear() - start + 1));
-}
-
-const DEFAULT_ADMIN_SETTINGS = {
-  defaultMajor: "ITE",
-  publishNewLessons: true,
-  compactTables: false,
-  themeMode: getStoredTheme(),
-  profileName: "",
-  profileEmail: "",
-};
-
-const emptyStudentForm = {
-  name: "",
-  major: "ITE",
-  startYear: new Date().getFullYear(),
-  endYear: new Date().getFullYear() + 4,
-  password: "Student@123",
-};
-
-const emptyTeacherForm = {
-  name: "",
-  email: "",
-  major: "ITE",
-  password: "Teacher@123",
-};
-
-const emptyLessonForm = {
-  id: null,
-  title: "",
-  description: "",
-  category_id: "",
-  semester_id: "",
-  level: "Beginner",
-  hours: "",
-  credit: 3,
-  color: "#2563eb",
-  option: "",
-  major: "ITE",
-  is_published: true,
-  videoId: null,
-  videoTitle: "",
-  videoLink: "",
-  videoDuration: "",
-  videoDescription: "",
-  videoIsFree: true,
-};
-
-const emptyProjectForm = {
-  id: null,
-  title: "",
-  description: "",
-  image: "",
-  tags: "",
-  github_url: "",
-  live_url: "",
-  featured: false,
-  is_active: true,
-  teacher_approved: true,
-  admin_approved: true,
-  approval_status: "approved",
-};
-
-const isProjectActive = (project) =>
-  project.is_active !== false &&
-  project.is_active !== 0 &&
-  project.is_active !== "0";
-
-const isTeacherApprovedProject = (project) =>
-  project.teacher_approved === true ||
-  project.teacher_approved === 1 ||
-  project.teacher_approved === "1" ||
-  project.approval_status === "admin_pending" ||
-  project.approval_status === "approved" ||
-  (Array.isArray(project.tags)
-    ? project.tags.includes(TEACHER_APPROVED_TAG)
-    : String(project.tags || "")
-        .split(",")
-        .map((tag) => tag.trim())
-        .includes(TEACHER_APPROVED_TAG)) ||
-  isProjectActive(project);
 
 const AdminDashboard = ({ user, onLogout }) => {
   const location = useLocation();
@@ -207,7 +110,6 @@ const AdminDashboard = ({ user, onLogout }) => {
       );
       return {
         ...DEFAULT_ADMIN_SETTINGS,
-        themeMode: globalTheme,
         profileName: user?.name || "",
         profileEmail: user?.email || "",
         ...saved,
@@ -644,130 +546,21 @@ const AdminDashboard = ({ user, onLogout }) => {
     return null;
   };
 
-  const generateActiveReport = async () => {
+  const generateActiveReport = () => {
     const report = getActiveReport();
     if (!report) return;
 
     try {
-      const landscape = report.headers.length > 6;
-      const doc = new jsPDF({
-        orientation: landscape ? "landscape" : "portrait",
-        unit: "pt",
-        format: "a4",
-      });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const totalPagesPlaceholder = "{total_pages_count_string}";
-      const generatedAt = new Date().toLocaleString();
-      const progressIndex = report.headers.indexOf("Progress");
-      const body = report.rows.map((row) =>
-        row.map((value, index) => {
-          if (index === progressIndex && typeof value === "number") {
-            return `${Math.round(value * 100)}%`;
-          }
-          return value ?? "";
-        }),
-      );
-
-      doc.setProperties({
-        title: report.title,
+      downloadDashboardReport({
+        report,
         subject: "LearnFlow administration report",
         author: displayUser.name || "LearnFlow Admin",
-        creator: "LearnFlow",
+        headerLabel: "LearnFlow Administration",
+        footerLabel: "LearnFlow Admin - Confidential",
       });
-
-      autoTable(doc, {
-        head: [report.headers],
-        body,
-        startY: 118,
-        margin: { top: 76, right: 30, bottom: 42, left: 30 },
-        theme: "striped",
-        showHead: "everyPage",
-        rowPageBreak: "avoid",
-        styles: {
-          font: "helvetica",
-          fontSize: landscape ? 7 : 8,
-          textColor: [51, 65, 85],
-          cellPadding: landscape ? 3.5 : 5,
-          lineColor: [226, 232, 240],
-          lineWidth: 0.3,
-          overflow: "linebreak",
-          valign: "middle",
-        },
-        headStyles: {
-          fillColor: [79, 70, 229],
-          textColor: [255, 255, 255],
-          fontStyle: "bold",
-          halign: "left",
-          lineColor: [67, 56, 202],
-          lineWidth: 0.5,
-        },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        didParseCell: (data) => {
-          if (data.section !== "body") return;
-          const header = report.headers[data.column.index];
-          if (["ID", "Academic Year", "Credits", "Hours", "Value"].includes(header)) {
-            data.cell.styles.halign = "right";
-          }
-          if (["Status", "Approval", "Featured"].includes(header)) {
-            const value = String(data.cell.raw ?? "").toLowerCase();
-            const positive = ["active", "published", "approved", "yes"].some(
-              (text) => value.includes(text),
-            );
-            data.cell.styles.fontStyle = "bold";
-            data.cell.styles.textColor = positive ? [4, 120, 87] : [180, 83, 9];
-          }
-        },
-        willDrawPage: (data) => {
-          doc.setFillColor(30, 41, 59);
-          doc.rect(0, 0, pageWidth, 60, "F");
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(17);
-          doc.setTextColor(255, 255, 255);
-          doc.text(report.title, 30, 30);
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(8);
-          doc.setTextColor(203, 213, 225);
-          doc.text(`LearnFlow Administration - Generated ${generatedAt}`, 30, 46);
-
-          if (data.pageNumber === 1) {
-            doc.setFillColor(238, 242, 255);
-            doc.roundedRect(30, 74, 150, 29, 4, 4, "F");
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(8);
-            doc.setTextColor(67, 56, 202);
-            doc.text("TOTAL RECORDS", 41, 86);
-            doc.setFontSize(14);
-            doc.setTextColor(15, 23, 42);
-            doc.text(String(report.rows.length), 41, 99);
-          }
-        },
-        didDrawPage: (data) => {
-          doc.setDrawColor(226, 232, 240);
-          doc.line(30, pageHeight - 30, pageWidth - 30, pageHeight - 30);
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(7);
-          doc.setTextColor(100, 116, 139);
-          doc.text("LearnFlow Admin - Confidential", 30, pageHeight - 17);
-          doc.text(
-            `Page ${data.pageNumber} of ${totalPagesPlaceholder}`,
-            pageWidth - 30,
-            pageHeight - 17,
-            { align: "right" },
-          );
-        },
-      });
-
-      if (typeof doc.putTotalPages === "function") {
-        doc.putTotalPages(totalPagesPlaceholder);
-      }
-      const date = new Date().toISOString().slice(0, 10);
-      doc.save(`${report.name}-${date}.pdf`);
-    } catch (err) {
-      console.error("generateReport:", err);
-      alert(
-        `Could not generate the PDF report.${err?.message ? ` ${err.message}` : ""}`,
-      );
+    } catch (error) {
+      console.error("generateReport:", error);
+      alert(`Could not generate the PDF report.${error?.message ? ` ${error.message}` : ""}`);
     }
   };
 
@@ -927,7 +720,9 @@ const AdminDashboard = ({ user, onLogout }) => {
         "learnflow_admin_profile",
         JSON.stringify(updatedProfile),
       );
-    } catch {}
+    } catch {
+      // Local profile persistence is best-effort.
+    }
 
     applyThemeMode(adminSettings.themeMode);
     setStudentForm((prev) => ({
@@ -2364,7 +2159,9 @@ const AdminDashboard = ({ user, onLogout }) => {
                               : "border-slate-700 bg-slate-950 text-slate-300 hover:bg-slate-800"
                           }`}
                         >
-                          <Icon className="h-4 w-4" />
+                          {React.createElement(Icon, {
+                            className: "h-4 w-4",
+                          })}
                           {label}
                         </button>
                       ))}
@@ -2737,7 +2534,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           )}
 
           {activeTab === "certificates" && (
-            <Certificates
+            <CertificatesPage
               user={user}
               onLogout={onLogout}
               embedded
@@ -3300,482 +3097,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           )}
         </div>
       </main>
-      <style>{`
-        .admin-dashboard-root {
-          --admin-primary: #5b42e8;
-          --admin-primary-dark: #4338ca;
-          --admin-surface: rgba(255,255,255,0.96);
-          --admin-border: #d9e4f2;
-          --admin-text: #0f172a;
-          --admin-muted: #64748b;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        .admin-sidebar {
-          overflow: hidden;
-          isolation: isolate;
-        }
-
-        .admin-brand {
-          min-height: 76px;
-          display: flex;
-          align-items: center;
-        }
-
-        .admin-nav {
-          overflow-y: auto;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(99,102,241,0.25) transparent;
-        }
-
-        .admin-nav-item {
-          min-height: 42px;
-          position: relative;
-          letter-spacing: -0.01em;
-        }
-
-        .admin-nav-item:hover {
-          transform: translateX(2px);
-        }
-
-        .admin-sidebar-footer {
-          margin-top: auto;
-        }
-
-        .admin-main {
-          min-width: 0;
-          background:
-            radial-gradient(circle at 92% 4%, rgba(99,102,241,0.12), transparent 30rem),
-            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
-        }
-
-        .admin-topbar {
-          min-height: 76px;
-          box-sizing: border-box;
-        }
-
-        .admin-topbar > div:first-child h1 {
-          font-size: clamp(17px, 1.5vw, 21px);
-          letter-spacing: -0.025em;
-        }
-
-        .admin-page-body {
-          width: min(100%, 1680px);
-          margin: 0 auto;
-          box-sizing: border-box;
-          animation: adminFadeUp 0.26s ease-out;
-        }
-
-        @keyframes adminFadeUp {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .admin-page-body .rounded-2xl {
-          border-radius: 18px !important;
-        }
-
-        .admin-page-body .rounded-xl {
-          border-radius: 12px;
-        }
-
-        .admin-page-body form,
-        .admin-page-body .rounded-2xl.border {
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .admin-page-body .rounded-2xl.border:hover {
-          border-color: rgba(99,102,241,0.34) !important;
-        }
-
-        .admin-page-body input,
-        .admin-page-body select,
-        .admin-page-body textarea {
-          min-height: 42px;
-          transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-        }
-
-        .admin-page-body textarea {
-          min-height: 96px;
-        }
-
-        .admin-page-body input:focus,
-        .admin-page-body select:focus,
-        .admin-page-body textarea:focus {
-          border-color: #6366f1 !important;
-          box-shadow: 0 0 0 3px rgba(99,102,241,0.13) !important;
-        }
-
-        .admin-dashboard-root button {
-          transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease;
-        }
-
-        .admin-dashboard-root button:focus-visible,
-        .admin-dashboard-root input:focus-visible,
-        .admin-dashboard-root select:focus-visible,
-        .admin-dashboard-root textarea:focus-visible {
-          outline: 3px solid rgba(99,102,241,0.24) !important;
-          outline-offset: 2px;
-        }
-
-        .admin-dashboard-root button[class*="bg-indigo-600"]:hover,
-        .admin-dashboard-root button[class*="bg-emerald-600"]:hover,
-        .admin-dashboard-root button[class*="bg-red-600"]:hover {
-          transform: translateY(-1px);
-        }
-
-        .admin-page-body table {
-          width: 100%;
-          border-collapse: separate;
-          border-spacing: 0;
-        }
-
-        .admin-page-body table thead th {
-          position: sticky;
-          top: 0;
-          z-index: 2;
-          white-space: nowrap;
-        }
-
-        .admin-page-body table tbody tr {
-          transition: background 0.16s ease;
-        }
-
-        .admin-page-body table td,
-        .admin-page-body table th {
-          vertical-align: middle;
-        }
-
-        .admin-page-body label {
-          letter-spacing: -0.005em;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root {
-          background:
-            radial-gradient(circle at top right, rgba(99,102,241,0.14), transparent 34rem),
-            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-950"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-900"] {
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96)) !important;
-          box-shadow: 0 16px 38px rgba(37,56,88,0.07);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .admin-page-body [class*="bg-slate-950"] {
-          box-shadow: none;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root [class*="bg-slate-800"] {
-          background-color: #f1f5ff !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root [class*="border-slate-800"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="border-slate-700"] {
-          border-color: #dbe6f5 !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root [class*="text-white"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-200"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-300"] {
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-400"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="text-slate-500"] {
-          color: #475569 !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root header,
-        html:not(.dark-mode) .admin-dashboard-root aside {
-          background: rgba(255,255,255,0.88) !important;
-          backdrop-filter: blur(18px);
-          border-color: #dbe6f5 !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root aside {
-          box-shadow: 12px 0 34px rgba(15,23,42,0.06);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .admin-topbar {
-          background: rgba(255,255,255,0.82) !important;
-          box-shadow: 0 1px 0 rgba(148,163,184,0.16);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .admin-nav-item[class*="bg-indigo-600"] {
-          background: linear-gradient(135deg, #5b42e8, #7c3aed) !important;
-          box-shadow: 0 10px 24px rgba(91,66,232,0.24) !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .admin-page-body > div > .rounded-2xl,
-        html:not(.dark-mode) .admin-dashboard-root .admin-page-body form.rounded-2xl {
-          box-shadow: 0 14px 36px rgba(37,56,88,0.075);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root aside nav button:not([class*="bg-indigo-600"]):hover,
-        html:not(.dark-mode) .admin-dashboard-root button[class*="hover:bg-slate-800"]:hover {
-          background: #edf3ff !important;
-          color: #1e293b !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root [class*="bg-indigo-600"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="bg-red-600"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="bg-emerald-600"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="from-indigo-500"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="from-cyan-500"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="from-violet-500"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="to-violet-600"],
-        html:not(.dark-mode) .admin-dashboard-root [class*="to-indigo-600"] {
-          color: #ffffff !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root button[class*="bg-indigo-600"],
-        html:not(.dark-mode) .admin-dashboard-root .exam-question-form button[type="submit"] {
-          background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-          border-color: transparent !important;
-          box-shadow: 0 12px 24px rgba(79,70,229,0.22);
-          color: #ffffff !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root button[class*="bg-red-600"] {
-          background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
-          color: #ffffff !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root table thead tr,
-        html:not(.dark-mode) .admin-dashboard-root tr[class*="bg-slate-800"],
-        html:not(.dark-mode) .admin-dashboard-root tr[class*="bg-slate-950"] {
-          background: linear-gradient(180deg, #f7faff, #eef4ff) !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root tbody tr:hover,
-        html:not(.dark-mode) .admin-dashboard-root [class*="hover:bg-slate-800/40"]:hover {
-          background: #f3f7ff !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .rounded-2xl,
-        html:not(.dark-mode) .admin-dashboard-root .rounded-xl {
-          border-color: #dbe6f5;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root input[class*="pl-10"] {
-          padding-left: 2.5rem !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root input[class*="pl-9"] {
-          padding-left: 2.25rem !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root {
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-panel,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-card,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .certificate-card {
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96)) !important;
-          border-color: #dbe6f5 !important;
-          box-shadow: 0 18px 42px rgba(37,56,88,0.09) !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-card {
-          background:
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,247,255,0.96)) !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root h1,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root h2,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root h3,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-white"],
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-200"],
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-300"] {
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-400"],
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-500"],
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root [class*="text-slate-600"] {
-          color: #64748b !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row {
-          border-color: #e6eef8 !important;
-          background: rgba(255,255,255,0.64) !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row:hover {
-          background: #f3f7ff !important;
-          box-shadow: inset 3px 0 0 #6366f1;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .major-pill,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.secondary {
-          background: #ffffff !important;
-          color: #334155 !important;
-          border-color: #c8d7ee !important;
-          box-shadow: 0 8px 18px rgba(37,56,88,0.05);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.secondary:hover {
-          background: #f0f5ff !important;
-          color: #0f172a !important;
-          border-color: #aebff8 !important;
-          transform: translateY(-1px);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.danger {
-          background: #fff5f5 !important;
-          color: #991b1b !important;
-          border-color: #fecaca !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .students-panel [class*="border-slate-800"] {
-          border-color: #dbe6f5 !important;
-          background: linear-gradient(180deg, #f7faff, #f0f5ff) !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-input {
-          background: #ffffff !important;
-          color: #0f172a !important;
-          border-color: #c8d7ee !important;
-          box-shadow:
-            inset 0 1px 0 rgba(15,23,42,0.03),
-            0 10px 22px rgba(37,56,88,0.05);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-input.pl-10 {
-          padding-left: 2.5rem !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row .text-white,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .major-pill.active,
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .admin-btn.primary {
-          color: #ffffff !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root .cert-admin-root .student-row p.text-white {
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root input,
-        html:not(.dark-mode) .admin-dashboard-root select,
-        html:not(.dark-mode) .admin-dashboard-root textarea {
-          background-color: #ffffff !important;
-          color: #0f172a !important;
-          border-color: #c8d7ee !important;
-          box-shadow:
-            inset 0 1px 0 rgba(15,23,42,0.03),
-            0 10px 22px rgba(37,56,88,0.04);
-        }
-
-        html:not(.dark-mode) .admin-dashboard-root input::placeholder,
-        html:not(.dark-mode) .admin-dashboard-root textarea::placeholder {
-          color: #64748b !important;
-        }
-
-        html.dark-mode .admin-dashboard-root {
-          background:
-            radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 30rem),
-            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .admin-dashboard-root {
-          --admin-surface: rgba(21,23,51,0.96);
-          --admin-border: #2b315f;
-          --admin-text: #f4f7ff;
-          --admin-muted: #a8b1d6;
-        }
-
-        html.dark-mode .admin-dashboard-root .admin-main {
-          background:
-            radial-gradient(circle at 92% 4%, rgba(99,102,241,0.18), transparent 30rem),
-            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
-        }
-
-        html.dark-mode .admin-dashboard-root .admin-topbar {
-          background: rgba(7,8,22,0.82) !important;
-          border-color: #2b315f !important;
-        }
-
-        html.dark-mode .admin-dashboard-root div[style*="background: rgb(255, 255, 255)"],
-        html.dark-mode .admin-dashboard-root div[style*="background: #fff"],
-        html.dark-mode .admin-dashboard-root article[style*="background: rgb(255, 255, 255)"],
-        html.dark-mode .admin-dashboard-root article[style*="background: #fff"],
-        html.dark-mode .admin-dashboard-root section[style*="background: rgb(255, 255, 255)"],
-        html.dark-mode .admin-dashboard-root section[style*="background: #fff"] {
-          background: rgba(21, 23, 51, 0.96) !important;
-          border-color: #2b315f !important;
-          color: #f4f7ff !important;
-          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
-        }
-
-        html.dark-mode .admin-dashboard-root h1[style*="color"],
-        html.dark-mode .admin-dashboard-root h2[style*="color"],
-        html.dark-mode .admin-dashboard-root h3[style*="color"],
-        html.dark-mode .admin-dashboard-root p[style*="color: rgb(17, 24, 39)"],
-        html.dark-mode .admin-dashboard-root p[style*="color: #111827"],
-        html.dark-mode .admin-dashboard-root p[style*="color: rgb(15, 23, 42)"],
-        html.dark-mode .admin-dashboard-root p[style*="color: #0f172a"],
-        html.dark-mode .admin-dashboard-root span[style*="color: rgb(17, 24, 39)"],
-        html.dark-mode .admin-dashboard-root span[style*="color: #111827"],
-        html.dark-mode .admin-dashboard-root span[style*="color: rgb(15, 23, 42)"],
-        html.dark-mode .admin-dashboard-root span[style*="color: #0f172a"] {
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .admin-dashboard-root p[style*="color: rgb(107, 114, 128)"],
-        html.dark-mode .admin-dashboard-root p[style*="color: #6b7280"],
-        html.dark-mode .admin-dashboard-root span[style*="color: rgb(107, 114, 128)"],
-        html.dark-mode .admin-dashboard-root span[style*="color: #6b7280"],
-        html.dark-mode .admin-dashboard-root p[style*="color: rgb(156, 163, 175)"],
-        html.dark-mode .admin-dashboard-root p[style*="color: #9ca3af"],
-        html.dark-mode .admin-dashboard-root span[style*="color: rgb(156, 163, 175)"],
-        html.dark-mode .admin-dashboard-root span[style*="color: #9ca3af"] {
-          color: #a8b1d6 !important;
-        }
-
-        @media (max-width: 1024px) {
-          .admin-page-body {
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-          }
-        }
-
-        @media (max-width: 767px) {
-          .admin-topbar {
-            min-height: 66px;
-            padding-left: 14px !important;
-            padding-right: 14px !important;
-          }
-
-          .admin-page-body {
-            padding: 16px 14px 28px !important;
-          }
-
-          .admin-page-body .rounded-2xl {
-            border-radius: 15px !important;
-          }
-
-          .admin-page-body table thead th {
-            position: static;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .admin-topbar [title^="Generate"] span {
-            display: none !important;
-          }
-
-          .admin-page-body {
-            padding-left: 10px !important;
-            padding-right: 10px !important;
-          }
-        }
-      `}</style>
+      
     </div>
   );
 };
