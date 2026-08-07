@@ -149,6 +149,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       const res = await fetch(`${API_BASE}/users`);
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("Invalid users response");
       setUsers(data);
     } catch (err) {
       setApiError("Could not load users from database.");
@@ -163,13 +164,17 @@ const AdminDashboard = ({ user, onLogout }) => {
     try {
       const res = await fetch(`${API_BASE}/lessons/filter?include_unpublished=1`);
       if (res.ok) {
-        setLessons(await res.json());
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Invalid lessons response");
+        setLessons(data);
         return;
       }
 
       const fallback = await fetch(`${API_BASE}/lessons`);
       if (!fallback.ok) throw new Error(`Server error ${fallback.status}`);
-      setLessons(await fallback.json());
+      const data = await fallback.json();
+      if (!Array.isArray(data)) throw new Error("Invalid lessons response");
+      setLessons(data);
     } catch (err) {
       setLessonError("Could not load lessons from database.");
       console.error("fetchLessons:", err.message);
@@ -196,9 +201,26 @@ const AdminDashboard = ({ user, onLogout }) => {
         fetch(`${API_BASE}/semesters`),
         fetch(`${API_BASE}/categories`),
       ]);
-      setYears(await yearsRes.json());
-      setSemesters(await semestersRes.json());
-      setCategories(await categoriesRes.json());
+      const responses = [yearsRes, semestersRes, categoriesRes];
+      const failedResponse = responses.find((response) => !response.ok);
+      if (failedResponse) {
+        throw new Error(`Server error ${failedResponse.status}`);
+      }
+
+      const [yearsData, semestersData, categoriesData] = await Promise.all(
+        responses.map((response) => response.json()),
+      );
+      if (
+        !Array.isArray(yearsData) ||
+        !Array.isArray(semestersData) ||
+        !Array.isArray(categoriesData)
+      ) {
+        throw new Error("Invalid reference data response");
+      }
+
+      setYears(yearsData);
+      setSemesters(semestersData);
+      setCategories(categoriesData);
     } catch (err) {
       console.error("fetchReferences:", err.message);
     }
