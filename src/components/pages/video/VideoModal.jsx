@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, PlayCircle, AlertCircle } from "lucide-react";
 
 const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
-  const [embedError, setEmbedError] = useState(false);
-  const [embedUrl, setEmbedUrl] = useState(null);
+  const [failedUrl, setFailedUrl] = useState(null);
 
   // Extract YouTube embed URL from various YouTube URL formats
   const getYouTubeEmbedUrl = (url) => {
@@ -30,17 +29,8 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
     return null;
   };
 
-  // Update embed URL when videoLink changes
-  useEffect(() => {
-    if (videoLink && isOpen) {
-      const url = getYouTubeEmbedUrl(videoLink);
-      setEmbedUrl(url);
-      setEmbedError(!url);
-    } else {
-      setEmbedUrl(null);
-      setEmbedError(false);
-    }
-  }, [videoLink, isOpen]);
+  const embedUrl = videoLink && isOpen ? getYouTubeEmbedUrl(videoLink) : null;
+  const embedError = Boolean(videoLink && isOpen && (!embedUrl || failedUrl === embedUrl));
 
   // Close on Escape key
   useEffect(() => {
@@ -159,7 +149,7 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
                 className="absolute inset-0 w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                onError={() => setEmbedError(true)}
+                onError={() => setFailedUrl(embedUrl)}
                 onLoad={() => {
                   // Hide loading state when iframe loads
                   const loader = document.querySelector(".video-loader");
