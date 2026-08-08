@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import logo from "../../assets/image/logo.png";
 import banner from "../../assets/image/banner.jpg";
 import { loginMiddleware } from "../../../auth/authMiddleware";
+import ResetPasswordModal from "./ResetPasswordModal";
 
 const LoginPage = ({ onAuthSuccess }) => {
   const [email, setEmail] = useState(
@@ -18,6 +19,7 @@ const LoginPage = ({ onAuthSuccess }) => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showResetPassword, setShowResetPassword] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -326,12 +328,13 @@ const LoginPage = ({ onAuthSuccess }) => {
                       <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                         Password
                       </label>
-                      <a
-                        href="#"
+                      <button
+                        type="button"
+                        onClick={() => setShowResetPassword(true)}
                         className="text-xs text-cyan-400 font-semibold hover:text-cyan-300 transition-all hover:underline"
                       >
                         Forgot password?
-                      </a>
+                      </button>
                     </div>
                     <div className="relative">
                       <div
@@ -611,6 +614,11 @@ const LoginPage = ({ onAuthSuccess }) => {
         </div>
       </div>
 
+      <ResetPasswordModal
+        isOpen={showResetPassword}
+        onClose={() => setShowResetPassword(false)}
+        initialEmail={email}
+      />
       <style>{`
         @keyframes fadeUp {
           from {

@@ -10,6 +10,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { loginMiddleware } from "../../../auth/authMiddleware";
+import ResetPasswordModal from "./ResetPasswordModal";
 
 const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -114,7 +116,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
                   onClick={(event) => handleSocialLogin(provider, event)}
                   className="group flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 transition-all"
                 >
-                  <Icon className="h-4 w-4" />
+                  {React.createElement(Icon, { className: "h-4 w-4" })}
                   {label}
                 </button>
               ))}
@@ -191,7 +193,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setAuthError("Please contact your administrator to reset your password.")}
+                  onClick={() => setShowResetPassword(true)}
                   className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
                 >
                   Forgot password?
@@ -213,6 +215,11 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
           </div>
         </div>
       </div>
+      <ResetPasswordModal
+        isOpen={showResetPassword}
+        onClose={() => setShowResetPassword(false)}
+        initialEmail={formData.email}
+      />
     </div>
   );
 };
