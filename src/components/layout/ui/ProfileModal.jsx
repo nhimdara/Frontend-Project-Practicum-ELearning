@@ -49,6 +49,9 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
     onClose();
   };
 
+  // Get first name
+  const firstName = user?.name?.split(' ')[0] || 'User';
+
   return (
     <>
       {/* Backdrop */}

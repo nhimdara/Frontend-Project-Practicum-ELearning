@@ -1,5 +1,5 @@
 // pages/HomePage.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import banner from "./../assets/image/banner.jpg";
 
@@ -547,7 +547,7 @@ const HomePage = () => {
                     }}
                   >
                     <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/30 mb-2">
-                      {React.createElement(Icon, { className: "h-4 w-4 text-indigo-300" })}
+                      <Icon className="h-4 w-4 text-indigo-300" />
                     </div>
                     <p className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                       {value}
@@ -611,7 +611,7 @@ const HomePage = () => {
                   className={`absolute top-0 left-6 right-6 h-0.5 rounded-full bg-gradient-to-r ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                 />
                 <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${bg} mb-4`}>
-                  {React.createElement(Icon, { className: `h-5 w-5 ${iconColor}`, strokeWidth: 2 })}
+                  <Icon className={`h-5 w-5 ${iconColor}`} strokeWidth={2} />
                 </div>
                 <h3 className="text-[1rem] font-bold text-gray-900 mb-2">{title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>

@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from "react";
+import React, { useState } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import { createAuthRoutes } from "./routes/authRoutes";
 import { createStaffRoutes } from "./routes/staffRoutes";
@@ -32,7 +32,7 @@ const AppRoutes = ({
     onAuthModalOpen: openAuthModal,
   };
 
-  const routedContent = useRoutes([
+  return useRoutes([
     ...createAuthRoutes({
       user,
       isAuthenticated,
@@ -56,7 +56,6 @@ const AppRoutes = ({
     }),
     { path: "*", element: <Navigate to="/login" replace /> },
   ]);
-  return <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">Loading page…</div>}>{routedContent}</Suspense>;
 };
 
 export default AppRoutes;

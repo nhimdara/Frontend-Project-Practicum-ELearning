@@ -92,12 +92,9 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
   // Close mobile menu on route change
   useEffect(() => {
-    const task = window.setTimeout(() => {
-      setIsMobileMenuOpen(false);
-      setIsProfileMenuOpen(false);
-      setShowProfileModal(false);
-    }, 0);
-    return () => window.clearTimeout(task);
+    setIsMobileMenuOpen(false);
+    setIsProfileMenuOpen(false);
+    setShowProfileModal(false);
   }, [location]);
 
   // Handle logout

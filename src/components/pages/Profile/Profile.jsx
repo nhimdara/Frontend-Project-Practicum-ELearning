@@ -151,7 +151,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     return () => {
       cancelled = true;
     };
-  }, [initialUser, onUserUpdate]);
+  }, [initialUser?.id]);
 
   useEffect(() => {
     deferState(() => {

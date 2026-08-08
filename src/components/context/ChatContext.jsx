@@ -1,6 +1,8 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const ChatContext = createContext();
+
+export const useChat = () => useContext(ChatContext);
 
 export const ChatProvider = ({ children }) => {
   const [pageContext, setPageContext] = useState('home');
