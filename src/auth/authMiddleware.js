@@ -7,30 +7,6 @@ const USER_MAJOR_KEY = "learnflow_user_major";
 
 const API_BASE = API_BASE_URL;
 
-// ── Hardcoded admin ──
-const ADMIN_ACCOUNT = {
-  id: "admin-001",
-  name: "Admin",
-  email: "admin@elearning.com",
-  password: "Admin@123",
-  role: "admin",
-  major: null,
-  joinDate: "2024-01-01",
-  achievements: ["Super Admin"],
-};
-
-// ── Hardcoded teacher ──
-const TEACHER_ACCOUNT = {
-  id: "teacher-001",
-  name: "Teacher",
-  email: "teacher@elearning.com",
-  password: "Teacher@123",
-  role: "teacher",
-  major: null,
-  joinDate: "2024-01-01",
-  achievements: ["Master Teacher"],
-};
-
 // ── Helpers ──────────────────────────────────────────────────
 function loadClients() {
   try {
@@ -43,35 +19,6 @@ function loadClients() {
 
 function saveClients(users) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function findUser(email) {
-  const e = email.toLowerCase().trim();
-
-  if (ADMIN_ACCOUNT.email === e) {
-    return ADMIN_ACCOUNT;
-  }
-
-  if (TEACHER_ACCOUNT.email === e) {
-    const savedMajor = localStorage.getItem(USER_MAJOR_KEY);
-    return {
-      ...TEACHER_ACCOUNT,
-      major: savedMajor || null,
-    };
-  }
-
-  const clients = loadClients();
-  const found = clients.find((u) => u.email === e);
-  if (found) {
-    const savedMajor = localStorage.getItem(USER_MAJOR_KEY);
-    if (savedMajor && !found.major) {
-      found.major = savedMajor;
-      saveClients(clients);
-    }
-    return found;
-  }
-
-  return null;
 }
 
 // ── Session helpers ───────────────────────────────────────────
@@ -88,17 +35,12 @@ function saveSession(user) {
   const safe = { ...user };
   delete safe.password;
   const normalizedRole = safe.role === "student" ? "client" : safe.role;
-  const loginAt = new Date().toISOString();
-  const tokenSource =
-    typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
-      : `${safe.email}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
   const session = {
     ...safe,
     role: normalizedRole,
     dbRole: safe.role,
-    token: btoa(`${safe.email}:${loginAt}:${tokenSource}`),
-    loginAt,
+    token: safe.token,
+    loginAt: new Date().toISOString(),
   };
 
   localStorage.removeItem(SESSION_KEY);
@@ -120,6 +62,7 @@ async function loginWithDatabase(email, password) {
   const user = data.user || {};
   const session = saveSession({
     ...user,
+    token: data.token,
     needsMajorSelect: user.needsMajorSelect,
   });
 
@@ -179,6 +122,7 @@ export async function updateSessionMajor(major) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sess.token}`,
         },
         body: JSON.stringify({ major }),
       });
@@ -206,57 +150,11 @@ export async function loginMiddleware(email, password) {
   }
 
   localStorage.removeItem(SESSION_KEY);
-  const user = findUser(email);
-  if (!user) {
-    try {
-      return await loginWithDatabase(email.toLowerCase().trim(), password);
-    } catch {
-      return { success: false, error: "Invalid email or password." };
-    }
+  try {
+    return await loginWithDatabase(email.toLowerCase().trim(), password);
+  } catch {
+    return { success: false, error: "Unable to connect to the authentication server." };
   }
-
-  if (user.password !== password) {
-    try {
-      const databaseResult = await loginWithDatabase(
-        email.toLowerCase().trim(),
-        password,
-      );
-      if (databaseResult.success) return databaseResult;
-    } catch {
-      // Database login is a fallback for accounts not present in localStorage.
-    }
-    return { success: false, error: "Invalid email or password." };
-  }
-
-  // Check if user has a major (ALL users except admin need major)
-  const isAdmin = user.role === "admin";
-  const hasMajor = !!user.major;
-  const needsMajorSelect = !isAdmin && !hasMajor;
-
-  // Create session
-  const session = saveSession({
-    ...user,
-    needsMajorSelect: needsMajorSelect,
-  });
-
-  // Determine redirect
-  let redirect = "/home";
-  if (user.role === "admin") {
-    redirect = "/admin/dashboard";
-  } else if (user.role === "teacher") {
-    redirect = needsMajorSelect ? "/select-major" : "/teacher/dashboard";
-  } else {
-    redirect = needsMajorSelect ? "/select-major" : "/home";
-  }
-
-  return {
-    success: true,
-    user: session,
-    role: user.role,
-    major: user.major || null,
-    needsMajorSelect: needsMajorSelect,
-    redirect,
-  };
 }
 
 // ── REGISTER ─────────────────────────────────────────────────
