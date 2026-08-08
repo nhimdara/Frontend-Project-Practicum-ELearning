@@ -25,6 +25,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import ProfileModal from "./ui/ProfileModal"; 
+import { formatNotificationTime, useStudentNotifications } from "../notifications/notificationStore";
 
 const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,6 +38,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   const notificationsRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { notifications, unreadCount, markRead, markAllRead } = useStudentNotifications(user);
 
   // Check if mobile/tablet view
   useEffect(() => {
@@ -125,39 +127,6 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
     setShowProfileModal(false);
     setIsMobileMenuOpen(false);
   };
-
-  // Mock notifications
-  const notifications = [
-    {
-      id: 1,
-      title: "New Lesson Available",
-      message: "Advanced React Patterns",
-      time: "5 min ago",
-      read: false,
-      icon: BookOpen,
-      color: "blue",
-    },
-    {
-      id: 2,
-      title: "Certificate Ready",
-      message: "Web Development Fundamentals",
-      time: "1 hr ago",
-      read: false,
-      icon: Award,
-      color: "green",
-    },
-    {
-      id: 3,
-      title: "Upcoming Deadline",
-      message: "Final Project Submission",
-      time: "2 hrs ago",
-      read: true,
-      icon: Clock,
-      color: "amber",
-    },
-  ];
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Dynamic classes
   const glassNav = isScrolled
@@ -372,26 +341,37 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                                 {unreadCount} new
                               </span>
                             )}
+                            {unreadCount > 0 && (
+                              <button onClick={markAllRead} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                Mark all read
+                              </button>
+                            )}
                           </div>
 
                           <div className="max-h-96 overflow-y-auto">
                             {notifications.map((notification) => {
-                              const Icon = notification.icon;
+                              const Icon = notification.type === "achievement" ? Award : notification.type === "deadline" ? Clock : BookOpen;
                               const colors = {
                                 blue: "bg-blue-50 text-blue-600",
                                 green: "bg-green-50 text-green-600",
                                 amber: "bg-amber-50 text-amber-600",
                               };
+                              const color = notification.type === "achievement" ? "green" : notification.type === "deadline" ? "amber" : "blue";
 
                               return (
                                 <div
                                   key={notification.id}
+                                  onClick={() => {
+                                    markRead(notification.id);
+                                    setIsNotificationsOpen(false);
+                                    if (notification.href) navigate(notification.href);
+                                  }}
                                   className={`flex gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer ${
                                     !notification.read ? "bg-indigo-50/30" : ""
                                   }`}
                                 >
                                   <div
-                                    className={`flex-shrink-0 w-10 h-10 rounded-xl ${colors[notification.color]} flex items-center justify-center`}
+                                    className={`flex-shrink-0 w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center`}
                                   >
                                     <Icon className="h-5 w-5" />
                                   </div>
@@ -403,7 +383,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                                       {notification.message}
                                     </p>
                                     <p className="text-xs text-gray-400 mt-1">
-                                      {notification.time}
+                                      {formatNotificationTime(notification.createdAt)}
                                     </p>
                                   </div>
                                   {!notification.read && (
@@ -415,7 +395,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                           </div>
 
                           <div className="border-t border-gray-100 p-3">
-                            <button className="w-full text-center text-sm font-medium text-indigo-600 hover:text-indigo-700 py-2 hover:bg-indigo-50 rounded-xl transition-colors">
+                            <button onClick={() => { setIsNotificationsOpen(false); navigate("/notifications"); }} className="w-full text-center text-sm font-medium text-indigo-600 hover:text-indigo-700 py-2 hover:bg-indigo-50 rounded-xl transition-colors">
                               View all notifications
                             </button>
                           </div>

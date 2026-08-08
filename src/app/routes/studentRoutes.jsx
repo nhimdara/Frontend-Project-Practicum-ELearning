@@ -7,6 +7,7 @@ import Profile from "../../components/pages/Profile/Profile";
 import ExamPage from "../../components/pages/Profile/ExamPage";
 import Settings from "../../components/pages/Profile/Settings";
 import ProjectsPage from "../../components/pages/ProjectsPage";
+import NotificationsPage from "../../components/pages/NotificationsPage";
 import { ClientPage } from "./RouteLayouts";
 
 export const createStudentRoutes = ({
@@ -72,6 +73,14 @@ export const createStudentRoutes = ({
     element: (
       <ClientPage layoutProps={layoutProps}>
         <ProjectsPage />
+      </ClientPage>
+    ),
+  },
+  {
+    path: "/notifications",
+    element: (
+      <ClientPage layoutProps={layoutProps}>
+        <NotificationsPage user={user} />
       </ClientPage>
     ),
   },
