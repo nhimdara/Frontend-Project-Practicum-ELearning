@@ -1,8 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Copy, Plus, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "../../../../config/api";
 
 const emptyForm = { name: "", email: "", password: "" };
+
+const generatePassword = () => {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+  const values = new Uint32Array(14);
+  crypto.getRandomValues(values);
+  return `A${Array.from(values, (value) => alphabet[value % alphabet.length]).join("")}7`;
+};
 
 const generateAdminEmail = (name, admins = []) => {
   const base = String(name || "")
@@ -69,9 +76,9 @@ const AdminManagementPanel = ({ user }) => {
       <form onSubmit={createAdmin} className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
         <h3 className="flex items-center gap-2 font-bold text-white"><Plus className="h-4 w-4 text-indigo-400" />Create administrator</h3>
         <div className="mt-5 space-y-4">
-          <label className="block text-xs font-semibold text-slate-400">Full name<input required minLength={2} className={fieldClass} value={form.name} onChange={(e) => { const name = e.target.value; setForm({ ...form, name, email: generateAdminEmail(name, admins) }); }} /></label>
+          <label className="block text-xs font-semibold text-slate-400">Full name<input required minLength={2} className={fieldClass} value={form.name} onChange={(e) => { const name = e.target.value; setForm({ ...form, name, email: generateAdminEmail(name, admins), password: form.password || generatePassword() }); }} /></label>
           <label className="block text-xs font-semibold text-slate-400">Generated e-learning login<input required readOnly type="email" className={`${fieldClass} cursor-not-allowed bg-slate-800 text-slate-300`} placeholder="Generated from full name" value={form.email} /><span className="mt-1 block font-normal text-slate-500">Generated automatically using the same domain as student accounts.</span></label>
-          <label className="block text-xs font-semibold text-slate-400">Temporary password<input required type="password" minLength={8} className={fieldClass} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /><span className="mt-1 block font-normal text-slate-500">At least 8 characters with a letter and number.</span></label>
+          <label className="block text-xs font-semibold text-slate-400">Generated temporary password<div className="mt-1.5 flex gap-2"><input required readOnly type="text" minLength={8} className={`${fieldClass} mt-0 font-mono`} value={form.password} placeholder="Generated from full name" /><button type="button" onClick={() => setForm({ ...form, password: generatePassword() })} className="rounded-xl border border-slate-700 bg-slate-800 p-3 text-slate-300 hover:text-white" title="Generate another password"><RefreshCw className="h-4 w-4" /></button><button type="button" onClick={() => navigator.clipboard?.writeText(form.password)} disabled={!form.password} className="rounded-xl border border-slate-700 bg-slate-800 p-3 text-slate-300 hover:text-white disabled:opacity-40" title="Copy password"><Copy className="h-4 w-4" /></button></div><span className="mt-1 block font-normal text-amber-400">Copy this password before creating the account.</span></label>
           <button disabled={saving} className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60">{saving ? "Creating…" : "Create admin"}</button>
         </div>
       </form>
