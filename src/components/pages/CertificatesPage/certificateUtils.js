@@ -1,11 +1,8 @@
 import logo from "../../assets/image/logo.png";
+import { APP_CONFIG, MAJORS as CONFIGURED_MAJORS } from "../../../config/appConfig";
 
-const MAJORS = ["all", "ITE", "IT", "Mathematics"];
-const MAJOR_COLORS = {
-  ITE: "#2563eb",
-  IT: "#0891b2",
-  Mathematics: "#7c3aed",
-};
+const MAJORS = ["all", ...CONFIGURED_MAJORS];
+const MAJOR_COLORS = Object.fromEntries(APP_CONFIG.majors.map((major) => [major.id, major.color]));
 
 const formatDate = (value) => {
   const date = value ? new Date(value) : null;

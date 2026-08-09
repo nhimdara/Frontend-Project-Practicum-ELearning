@@ -9,6 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 import lessonBanner from "./../assets/image/lessonpage.jpeg";
+import { APP_CONFIG } from "../../config/appConfig";
 
 // ─── API ─────────────────────────────────────────────────────
 const API_BASE = API_BASE_URL;
@@ -33,15 +34,11 @@ const YEAR_SEMESTER_MAP = {
 };
 
 // Major options
-const MAJOR_OPTIONS = [
-  {
-    value: "ITE",
-    label: "Information Technology Engineering (ITE)",
-    icon: "💻",
-  },
-  { value: "IT", label: "Information Technology (IT)", icon: "🖥️" },
-  { value: "Mathematics", label: "Mathematics", icon: "📐" },
-];
+const MAJOR_OPTIONS = APP_CONFIG.majors.map((major) => ({
+  value: major.id,
+  label: major.name,
+  icon: major.icon,
+}));
 
 const YEAR_STYLE = {
   Foundation: {

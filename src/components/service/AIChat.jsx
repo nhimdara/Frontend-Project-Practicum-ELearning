@@ -192,12 +192,12 @@ const AIChat = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 left-8 z-50 group"
+          className="fixed bottom-4 left-4 z-50 group sm:bottom-8 sm:left-8"
           aria-label="Open AI Chat"
         >
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 animate-ping opacity-20" />
-            <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl shadow-indigo-500/40 group-hover:shadow-indigo-500/60">
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl shadow-indigo-500/40 group-hover:shadow-indigo-500/60">
               <Bot className="h-8 w-8 text-white" />
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
             </div>
@@ -211,8 +211,8 @@ const AIChat = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed left-8 z-50 transition-all duration-300 ease-in-out ${
-            isMinimized ? "bottom-8 w-72 h-14" : "bottom-8 w-96 h-[600px]"
+          className={`fixed left-3 right-3 z-50 transition-all duration-300 ease-in-out sm:left-8 sm:right-auto ${
+            isMinimized ? "bottom-3 h-14 sm:bottom-8 sm:w-72" : "bottom-3 h-[min(600px,calc(100dvh-1.5rem))] sm:bottom-8 sm:w-96"
           }`}
         >
           {/* Chat Container */}

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { updateSessionMajor, getSession } from "../../auth/authMiddleware";
+import { APP_CONFIG } from "../../config/appConfig";
 
 const MajorSelectPage = ({ onMajorSelected }) => {
   const [selectedMajor, setSelectedMajor] = useState("");
@@ -11,11 +12,7 @@ const MajorSelectPage = ({ onMajorSelected }) => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const majors = [
-    { id: "ITE", name: "Information Technology Education", icon: "💻" },
-    { id: "IT", name: "Information Technology", icon: "🖥️" },
-    { id: "Mathematics", name: "Mathematics", icon: "📐" },
-  ];
+  const majors = APP_CONFIG.majors;
 
   useEffect(() => {
     const session = getSession();

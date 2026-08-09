@@ -13,6 +13,7 @@
 
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #f8fafc; color: #0f172a; }
+img, video, iframe { max-width: 100%; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid rgba(79, 70, 229, .35); outline-offset: 2px; }
 
@@ -43,6 +44,21 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   font-weight: 800;
   letter-spacing: .12em;
   text-transform: uppercase;
+}
+
+.ui-container {
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+
+.ui-responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .ui-container { width: min(100% - 3rem, 80rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {

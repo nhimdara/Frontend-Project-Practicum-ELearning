@@ -13,6 +13,13 @@ export const Card = ({ className = "", children, ...props }) => (
   <section className={`ui-card ${className}`} {...props}>{children}</section>
 );
 
+export const Container = ({ as = "div", className = "", ...props }) =>
+  createElement(as, { className: `ui-container ${className}`, ...props });
+
+export const ResponsiveGrid = ({ min = "16rem", className = "", style, ...props }) => (
+  <div className={`ui-responsive-grid ${className}`} style={{ "--grid-min": min, ...style }} {...props} />
+);
+
 export const PageHeader = ({ eyebrow, title, description, action }) => (
   <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>

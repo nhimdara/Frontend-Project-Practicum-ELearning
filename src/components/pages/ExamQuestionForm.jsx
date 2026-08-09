@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { profileApi } from "../api/profile";
 
-const MAJORS = ["ITE", "IT", "Mathematics"];
+import { MAJORS } from "../../config/appConfig";
 
 const emptyQuestionForm = {
   major: "ITE",

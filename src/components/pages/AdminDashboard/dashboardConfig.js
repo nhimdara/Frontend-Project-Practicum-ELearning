@@ -1,7 +1,8 @@
 import { getStoredTheme } from "./dashboardUtils";
+import { APP_CONFIG, MAJORS } from "../../../config/appConfig";
 
-export const MAJORS = ["ITE", "IT", "Mathematics"];
-export const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+export { MAJORS };
+export const LEVELS = APP_CONFIG.lessonLevels;
 export const COLORS = [
   "#2563eb",
   "#0891b2",
@@ -24,7 +25,7 @@ export const emptyStudentForm = {
   name: "",
   major: "ITE",
   startYear: new Date().getFullYear(),
-  endYear: new Date().getFullYear() + 4,
+  endYear: new Date().getFullYear() + APP_CONFIG.programLengthYears,
   password: "Student@123",
 };
 
