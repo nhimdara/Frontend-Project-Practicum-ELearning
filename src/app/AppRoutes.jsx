@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { Navigate, useRoutes } from "react-router-dom";
+import React, { Suspense, lazy, useState } from "react";
+import { useRoutes } from "react-router-dom";
 import { createAuthRoutes } from "./routes/authRoutes";
 import { createStaffRoutes } from "./routes/staffRoutes";
 import { createStudentRoutes } from "./routes/studentRoutes";
+import { PageLoader } from "../components/ui";
+
+const NotFoundPage = lazy(() => import("../components/pages/NotFoundPage"));
 
 const AppRoutes = ({
   user,
@@ -32,7 +35,7 @@ const AppRoutes = ({
     onAuthModalOpen: openAuthModal,
   };
 
-  return useRoutes([
+  const routes = useRoutes([
     ...createAuthRoutes({
       user,
       isAuthenticated,
@@ -54,8 +57,10 @@ const AppRoutes = ({
         onAuthSuccess: handleModalAuthSuccess,
       },
     }),
-    { path: "*", element: <Navigate to="/login" replace /> },
+    { path: "*", element: <NotFoundPage isAuthenticated={isAuthenticated} /> },
   ]);
+
+  return <Suspense fallback={<PageLoader />}>{routes}</Suspense>;
 };
 
 export default AppRoutes;

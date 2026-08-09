@@ -1,8 +1,9 @@
-import React from "react";
+import React, { lazy } from "react";
 import ProtectedRoute from "../../components/layout/auth/ProtectedRoute";
-import AdminDashboard from "../../components/pages/AdminDashboard";
-import CertificatesPage from "../../components/pages/CertificatesPage";
-import TeacherDashboard from "../../components/pages/TeacherDashboard";
+
+const AdminDashboard = lazy(() => import("../../components/pages/AdminDashboard"));
+const CertificatesPage = lazy(() => import("../../components/pages/CertificatesPage"));
+const TeacherDashboard = lazy(() => import("../../components/pages/TeacherDashboard"));
 
 export const createStaffRoutes = ({ user, onLogout }) => [
   {

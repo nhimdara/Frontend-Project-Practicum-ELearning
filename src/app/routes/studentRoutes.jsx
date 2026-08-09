@@ -1,14 +1,15 @@
-import React from "react";
+import React, { lazy } from "react";
 import AuthModal from "../../components/layout/auth/AuthModal";
-import CalendarPage from "../../components/pages/CalendarPage";
-import HomePage from "../../components/pages/HomePage";
-import LessonsPage from "../../components/pages/LessonsPage";
-import Profile from "../../components/pages/Profile/Profile";
-import ExamPage from "../../components/pages/Profile/ExamPage";
-import Settings from "../../components/pages/Profile/Settings";
-import ProjectsPage from "../../components/pages/ProjectsPage";
-import NotificationsPage from "../../components/pages/NotificationsPage";
 import { ClientPage } from "./RouteLayouts";
+
+const CalendarPage = lazy(() => import("../../components/pages/CalendarPage"));
+const HomePage = lazy(() => import("../../components/pages/HomePage"));
+const LessonsPage = lazy(() => import("../../components/pages/LessonsPage"));
+const Profile = lazy(() => import("../../components/pages/Profile/Profile"));
+const ExamPage = lazy(() => import("../../components/pages/Profile/ExamPage"));
+const Settings = lazy(() => import("../../components/pages/Profile/Settings"));
+const ProjectsPage = lazy(() => import("../../components/pages/ProjectsPage"));
+const NotificationsPage = lazy(() => import("../../components/pages/NotificationsPage"));
 
 export const createStudentRoutes = ({
   user,

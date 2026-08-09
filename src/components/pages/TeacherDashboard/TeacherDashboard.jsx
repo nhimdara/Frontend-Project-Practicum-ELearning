@@ -71,6 +71,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState(null);
+  const [selectedVideoLessonId, setSelectedVideoLessonId] = useState(null);
   const [filterLesson, setFilterLesson] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedLesson, setExpandedLesson] = useState(null);
@@ -202,10 +203,15 @@ const TeacherDashboard = ({ user, onLogout }) => {
     loadData();
   }, [loadData]);
 
-  // Stats - filter videos by teacher's major lessons
+  // New videos belong to the signed-in teacher. Legacy rows without a
+  // teacher_id remain visible when they belong to one of the teacher's lessons.
   const teacherLessonIds = lessons.map((l) => String(l.id));
   const teacherVideos = dedupeVideosByLessonSlot(
-    videos.filter((v) => teacherLessonIds.includes(String(v.lesson_id))),
+    videos.filter(
+      (v) =>
+        teacherLessonIds.includes(String(v.lesson_id)) &&
+        (!v.teacher_id || String(v.teacher_id) === String(user?.id)),
+    ),
   );
 
   const stats = {
@@ -303,14 +309,16 @@ const TeacherDashboard = ({ user, onLogout }) => {
     [loadData],
   );
 
-  const openAdd = () => {
+  const openAdd = (lessonId = null) => {
     setEditingVideo(null);
+    setSelectedVideoLessonId(lessonId);
     setIsFormOpen(true);
     setMobileMenuOpen(false);
   };
 
   const openEdit = (video) => {
     setEditingVideo(video);
+    setSelectedVideoLessonId(video.lesson_id);
     setIsFormOpen(true);
   };
 
@@ -723,7 +731,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
           <div style={{ padding: "12px 10px" }}>
             <button
-              onClick={openAdd}
+              onClick={() => openAdd()}
               style={{
                 width: "100%",
                 padding: "11px 14px",
@@ -1052,7 +1060,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                       Add your first YouTube video to a lesson
                     </p>
                     <button
-                      onClick={openAdd}
+                      onClick={() => openAdd()}
                       style={{
                         padding: "10px 22px",
                         background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
@@ -1321,7 +1329,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                   </p>
                 </div>
                 <button
-                  onClick={openAdd}
+                  onClick={() => openAdd()}
                   style={{
                     padding: "10px 20px",
                     background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
@@ -1481,7 +1489,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                   </p>
                 </div>
                 <button
-                  onClick={openAdd}
+                  onClick={() => openAdd()}
                   style={{
                     padding: "10px 20px",
                     background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
@@ -1777,7 +1785,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                         </div>
                         <button
                           onClick={() => {
-                            openAdd();
+                            openAdd(lesson.id);
                           }}
                           style={{
                             width: "100%",
@@ -2107,10 +2115,13 @@ const TeacherDashboard = ({ user, onLogout }) => {
           onClose={() => {
             setIsFormOpen(false);
             setEditingVideo(null);
+            setSelectedVideoLessonId(null);
           }}
           onSave={handleSave}
           editingVideo={editingVideo}
           lessons={filteredLessons}
+          selectedLessonId={selectedVideoLessonId}
+          teacherId={user?.id}
         />
 
         {/* DELETE CONFIRM */}

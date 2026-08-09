@@ -23,10 +23,16 @@ export const fetchVideos = async () => {
   return response.json();
 };
 
+const teacherHeaders = (videoData) => ({
+  "Content-Type": "application/json",
+  "x-user-id": String(videoData.teacher_id || ""),
+  "x-user-role": "teacher",
+});
+
 export const createVideo = async (videoData) => {
   const response = await fetch(`${API_BASE}/videos`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: teacherHeaders(videoData),
     body: JSON.stringify(videoData),
   });
   const data = await response.json().catch(() => ({}));
@@ -37,7 +43,7 @@ export const createVideo = async (videoData) => {
 export const updateVideo = async (id, videoData) => {
   const response = await fetch(`${API_BASE}/videos/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: teacherHeaders(videoData),
     body: JSON.stringify(videoData),
   });
   const data = await response.json().catch(() => ({}));

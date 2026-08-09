@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   CheckCircle,
   Eye,
@@ -8,9 +8,28 @@ import {
   X,
   Youtube,
 } from "lucide-react";
-import { extractYouTubeId, getYouTubeEmbedUrl } from "../dashboardUtils";
+import { extractYouTubeId } from "../dashboardUtils";
 
-const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
+let youtubeApiPromise;
+const loadYouTubeApi = () => {
+  if (window.YT?.Player) return Promise.resolve(window.YT);
+  if (youtubeApiPromise) return youtubeApiPromise;
+  youtubeApiPromise = new Promise((resolve) => {
+    const previousCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      previousCallback?.();
+      resolve(window.YT);
+    };
+    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(script);
+    }
+  });
+  return youtubeApiPromise;
+};
+
+const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, selectedLessonId, teacherId }) => {
   const [form, setForm] = useState({
     lesson_id: "",
     title: "",
@@ -23,6 +42,9 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
   const [errors, setErrors] = useState({});
   const [preview, setPreview] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [durationStatus, setDurationStatus] = useState("");
+  const playerHostRef = useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     if (editingVideo) {
@@ -39,7 +61,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
       setPreview(id);
     } else {
       setForm({
-        lesson_id: "",
+        lesson_id: selectedLessonId || "",
         title: "",
         link: "",
         duration_minutes: "",
@@ -50,7 +72,39 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
       setPreview(null);
     }
     setErrors({});
-  }, [editingVideo, isOpen]);
+  }, [editingVideo, isOpen, selectedLessonId]);
+
+  useEffect(() => {
+    if (!isOpen || !preview || !playerHostRef.current) return undefined;
+    let cancelled = false;
+    setDurationStatus("Detecting duration…");
+    loadYouTubeApi().then((YT) => {
+      if (cancelled || !playerHostRef.current) return;
+      playerRef.current?.destroy?.();
+      playerRef.current = new YT.Player(playerHostRef.current, {
+        videoId: preview,
+        playerVars: { rel: 0, modestbranding: 1 },
+        events: {
+          onReady: (event) => {
+            const seconds = event.target.getDuration();
+            if (seconds > 0) {
+              const minutes = Math.max(1, Math.ceil(seconds / 60));
+              setForm((current) => ({ ...current, duration_minutes: minutes }));
+              setDurationStatus(`Detected ${minutes} minute${minutes === 1 ? "" : "s"}`);
+            } else {
+              setDurationStatus("Enter duration manually");
+            }
+          },
+          onError: () => setDurationStatus("Could not detect duration; enter it manually"),
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
+    };
+  }, [isOpen, preview]);
 
   const handleChange = (field, value) => {
     setForm((p) => ({ ...p, [field]: value }));
@@ -95,6 +149,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
     try {
       await onSave({
         ...form,
+        teacher_id: teacherId,
         duration_minutes: form.duration_minutes ? +form.duration_minutes : null,
         order_index: +form.order_index,
         is_free: form.is_free ? 1 : 0,
@@ -236,18 +291,16 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
 
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Lesson *</label>
-            <select
-              value={form.lesson_id}
-              onChange={(e) => handleChange("lesson_id", e.target.value)}
-              style={{ ...inputStyle("lesson_id"), cursor: "pointer" }}
-            >
-              <option value="">— Select a lesson —</option>
-              {lessons.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.title}
-                </option>
-              ))}
-            </select>
+            {selectedLessonId && !editingVideo ? (
+              <div style={{ ...inputStyle("lesson_id"), color: "#374151", background: "#eef2ff" }}>
+                {lessons.find((lesson) => String(lesson.id) === String(selectedLessonId))?.title || `Lesson #${selectedLessonId}`}
+              </div>
+            ) : (
+              <select value={form.lesson_id} onChange={(e) => handleChange("lesson_id", e.target.value)} style={{ ...inputStyle("lesson_id"), cursor: "pointer" }}>
+                <option value="">— Select a lesson by title —</option>
+                {lessons.map((lesson) => <option key={lesson.id} value={lesson.id}>{lesson.title}</option>)}
+              </select>
+            )}
             {errors.lesson_id && (
               <p
                 style={{
@@ -340,9 +393,9 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
               }}
             >
               <div style={{ position: "relative", paddingTop: "56.25%" }}>
-                <iframe
-                  src={getYouTubeEmbedUrl(preview)}
-                  title="YouTube preview"
+                <div
+                  key={preview}
+                  ref={playerHostRef}
                   style={{
                     position: "absolute",
                     top: 0,
@@ -351,8 +404,6 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
                     height: "100%",
                     border: "none",
                   }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                  allowFullScreen
                 />
               </div>
               <div
@@ -398,6 +449,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons }) => {
                 placeholder="e.g. 15"
                 style={inputStyle("duration_minutes")}
               />
+              {durationStatus && !errors.duration_minutes && <p style={{ color: "#6366f1", fontSize: "12px", margin: "4px 0 0" }}>{durationStatus}</p>}
               {errors.duration_minutes && (
                 <p
                   style={{

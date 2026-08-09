@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
 import { API_BASE_URL } from "../../../config/api";
+import ResetPasswordModal from "../../layout/auth/ResetPasswordModal";
 
 const PROJECT_MAJOR_PREFIX = "major:";
 
@@ -107,15 +108,25 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   const [user, setUser] = useState(() => normalizeProfile(initialUser));
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState("");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const initialUserRef = useRef(initialUser);
+  const onUserUpdateRef = useRef(onUserUpdate);
 
   const [editForm, setEditForm] = useState({ ...user });
 
   useEffect(() => {
+    initialUserRef.current = initialUser;
+    onUserUpdateRef.current = onUserUpdate;
+  }, [initialUser, onUserUpdate]);
+
+  useEffect(() => {
     let cancelled = false;
-    const userId = initialUser?.id;
+    const sourceUser = initialUserRef.current;
+    const userId = sourceUser?.id;
 
     if (!userId || String(userId).startsWith("user-")) {
-      const normalized = normalizeProfile(initialUser);
+      const normalized = normalizeProfile(sourceUser);
       deferState(() => {
         if (cancelled) return;
         setUser(normalized);
@@ -139,7 +150,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         setUser(normalized);
         setEditForm(normalized);
         syncStoredSession(normalized);
-        onUserUpdate?.(normalized);
+        onUserUpdateRef.current?.(normalized);
       })
       .catch((err) => {
         if (!cancelled) setProfileError(err.message);
@@ -179,6 +190,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   const handleInput = (e) => setEditForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSave = async () => {
+    if (profileSaving) return;
+    if (!editForm.name?.trim() || !editForm.email?.trim()) {
+      setProfileError("Name and email are required.");
+      return;
+    }
+    setProfileSaving(true);
+    setProfileError("");
     try {
       const userId = user.id || initialUser?.id;
       let saved = normalizeProfile(editForm);
@@ -195,6 +213,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setProfileError(err.message);
+    } finally {
+      setProfileSaving(false);
     }
   };
 
@@ -228,13 +248,16 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert("File size must be less than 2MB");
+        setProfileError("Profile images must be smaller than 2 MB.");
+        e.target.value = "";
         return;
       }
       if (!file.type.startsWith('image/')) {
-        alert("Please upload an image file");
+        setProfileError("Please choose a valid image file.");
+        e.target.value = "";
         return;
       }
+      setProfileError("");
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
@@ -411,14 +434,24 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     }
   };
 
-  const handleDeleteProject = (projectId) => {
+  const handleDeleteProject = async (projectId) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
-      const updatedProjects = projects.filter(p => p.id !== projectId);
-      setProjects(updatedProjects);
-      writeStoredProjects(projectStorageKey, updatedProjects);
-      setSuccessMessage("Project deleted successfully!");
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setProfileError("");
+      try {
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, { method: "DELETE" });
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || "Could not delete project request.");
+        }
+        const updatedProjects = projects.filter(p => p.id !== projectId);
+        setProjects(updatedProjects);
+        writeStoredProjects(projectStorageKey, updatedProjects);
+        setSuccessMessage("Project deleted successfully!");
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } catch (err) {
+        setProfileError(err.message);
+      }
     }
   };
 
@@ -793,11 +826,17 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       />
 
       {showSuccess && (
-        <div className="success-toast">
+        <div className="success-toast" role="status" aria-live="polite">
           <Check className="h-5 w-5 text-green-500" />
           <p className="text-sm font-semibold text-green-700">{successMessage}</p>
         </div>
       )}
+
+      <ResetPasswordModal
+        isOpen={showResetPassword}
+        onClose={() => setShowResetPassword(false)}
+        initialEmail={user.email}
+      />
 
       {/* Avatar Upload Modal */}
       {showAvatarModal && (
@@ -1045,8 +1084,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
             ) : (
               <div className="flex gap-3">
                 <button onClick={handleCancel} className="ghost-btn">Cancel</button>
-                <button onClick={handleSave} className="primary-btn inline-flex items-center gap-2">
-                  <Save className="h-4 w-4" />Save Changes
+                <button onClick={handleSave} disabled={profileSaving} className="primary-btn inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60">
+                  <Save className="h-4 w-4" />{profileSaving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             )}
@@ -1059,8 +1098,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           )}
 
           {profileError && (
-            <div className="mb-5 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
-              {profileError}
+            <div className="mb-5 flex items-center justify-between gap-4 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700" role="alert">
+              <span>{profileError}</span>
+              <button type="button" onClick={() => setProfileError("")} className="rounded-lg p-1 hover:bg-red-100" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
             </div>
           )}
 
@@ -1228,7 +1268,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                               <input type="text" name={s.name} value={editForm[s.name] || ""}
                                 onChange={handleInput} placeholder={s.label} className="form-field flex-1" />
                             ) : (
-                              <span className="text-sm text-gray-700 font-medium">{user[s.name] || "—"}</span>
+                              user[s.name] ? (
+                                <a href={user[s.name]} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-600 hover:underline">{user[s.name]}</a>
+                              ) : <span className="text-sm text-gray-500">—</span>
                             )}
                           </div>
                         );
@@ -1413,27 +1455,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
               {activeTab === "security" && (
                 <div className="prof-card p-6">
-                  <h3 className="text-base font-bold text-gray-900 mb-5">Change Password</h3>
-                  <div className="space-y-4 max-w-md">
-                    {["Current Password", "New Password", "Confirm New Password"].map((label) => (
-                      <div key={label}>
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{label}</label>
-                        <input type="password" placeholder="••••••••" className="form-field" />
-                      </div>
-                    ))}
-                    <button className="primary-btn mt-2">Update Password</button>
-                  </div>
-
-                  <div className="mt-8 pt-6" style={{ borderTop: "1px solid #f3f4f6" }}>
-                    <h4 className="text-sm font-bold text-gray-700 mb-3">Two-Factor Authentication</h4>
-                    <div className="flex items-center justify-between p-4 rounded-2xl" style={{ background: "#f9fafb", border: "1px solid #f3f4f6" }}>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800">Authenticator App</p>
-                        <p className="text-xs text-gray-500 mt-0.5">Add an extra layer of security</p>
-                      </div>
-                      <button className="ghost-btn text-sm">Enable</button>
-                    </div>
-                  </div>
+                  <h3 className="text-base font-bold text-gray-900">Password & security</h3>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">Reset your password using the verified email address associated with this account.</p>
+                  <button type="button" onClick={() => setShowResetPassword(true)} className="primary-btn mt-5">Reset Password</button>
                 </div>
               )}
             </div>

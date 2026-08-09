@@ -7,6 +7,10 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    files: ['server.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
@@ -24,6 +28,10 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // These effects synchronize derived UI state and perform initial data loads.
+      'react-hooks/set-state-in-effect': 'off',
+      // Existing dashboards intentionally share render-scoped sidebar markup.
+      'react-hooks/static-components': 'off',
     },
   },
 ])
