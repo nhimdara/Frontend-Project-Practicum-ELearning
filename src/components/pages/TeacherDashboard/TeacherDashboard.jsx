@@ -220,10 +220,10 @@ const TeacherDashboard = ({ user, onLogout }) => {
     paidVideos: teacherVideos.filter((v) => !v.is_free).length,
     lessonsWithVideo: [...new Set(teacherVideos.map((v) => v.lesson_id))]
       .length,
-    totalMinutes: teacherVideos.reduce(
-      (sum, v) => sum + (v.duration_minutes || 0),
-      0,
-    ),
+    totalMinutes: teacherVideos.reduce((sum, video) => {
+      const duration = Number(video.duration_minutes);
+      return sum + (Number.isFinite(duration) && duration > 0 ? duration : 0);
+    }, 0),
   };
 
   // Filtered videos - only show teacher's videos
@@ -830,16 +830,17 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
         {/* MAIN CONTENT */}
         <main style={mainStyle} className="teacher-main">
-          {activeTeacherReport && (
-            <div
-              className="teacher-report-toolbar"
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                padding: "16px 20px 0",
-              }}
-            >
+          <div
+            className="teacher-report-toolbar"
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              padding: "16px 20px 0",
+            }}
+          >
+            {activeTeacherReport && (
               <button
+                className="teacher-report-button"
                 type="button"
                 onClick={generateTeacherReport}
                 title={`Generate ${activeTeacherReport.title}`}
@@ -859,10 +860,10 @@ const TeacherDashboard = ({ user, onLogout }) => {
                 }}
               >
                 <Download size={16} />
-                Generate Report
+                <span>Generate Report</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
@@ -971,6 +972,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                       {React.createElement(Icon, { size: 18, color })}
                     </div>
                     <p
+                      className="teacher-stat-value"
                       style={{
                         margin: "0 0 2px",
                         fontSize: "clamp(18px, 4vw, 22px)",

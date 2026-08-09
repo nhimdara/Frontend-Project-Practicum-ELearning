@@ -152,14 +152,23 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error("Invalid users response");
-      setUsers(data);
+      // Regular admins must not see superadmin identity or account details in
+      // any dashboard view, count, search result, or generated report.
+      setUsers(
+        isSuperadmin
+          ? data
+          : data.filter(
+              (account) =>
+                String(account.role || "").toLowerCase() !== "superadmin",
+            ),
+      );
     } catch (err) {
       setApiError("Could not load users from database.");
       console.error("fetchUsers:", err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isSuperadmin]);
 
   const refreshLessons = useCallback(async () => {
     setLessonError("");
@@ -1403,7 +1412,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                 ))}
               </div>
 
-              {/* Recent sign-ups */}
+              {/* Superadmin accounts are filtered from this list for admins. */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6">
                 <h2 className="text-white font-bold mb-4 flex items-center gap-2 text-sm md:text-base">
                   <Users className="h-4 w-4 text-indigo-400" />

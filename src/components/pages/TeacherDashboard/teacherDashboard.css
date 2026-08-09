@@ -13,6 +13,13 @@
 
         .teacher-main {
           scroll-behavior: smooth;
+          min-width: 0;
+          overflow-x: hidden !important;
+        }
+
+        .teacher-dashboard-root {
+          max-width: 100%;
+          overflow-x: hidden;
         }
 
         .teacher-content-section,
@@ -82,10 +89,18 @@
 
         .teacher-stats-grid > div {
           min-height: 142px;
+          min-width: 0;
           display: flex;
           flex-direction: column;
           justify-content: center;
           border-radius: 18px !important;
+        }
+
+        .teacher-stat-value {
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .teacher-stats-grid > div:hover,
@@ -375,13 +390,15 @@
             display: block !important;
           }
           .teacher-main {
-            padding-top: 54px;
+            padding-top: 0;
           }
           .teacher-content-section {
             padding: 12px 18px 28px !important;
           }
           .teacher-report-toolbar {
-            padding: 14px 18px 0 !important;
+            min-height: 66px;
+            padding: 12px 14px 10px 70px !important;
+            align-items: center;
           }
           .teacher-content-section > div:first-child {
             padding: 20px !important;
@@ -402,20 +419,22 @@
           .teacher-settings-grid {
             grid-template-columns: 1fr !important;
           }
+
+          .teacher-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+          }
+
+          .teacher-stats-grid > div {
+            min-height: 126px;
+            padding: 15px !important;
+          }
         }
 
         @media (max-width: 560px) {
           .teacher-content-section {
             padding-left: 20px !important;
             padding-right: 20px !important;
-          }
-          .teacher-stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            gap: 12px !important;
-          }
-          .teacher-stats-grid > div {
-            min-height: 126px;
-            padding: 15px !important;
           }
           .teacher-report-toolbar button {
             width: 100%;
@@ -439,5 +458,17 @@
           }
           .teacher-stats-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .teacher-report-button {
+            width: auto !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+
+          .teacher-report-button span {
+            display: none;
           }
         }
