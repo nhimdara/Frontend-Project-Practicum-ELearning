@@ -6,6 +6,7 @@ import LoginPage from "../../components/layout/auth/Loginpage";
 import ProtectedRoute from "../../components/layout/auth/ProtectedRoute";
 
 const defaultDestination = (user) => {
+  if (user?.role === "superadmin") return "/superadmin/dashboard";
   if (user?.role === "admin") return "/admin/dashboard";
   if (user?.role === "teacher") return "/teacher/dashboard";
   return user?.major ? "/home" : "/select-major";

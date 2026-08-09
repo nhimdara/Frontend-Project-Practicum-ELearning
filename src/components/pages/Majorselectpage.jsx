@@ -24,8 +24,8 @@ const MajorSelectPage = ({ onMajorSelected }) => {
       setUserName(session.name || "User");
       setUserRole(session.role || "");
 
-      if (session.role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
+      if (["admin", "superadmin"].includes(session.role)) {
+        navigate(session.role === "superadmin" ? "/superadmin/dashboard" : "/admin/dashboard", { replace: true });
         return;
       }
 

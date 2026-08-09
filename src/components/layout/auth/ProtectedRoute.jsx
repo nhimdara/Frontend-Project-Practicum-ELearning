@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
 
   // ALL users (except admin) need to select major if they don't have one
   if (
-    session?.role !== "admin" &&
+    !["admin", "superadmin"].includes(session?.role) &&
     !session.major &&
     session.needsMajorSelect === true
   ) {

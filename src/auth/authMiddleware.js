@@ -124,8 +124,9 @@ async function loginWithDatabase(email, password) {
   });
 
   const needsMajorSelect =
-    session.role !== "admin" && !session.major && session.needsMajorSelect;
+    !["admin", "superadmin"].includes(session.role) && !session.major && session.needsMajorSelect;
   let redirect = "/home";
+  if (session.role === "superadmin") redirect = "/superadmin/dashboard";
   if (session.role === "admin") redirect = "/admin/dashboard";
   if (session.role === "teacher") {
     redirect = needsMajorSelect ? "/select-major" : "/teacher/dashboard";
@@ -229,7 +230,7 @@ export async function loginMiddleware(email, password) {
   }
 
   // Check if user has a major (ALL users except admin need major)
-  const isAdmin = user.role === "admin";
+  const isAdmin = ["admin", "superadmin"].includes(user.role);
   const hasMajor = !!user.major;
   const needsMajorSelect = !isAdmin && !hasMajor;
 
@@ -241,7 +242,9 @@ export async function loginMiddleware(email, password) {
 
   // Determine redirect
   let redirect = "/home";
-  if (user.role === "admin") {
+  if (user.role === "superadmin") {
+    redirect = "/superadmin/dashboard";
+  } else if (user.role === "admin") {
     redirect = "/admin/dashboard";
   } else if (user.role === "teacher") {
     redirect = needsMajorSelect ? "/select-major" : "/teacher/dashboard";
@@ -288,15 +291,17 @@ export function routeGuardMiddleware(requiredRole = null) {
   const normalizedRequiredRole =
     requiredRole === "student" ? "client" : requiredRole;
 
-  if (requiredRole && normalizedRole !== normalizedRequiredRole) {
+  const superadminCanAccessAdmin = normalizedRole === "superadmin" && normalizedRequiredRole === "admin";
+  if (requiredRole && normalizedRole !== normalizedRequiredRole && !superadminCanAccessAdmin) {
     let redirect = "/home";
+    if (normalizedRole === "superadmin") redirect = "/superadmin/dashboard";
     if (normalizedRole === "admin") redirect = "/admin/dashboard";
     if (normalizedRole === "teacher") redirect = "/teacher/dashboard";
     return { allowed: false, redirect };
   }
 
   if (
-    normalizedRole !== "admin" &&
+    !["admin", "superadmin"].includes(normalizedRole) &&
     !session.major &&
     session.needsMajorSelect === true
   ) {

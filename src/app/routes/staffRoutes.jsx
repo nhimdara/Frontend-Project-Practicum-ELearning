@@ -4,6 +4,7 @@ import ProtectedRoute from "../../components/layout/auth/ProtectedRoute";
 const AdminDashboard = lazy(() => import("../../components/pages/AdminDashboard"));
 const CertificatesPage = lazy(() => import("../../components/pages/CertificatesPage"));
 const TeacherDashboard = lazy(() => import("../../components/pages/TeacherDashboard"));
+const SuperAdminDashboard = lazy(() => import("../../components/pages/SuperAdminDashboard"));
 
 export const createStaffRoutes = ({ user, onLogout }) => [
   {
@@ -11,6 +12,14 @@ export const createStaffRoutes = ({ user, onLogout }) => [
     element: (
       <ProtectedRoute requiredRole="admin">
         <AdminDashboard user={user} onLogout={onLogout} />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/superadmin/dashboard",
+    element: (
+      <ProtectedRoute requiredRole="superadmin">
+        <SuperAdminDashboard user={user} onLogout={onLogout} />
       </ProtectedRoute>
     ),
   },

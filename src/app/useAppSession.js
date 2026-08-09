@@ -5,6 +5,7 @@ import { getSession, logoutMiddleware } from "../auth/authMiddleware";
 const SESSION_KEY = "learnflow_session";
 
 const destinationFor = (user) => {
+  if (user?.role === "superadmin") return "/superadmin/dashboard";
   if (user?.role === "admin") return "/admin/dashboard";
   if (user?.role === "teacher") return "/teacher/dashboard";
   return "/home";
@@ -17,7 +18,7 @@ const useAppSession = () => {
   useEffect(() => {
     if (
       user &&
-      user.role !== "admin" &&
+      !["admin", "superadmin"].includes(user.role) &&
       !user.major &&
       user.needsMajorSelect === true
     ) {
