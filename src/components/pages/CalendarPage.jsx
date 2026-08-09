@@ -135,7 +135,7 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
   if (subjects.length === 0) {
     return (
       <div
-        className={`flex-1 min-w-0 rounded-2xl overflow-hidden border ${style.border} bg-white shadow-sm`}
+        className={`student-glass-card flex-1 min-w-0 rounded-2xl overflow-hidden border ${style.border} bg-white shadow-sm`}
       >
         <div className={`bg-gradient-to-r ${style.grad} px-5 py-4`}>
           <h3 className="text-white text-lg font-extrabold">{semLabel}</h3>
@@ -147,7 +147,7 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
 
   return (
     <div
-      className={`flex-1 min-w-0 rounded-2xl overflow-hidden border ${style.border} bg-white shadow-sm`}
+      className={`student-glass-card flex-1 min-w-0 rounded-2xl overflow-hidden border ${style.border} bg-white shadow-sm`}
     >
       <div
         className={`bg-gradient-to-r ${style.grad} px-5 py-4 flex items-center justify-between`}
@@ -354,7 +354,7 @@ const CalendarPage = ({ user }) => {
   }
 
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="student-page student-calendar min-h-screen bg-white relative">
       {/* Scroll bar */}
       <div
         className="fixed top-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 via-cyan-400 to-violet-500 z-50 transition-all duration-150"
@@ -362,7 +362,7 @@ const CalendarPage = ({ user }) => {
       />
 
       {/* Hero Section */}
-      <div className="relative w-full h-[580px] overflow-hidden">
+      <div className="student-hero relative w-full h-[580px] overflow-hidden">
         <img
           src={lessonBanner}
           alt="Curriculum Banner"
@@ -494,7 +494,7 @@ const CalendarPage = ({ user }) => {
           onClick={() => setSelectedSubject(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="student-glass-modal bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div

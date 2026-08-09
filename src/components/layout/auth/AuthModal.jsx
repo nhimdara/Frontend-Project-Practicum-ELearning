@@ -69,7 +69,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto body-font">
+    <div className="fixed inset-0 z-[120] overflow-y-auto body-font">
       <div className="flex min-h-screen items-end sm:items-center justify-center px-4 pt-4 pb-20 sm:p-0">
         <div
           className="fixed inset-0 bg-black/65 backdrop-blur-md transition-opacity"
@@ -77,7 +77,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
           aria-hidden="true"
         />
 
-        <div className="relative w-full sm:max-w-md overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
+        <div className="student-liquid-modal relative w-full sm:max-w-md overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
           <div className="h-1.5 w-full bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400" />
           <button
             onClick={onClose}

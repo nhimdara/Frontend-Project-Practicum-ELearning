@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, PlayCircle, Clock, ChevronRight, ListVideo, Lock } from "lucide-react";
+import "./studentVideoModals.css";
 
 const FREE_VIDEO_LIMIT = 2;
 
@@ -30,7 +31,10 @@ const VideoPlaylistModal = ({
 
   if (!isOpen) return null;
 
-  const totalMinutes = videos.reduce((acc, v) => acc + (v.duration || 30), 0);
+  const totalMinutes = videos.reduce((total, video) => {
+    const duration = Number(video.duration ?? video.duration_minutes ?? 30);
+    return total + (Number.isFinite(duration) && duration > 0 ? duration : 0);
+  }, 0);
 
   function handleVideoClick(video, idx) {
     const isLocked = !isSubscribed && idx >= FREE_VIDEO_LIMIT;
@@ -43,12 +47,12 @@ const VideoPlaylistModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="student-video-overlay fixed inset-0 z-[110] flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.80)" }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg bg-white rounded-2xl overflow-hidden shadow-2xl"
+        className="student-playlist-modal relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl"
         style={{ animation: "plFadeIn 0.25s ease-out both", maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -63,7 +67,7 @@ const VideoPlaylistModal = ({
         `}</style>
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-700 px-5 py-5">
+        <div className="student-playlist-header bg-gradient-to-r from-indigo-600 to-purple-700 px-5 py-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
@@ -107,8 +111,8 @@ const VideoPlaylistModal = ({
 
         {/* Free preview note */}
         {!isSubscribed && (
-          <div className="bg-amber-50 border-b border-amber-100 px-5 py-2.5 flex items-center justify-between gap-3">
-            <p className="text-amber-700 text-xs">
+          <div className="student-playlist-notice border-b px-5 py-2.5 flex items-center justify-between gap-3">
+            <p className="student-playlist-notice-text text-xs">
               First <strong>{FREE_VIDEO_LIMIT} videos</strong> are free. Subscribe to unlock all.
             </p>
             {onSubscribeRequest && (
@@ -123,7 +127,7 @@ const VideoPlaylistModal = ({
         )}
 
         {/* Video list */}
-        <div className="playlist-scroll overflow-y-auto" style={{ maxHeight: "380px" }}>
+        <div className="student-playlist-list playlist-scroll overflow-y-auto" style={{ maxHeight: "380px" }}>
           {videos.map((video, idx) => {
             const isLocked = !isSubscribed && idx >= FREE_VIDEO_LIMIT;
             const isHovered = hoveredIdx === idx;
@@ -134,10 +138,10 @@ const VideoPlaylistModal = ({
                 onClick={() => handleVideoClick(video, idx)}
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
-                className={`w-full text-left px-5 py-4 flex items-center gap-4 border-b border-gray-50 transition-all duration-200 ${
+                className={`student-playlist-row ${isLocked ? "is-locked" : ""} w-full text-left px-5 py-4 flex items-center gap-4 border-b transition-all duration-200 ${
                   isLocked
-                    ? "opacity-60 cursor-pointer hover:bg-amber-50"
-                    : "hover:bg-indigo-50 cursor-pointer"
+                    ? "cursor-pointer"
+                    : "cursor-pointer"
                 }`}
               >
                 {/* Index / play button */}
@@ -161,7 +165,7 @@ const VideoPlaylistModal = ({
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <div className={`font-semibold text-sm truncate transition-colors ${
+                  <div className={`student-playlist-title font-semibold text-sm truncate transition-colors ${
                     isLocked ? "text-gray-400" : isHovered ? "text-indigo-700" : "text-gray-800"
                   }`}>
                     {video.title}
@@ -170,15 +174,15 @@ const VideoPlaylistModal = ({
                     )}
                   </div>
                   {video.description && (
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{video.description}</p>
+                    <p className="student-playlist-description text-xs text-gray-400 truncate mt-0.5">{video.description}</p>
                   )}
                 </div>
 
                 {/* Duration + arrow */}
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <div className="student-playlist-duration flex items-center gap-1 text-xs text-gray-400">
                     <Clock className="h-3 w-3" />
-                    <span>{video.duration || 30}m</span>
+                    <span>{video.duration ?? video.duration_minutes ?? 30}m</span>
                   </div>
                   {!isLocked && (
                     <ChevronRight className={`h-4 w-4 transition-all duration-200 ${
@@ -192,11 +196,11 @@ const VideoPlaylistModal = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-          <p className="text-xs text-gray-400">Click any unlocked video to play</p>
+        <div className="student-playlist-footer px-5 py-4 border-t flex items-center justify-between gap-3">
+          <p className="student-playlist-footer-text text-xs">Click any unlocked video to play</p>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold rounded-xl transition-colors"
+            className="student-playlist-close px-4 py-2 text-xs font-semibold rounded-xl transition-colors"
           >
             Close
           </button>

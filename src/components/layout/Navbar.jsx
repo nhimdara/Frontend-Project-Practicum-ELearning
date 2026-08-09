@@ -129,9 +129,9 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   };
 
   // Dynamic classes
-  const glassNav = isScrolled
-    ? "bg-white/95 backdrop-blur-xl border-b border-gray-200/80 shadow-lg shadow-gray-200/20"
-    : "bg-gradient-to-r from-indigo-900/95 to-purple-900/95 backdrop-blur-md border-b border-white/20";
+  // The outer navbar stays fully transparent. The visible glass material is
+  // applied only to .app-navbar-shell so the page/hero remains visible around it.
+  const glassNav = "";
 
   const textPrimary = isScrolled ? "text-gray-800" : "text-white";
   const textMuted = isScrolled ? "text-gray-500" : "text-white/70";
@@ -191,9 +191,66 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
           z-index: 50;
         }
 
+        .profile-dropdown-surface {
+          position: relative;
+          padding: 8px;
+          border: 1px solid rgba(255,255,255,0.72);
+          border-radius: 26px !important;
+          background: rgba(255,255,255,0.72) !important;
+          box-shadow:
+            0 28px 70px rgba(37, 30, 90, 0.24),
+            inset 0 1px 0 rgba(255,255,255,0.9),
+            inset 0 -1px 0 rgba(99,102,241,0.08) !important;
+          backdrop-filter: blur(28px) saturate(170%);
+          -webkit-backdrop-filter: blur(28px) saturate(170%);
+        }
+
+        .profile-dropdown-surface::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          border-radius: inherit;
+          background: linear-gradient(135deg, rgba(255,255,255,0.52), transparent 38%, rgba(129,140,248,0.10));
+        }
+
+        .profile-dropdown-header {
+          border-radius: 20px;
+          overflow: hidden;
+          background:
+            radial-gradient(circle at 12% 0%, rgba(255,255,255,0.28), transparent 34%),
+            linear-gradient(135deg, rgba(79,70,229,0.94), rgba(124,58,237,0.90)) !important;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 0 10px 30px rgba(79,70,229,0.20);
+        }
+
+        .profile-dropdown-stat {
+          border: 1px solid rgba(255,255,255,0.16);
+          background: rgba(255,255,255,0.13) !important;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.16);
+          backdrop-filter: blur(12px);
+        }
+
+        .profile-dropdown-menu {
+          position: relative;
+          padding: 8px 0 !important;
+        }
+
+        .profile-dropdown-link {
+          width: calc(100% - 8px) !important;
+          margin: 2px 4px;
+          border-radius: 15px;
+        }
+
+        .profile-dropdown-link:hover,
+        .profile-dropdown-link:focus-visible {
+          background: rgba(99,102,241,0.11) !important;
+          box-shadow: inset 0 0 0 1px rgba(99,102,241,0.10);
+        }
+
         html.dark-mode .profile-dropdown-surface {
-          background: #151733 !important;
-          box-shadow: 0 24px 60px rgba(0,0,0,0.46) !important;
+          border-color: rgba(165,180,252,0.18) !important;
+          background: rgba(16,18,42,0.76) !important;
+          box-shadow: 0 28px 70px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.10) !important;
           --tw-ring-color: #2b315f !important;
         }
 
@@ -203,7 +260,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
         html.dark-mode .profile-dropdown-link:hover,
         html.dark-mode .profile-dropdown-link:focus-visible {
-          background: #252550 !important;
+          background: rgba(99,102,241,0.20) !important;
+          box-shadow: inset 0 0 0 1px rgba(165,180,252,0.16);
           color: #ffffff !important;
         }
 
@@ -250,15 +308,15 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
       `}</style>
 
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${glassNav}`}
+        className={`app-navbar ${isScrolled ? "app-navbar-scrolled" : "app-navbar-top"} ${isMobileMenuOpen ? "menu-open" : ""} fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${glassNav}`}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="app-navbar-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Logo and Mobile Menu Button */}
             <div className="flex items-center gap-3 flex-shrink-0">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`lg:hidden relative group flex items-center justify-center w-10 h-10 rounded-xl transition-all ${hoverBg} ${textPrimary}`}
+                className={`app-nav-control lg:hidden relative group flex items-center justify-center w-10 h-10 rounded-xl transition-all ${hoverBg} ${textPrimary}`}
                 aria-label="Toggle menu"
               >
                 <div className="absolute inset-0 rounded-xl bg-current opacity-0 group-hover:opacity-10 transition-opacity" />
@@ -284,6 +342,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                   </div>
                 </div>
                 <span
+                  data-brand="elearning"
                   className={`text-xl font-bold tracking-tight whitespace-nowrap transition-colors duration-300 ${
                     isScrolled ? "text-gray-900" : "text-white"
                   }`}
@@ -354,7 +413,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                       onClick={() =>
                         setIsNotificationsOpen(!isNotificationsOpen)
                       }
-                      className={`relative group flex items-center justify-center w-10 h-10 rounded-xl transition-all ${hoverBg} ${textPrimary}`}
+                      className={`app-nav-control relative group flex items-center justify-center w-10 h-10 rounded-xl transition-all ${hoverBg} ${textPrimary}`}
                       aria-label="Notifications"
                     >
                       <div className="absolute inset-0 rounded-xl bg-current opacity-0 group-hover:opacity-10 transition-opacity" />
@@ -449,7 +508,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                   <div className="relative" ref={profileMenuRef}>
                     <button
                       onClick={handleProfileClick}
-                      className={`group flex items-center gap-3 rounded-xl pl-2 pr-3 py-1.5 transition-all ${hoverBg} ring-1 ${ringColor}`}
+                      className={`app-profile-control group flex items-center gap-3 rounded-xl pl-2 pr-3 py-1.5 transition-all ${hoverBg} ring-1 ${ringColor}`}
                     >
                       <div className="relative">
                         <img
@@ -484,7 +543,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                     {!isMobile && isProfileMenuOpen && (
                       <div className="dropdown-panel animate-in">
                         <div className="profile-dropdown-surface rounded-2xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5 overflow-hidden">
-                          <div className="relative px-6 py-6 bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-700">
+                          <div className="profile-dropdown-header relative px-6 py-6 bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-700">
                             <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
 
                             <div className="relative flex items-center gap-4">
@@ -546,7 +605,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                                 return (
                                   <div
                                     key={i}
-                                    className="bg-white/10 rounded-xl p-2 backdrop-blur-sm"
+                                    className="profile-dropdown-stat bg-white/10 rounded-xl p-2 backdrop-blur-sm"
                                   >
                                     <div className="flex items-center gap-1.5 mb-1">
                                       <Icon className="h-3 w-3 text-white/70" />
@@ -563,7 +622,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                             </div>
                           </div>
 
-                          <div className="py-2">
+                          <div className="profile-dropdown-menu py-2">
                             {profileLinks.map((item, i) => {
                               const Icon = item.icon;
                               return (
@@ -662,7 +721,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
           }`}
         >
           <div
-            className={`border-t ${isScrolled ? "border-gray-200/60" : "border-white/20"} ${
+            className={`mobile-nav-sheet border-t ${isScrolled ? "border-gray-200/60" : "border-white/20"} ${
               isScrolled
                 ? "bg-white/95 backdrop-blur-xl"
                 : "bg-gray-900/95 backdrop-blur-xl"
@@ -677,7 +736,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                     key={link.name}
                     to={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`
+                    className={`mobile-nav-link ${isActive ? "is-active" : ""}
                       flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
                       ${
                         isActive

@@ -339,6 +339,13 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         .settings-empty-state { background:#fff; border:1px solid #f0f0f8; }
         .settings-add-payment { border:1.5px dashed #c7d2fe; color:#4f46e5; background:#fafafe; }
         .settings-autosave { background:#eef2ff; }
+        html:not(.dark-mode) .settings-tab-icon { background:#eef2ff !important; }
+        html:not(.dark-mode) .settings-tab-icon svg { color:#64748b !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-icon { background:#e0e7ff !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-icon svg { color:#4f46e5 !important; }
+        html:not(.dark-mode) .settings-tab-title { color:#334155 !important; }
+        html:not(.dark-mode) .settings-tab-description { color:#7c879e !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-title { color:#4f46e5 !important; }
         .section-divider { border-top:1px solid #f3f4f6; margin-top:24px; padding-top:24px; }
         .danger-zone { background:#fff5f5; border-radius:16px; border:1px solid #fecaca; padding:16px; }
         .toast { position:fixed; top:84px; right:20px; z-index:9999; background:white; border:1.5px solid #a7f3d0; border-radius:16px; padding:12px 20px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(16,185,129,0.18); animation:toastIn 0.3s ease; }
@@ -372,6 +379,11 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         html.dark-mode .sett-input:focus, html.dark-mode .sett-select:focus { background:#1e1e3a !important; border-color:#6366f1 !important; }
         html.dark-mode .danger-zone { background: #2a0e0e !important; border-color: #7f1d1d !important; }
         html.dark-mode .toast { background: #1a1a35 !important; border-color: #166534 !important; }
+
+        @media (max-width: 640px) {
+          .settings-page-heading { align-items:flex-start !important; gap:14px; flex-wrap:wrap; }
+          .settings-autosave { align-self:flex-start; max-width:100%; }
+        }
       `}</style>
 
       <input
@@ -393,7 +405,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
       <div className="sett-root">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8">
+          <div className="settings-page-heading flex items-end justify-between mb-8">
             <div>
               <p className="text-sm font-semibold text-indigo-500 uppercase tracking-widest mb-1">Account</p>
               <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "2.25rem", fontWeight: 700, color: "inherit", lineHeight: 1.2 }}>Settings</h1>

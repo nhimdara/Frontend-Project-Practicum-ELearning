@@ -450,7 +450,7 @@ const HomePage = () => {
       {/* ══════════════ HERO SECTION ══════════════ */}
       <section
         ref={heroRef}
-        className="relative w-full min-h-screen flex flex-col overflow-hidden"
+        className="student-hero student-home-hero relative w-full min-h-screen flex flex-col overflow-hidden"
       >
         <img
           src={banner}

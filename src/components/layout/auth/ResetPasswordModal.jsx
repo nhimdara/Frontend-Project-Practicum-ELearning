@@ -59,8 +59,8 @@ export default function ResetPasswordModal({ isOpen, onClose, initialEmail = "" 
   };
   const input = "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
 
-  return <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="reset-title">
-    <div className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
+  return <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+    <div className="student-liquid-modal relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
       <button onClick={close} className="absolute right-4 top-4 rounded-lg p-2 text-slate-400 hover:bg-slate-100" aria-label="Close"><X className="h-5 w-5" /></button>
       {step !== "success" && <><div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">{step === "email" ? <Mail /> : <KeyRound />}</div><h2 id="reset-title" className="text-2xl font-bold text-slate-900">{step === "email" ? "Forgot password?" : step === "otp" ? "Enter demo code" : "Create new password"}</h2><p className="mt-2 text-sm text-slate-500">{step === "email" ? "Enter your account email to create a demo reset code." : step === "otp" ? `Use the demo code below for ${email}. It expires in 10 minutes.` : "Choose a secure new password."}</p></>}
       {error && <div className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}

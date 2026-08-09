@@ -245,11 +245,11 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75"
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/75"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeInUp"
+        className="student-liquid-modal bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeInUp"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-gradient-to-br from-indigo-600 to-violet-700 px-8 pt-8 pb-6 text-white text-center relative">
@@ -476,7 +476,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
   return (
     <>
       <div
-        className={`group rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border transform hover:-translate-y-2 ${
+        className={`student-glass-card group rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border transform hover:-translate-y-2 ${
           isDark ? "bg-[#1a1a35] border-[#2a2a4a]" : "bg-white border-gray-100"
         }`}
         onMouseEnter={() => setHovered(true)}
@@ -850,7 +850,7 @@ const LessonsPage = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDark ? "bg-[#0d0d1a]" : "bg-gradient-to-b from-gray-50 to-white"}`}
+      className={`student-page student-lessons min-h-screen ${isDark ? "bg-[#0d0d1a]" : "bg-gradient-to-b from-gray-50 to-white"}`}
     >
       <style>{`
         @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
@@ -874,24 +874,8 @@ const LessonsPage = () => {
         </button>
       )}
 
-      {/* Subscription Badge */}
-      <div className="fixed top-4 right-4 z-40">
-        {isSubscribed ? (
-          <div className="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-            <span>✅</span> Subscribed
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowSubscriptionModal(true)}
-            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg hover:from-indigo-700 transition-all flex items-center gap-2"
-          >
-            <span>🔓</span> Subscribe
-          </button>
-        )}
-      </div>
-
       {/* Hero Section */}
-      <div className="relative w-full h-[500px] overflow-hidden">
+      <div className="student-hero relative w-full h-[500px] overflow-hidden">
         <img
           src={lessonImage}
           alt="Banner"
@@ -910,13 +894,17 @@ const LessonsPage = () => {
               Video lessons organised by year and semester. First{" "}
               {FREE_VIDEO_LIMIT} videos free.
             </p>
-            {!isSubscribed && (
+            {!isSubscribed ? (
               <button
                 onClick={() => setShowSubscriptionModal(true)}
                 className="mt-6 bg-white text-indigo-700 font-bold px-6 py-3 rounded-2xl hover:bg-indigo-50 transition-all flex items-center gap-2"
               >
                 <span>🔓</span> Unlock All — $9.99/mo
               </button>
+            ) : (
+              <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-xl">
+                <span>✓</span> Full lesson access
+              </div>
             )}
           </div>
         </div>

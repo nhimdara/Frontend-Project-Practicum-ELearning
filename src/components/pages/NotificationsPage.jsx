@@ -22,7 +22,7 @@ export default function NotificationsPage({ user }) {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 pb-16 pt-24 sm:px-6">
+    <main className="student-page student-notifications min-h-screen bg-slate-50 px-4 pb-16 pt-24 sm:px-6">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -43,7 +43,7 @@ export default function NotificationsPage({ user }) {
           ))}
         </div>
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="student-glass-card overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {error ? (
             <div className="px-6 py-12 text-center"><p className="font-semibold text-red-700">{error}</p><button onClick={refresh} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button></div>
           ) : loading ? (

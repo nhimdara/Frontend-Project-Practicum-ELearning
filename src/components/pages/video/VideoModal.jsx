@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X, PlayCircle, AlertCircle } from "lucide-react";
+import "./studentVideoModals.css";
 
 const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
   const [embedError, setEmbedError] = useState(false);
@@ -71,12 +72,12 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="student-video-overlay fixed inset-0 z-[110] flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)" }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-5xl bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+        className="student-video-modal relative w-full max-w-5xl bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
         style={{ animation: "vmFadeIn 0.25s ease-out both" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -98,7 +99,7 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
         `}</style>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/20">
+        <div className="student-video-header flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/20">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
               <PlayCircle className="h-5 w-5 text-white" />
@@ -123,8 +124,7 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
 
         {/* Video Player Area */}
         <div
-          className="relative w-full bg-black"
-          style={{ minHeight: "400px" }}
+          className="student-video-player relative w-full bg-black"
         >
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             {embedError ? (
@@ -184,7 +184,7 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
         </div>
 
         {/* Footer with helpful info */}
-        <div className="px-6 py-3 border-t border-white/10 bg-black/20">
+        <div className="student-video-footer px-6 py-3 border-t border-white/10 bg-black/20">
           <div className="flex items-center justify-between text-xs text-white/40">
             <div className="flex items-center gap-4">
               <span>🎓 Educational purposes only</span>

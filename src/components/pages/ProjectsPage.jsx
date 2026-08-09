@@ -55,9 +55,9 @@ const ProjectsPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+    <div className="student-page student-projects min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       {/* Hero Banner */}
-      <div className="relative w-full h-[600px] overflow-hidden group">
+      <div className="student-hero relative w-full h-[600px] overflow-hidden group">
         <div className="absolute inset-0">
           <img
             src={projectImage}
@@ -146,7 +146,7 @@ const ProjectsPage = () => {
           {projects.map((project, index) => (
             <div
               key={project.id}
-              className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden animate-fade-in-up border border-gray-100"
+              className="student-glass-card group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden animate-fade-in-up border border-gray-100"
               style={{
                 animationDelay: `${index * 150}ms`,
               }}

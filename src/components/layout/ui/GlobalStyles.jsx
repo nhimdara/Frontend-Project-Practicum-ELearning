@@ -548,6 +548,17 @@ html:not(.dark-mode) .modal-panel {
   box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
 }
 
+html:not(.dark-mode) .admin-page-body .rounded-2xl.border,
+html:not(.dark-mode) .teacher-stats-grid > div,
+html:not(.dark-mode) .teacher-video-grid > div,
+html:not(.dark-mode) .teacher-lessons-grid > div {
+  background: var(--ios-glass-light) !important;
+  border-color: rgba(255,255,255,0.76) !important;
+  box-shadow: var(--ios-glass-shadow), inset 0 1px 0 rgba(255,255,255,0.86) !important;
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
 html.dark-mode .prof-card,
 html.dark-mode .content-panel,
 html.dark-mode .sett-card,
@@ -735,6 +746,520 @@ html:not(.dark-mode) ::-webkit-scrollbar-thumb {
 
 html:not(.dark-mode) ::-webkit-scrollbar-thumb:hover {
   background: #8fa2d4;
+}
+
+/* === LIQUID GLASS DESIGN SYSTEM === */
+:root {
+  --ios-glass-light: rgba(255, 255, 255, 0.72);
+  --ios-glass-light-strong: rgba(255, 255, 255, 0.88);
+  --ios-glass-dark: rgba(21, 23, 51, 0.72);
+  --ios-glass-dark-strong: rgba(21, 23, 51, 0.88);
+  --ios-glass-border-light: rgba(255, 255, 255, 0.78);
+  --ios-glass-border-dark: rgba(165, 180, 252, 0.18);
+  --ios-glass-shadow: 0 24px 64px rgba(38, 45, 91, 0.14);
+  --ios-glass-shadow-dark: 0 28px 70px rgba(0, 0, 0, 0.38);
+}
+
+html:not(.dark-mode) body {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(99,102,241,0.16), transparent 29rem),
+    radial-gradient(circle at 92% 18%, rgba(56,189,248,0.13), transparent 28rem),
+    radial-gradient(circle at 52% 92%, rgba(168,85,247,0.10), transparent 34rem),
+    linear-gradient(145deg, #f7f9ff 0%, #edf3ff 55%, #f8f5ff 100%) !important;
+  background-attachment: fixed !important;
+}
+
+html.dark-mode body {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(99,102,241,0.22), transparent 30rem),
+    radial-gradient(circle at 92% 20%, rgba(14,165,233,0.13), transparent 30rem),
+    radial-gradient(circle at 52% 96%, rgba(126,34,206,0.12), transparent 35rem),
+    linear-gradient(145deg, #070816 0%, #0c1024 55%, #0d0b1d 100%) !important;
+  background-attachment: fixed !important;
+}
+
+html:not(.dark-mode) .ui-card,
+html:not(.dark-mode) .prof-card,
+html:not(.dark-mode) .content-panel,
+html:not(.dark-mode) .sett-card,
+html:not(.dark-mode) .modal-panel {
+  background: var(--ios-glass-light) !important;
+  border-color: var(--ios-glass-border-light) !important;
+  box-shadow: var(--ios-glass-shadow), inset 0 1px 0 rgba(255,255,255,0.88) !important;
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+}
+
+html.dark-mode .ui-card,
+html.dark-mode .prof-card,
+html.dark-mode .content-panel,
+html.dark-mode .sett-card,
+html.dark-mode .modal-panel {
+  background: var(--ios-glass-dark) !important;
+  border-color: var(--ios-glass-border-dark) !important;
+  box-shadow: var(--ios-glass-shadow-dark), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+}
+
+html.dark-mode .admin-page-body .rounded-2xl.border,
+html.dark-mode .teacher-stats-grid > div,
+html.dark-mode .teacher-video-grid > div,
+html.dark-mode .teacher-lessons-grid > div {
+  background: var(--ios-glass-dark) !important;
+  border-color: var(--ios-glass-border-dark) !important;
+  box-shadow: var(--ios-glass-shadow-dark), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+
+.ui-card,
+.prof-card,
+.content-panel,
+.sett-card,
+.modal-panel,
+.admin-page-body .rounded-2xl,
+.teacher-dashboard-root .teacher-settings-card {
+  border-radius: 22px !important;
+}
+
+button[class*="rounded"],
+.ui-button,
+.primary-btn,
+.ghost-btn,
+.tab-btn,
+.sidebar-btn {
+  transform: translateZ(0);
+}
+
+button[class*="rounded"]:active,
+.ui-button:active,
+.primary-btn:active,
+.ghost-btn:active,
+.tab-btn:active,
+.sidebar-btn:active {
+  transform: scale(0.975);
+}
+
+html:not(.dark-mode) .sett-input,
+html:not(.dark-mode) .sett-select,
+html:not(.dark-mode) .form-field {
+  background: rgba(255,255,255,0.68) !important;
+  border-color: rgba(148,163,184,0.28) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85) !important;
+  backdrop-filter: blur(12px);
+}
+
+html.dark-mode .sett-input,
+html.dark-mode .sett-select,
+html.dark-mode .form-field {
+  background: rgba(7,8,22,0.46) !important;
+  border-color: rgba(165,180,252,0.20) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+
+@media (max-width: 768px) {
+  .ui-card,
+  .prof-card,
+  .content-panel,
+  .sett-card,
+  .modal-panel {
+    border-radius: 18px !important;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html:not(.dark-mode) .ui-card,
+  html:not(.dark-mode) .prof-card,
+  html:not(.dark-mode) .content-panel,
+  html:not(.dark-mode) .sett-card,
+  html:not(.dark-mode) .modal-panel {
+    background: var(--ios-glass-light-strong) !important;
+  }
+
+  html.dark-mode .ui-card,
+  html.dark-mode .prof-card,
+  html.dark-mode .content-panel,
+  html.dark-mode .sett-card,
+  html.dark-mode .modal-panel {
+    background: var(--ios-glass-dark-strong) !important;
+  }
+}
+
+/* Navbar materials need explicit states so white glass never meets white text. */
+html:not(.dark-mode) nav.app-navbar.app-navbar-top {
+  background: rgba(17, 24, 54, 0.74) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  box-shadow: 0 12px 36px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled {
+  background: rgba(248,250,255,0.88) !important;
+  border-color: rgba(255,255,255,0.72) !important;
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-nav-control {
+  color: #334155 !important;
+  background: rgba(255,255,255,0.54) !important;
+  box-shadow: inset 0 0 0 1px rgba(148,163,184,0.16);
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-top .app-nav-control,
+html.dark-mode nav.app-navbar .app-nav-control {
+  color: #ffffff !important;
+}
+
+html.dark-mode nav.app-navbar {
+  background: rgba(7,8,22,0.76) !important;
+  border-color: rgba(165,180,252,0.15) !important;
+}
+
+nav.app-navbar .mobile-nav-sheet {
+  background: rgba(15,23,42,0.88) !important;
+  border-color: rgba(165,180,252,0.14) !important;
+  box-shadow: 0 24px 54px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+}
+
+nav.app-navbar .mobile-nav-link {
+  color: #d7def7 !important;
+  border: 1px solid transparent;
+}
+
+nav.app-navbar .mobile-nav-link:hover,
+nav.app-navbar .mobile-nav-link:focus-visible {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.08);
+  color: #ffffff !important;
+}
+
+nav.app-navbar .mobile-nav-link.is-active {
+  background: rgba(99,102,241,0.22) !important;
+  border-color: rgba(165,180,252,0.20);
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+nav.app-navbar .mobile-nav-link.is-active span:last-child {
+  background: rgba(255,255,255,0.14) !important;
+  color: #ffffff !important;
+}
+
+/* Student experience: shared liquid-glass material. */
+.student-page {
+  background: transparent !important;
+}
+
+.student-page > .student-hero,
+.student-hero {
+  min-height: min(640px, 64svh);
+}
+
+.student-page > :not(.student-hero) > .max-w-7xl,
+.student-page > .max-w-7xl {
+  width: min(100% - 32px, 80rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+html:not(.dark-mode) .student-glass-card,
+html:not(.dark-mode) .student-glass-modal,
+html:not(.dark-mode) .student-notifications section,
+html:not(.dark-mode) .about-card,
+html:not(.dark-mode) .exam-root .form-card,
+html:not(.dark-mode) .exam-root .progress-card,
+html:not(.dark-mode) .exam-root .submit-card,
+html:not(.dark-mode) .exam-root .state-card {
+  background: rgba(255,255,255,0.70) !important;
+  border-color: rgba(255,255,255,0.78) !important;
+  box-shadow: 0 24px 62px rgba(48,55,102,0.13), inset 0 1px 0 rgba(255,255,255,0.88) !important;
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+}
+
+html.dark-mode .student-glass-card,
+html.dark-mode .student-glass-modal,
+html.dark-mode .student-notifications section,
+html.dark-mode .about-card,
+html.dark-mode .exam-root .form-card,
+html.dark-mode .exam-root .progress-card,
+html.dark-mode .exam-root .submit-card,
+html.dark-mode .exam-root .state-card {
+  background: rgba(21,23,51,0.70) !important;
+  border-color: rgba(165,180,252,0.17) !important;
+  box-shadow: 0 28px 68px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+}
+
+.student-glass-card,
+.student-glass-modal,
+.about-card,
+.exam-root .form-card,
+.exam-root .progress-card,
+.exam-root .submit-card,
+.exam-root .state-card {
+  border-radius: 24px !important;
+}
+
+html:not(.dark-mode) .student-page input,
+html:not(.dark-mode) .student-page select,
+html:not(.dark-mode) .student-page textarea {
+  background: rgba(255,255,255,0.72) !important;
+  border-color: rgba(148,163,184,0.26) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.88), 0 10px 28px rgba(48,55,102,0.06) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+html.dark-mode .student-page input,
+html.dark-mode .student-page select,
+html.dark-mode .student-page textarea {
+  background: rgba(7,8,22,0.54) !important;
+  border-color: rgba(165,180,252,0.20) !important;
+  color: #f4f7ff !important;
+}
+
+/* Keep the expanded mobile navigation as one continuous dark glass layer. */
+nav.app-navbar.menu-open {
+  background: rgba(10,14,31,0.90) !important;
+  border-color: rgba(165,180,252,0.16) !important;
+  box-shadow: 0 24px 56px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+nav.app-navbar.menu-open .app-nav-control {
+  color: #ffffff !important;
+  background: rgba(255,255,255,0.07) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .student-glass-card {
+    transition: transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s ease, border-color 0.28s ease;
+  }
+
+  .student-glass-card:hover,
+  .about-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(129,140,248,0.34) !important;
+    box-shadow: 0 30px 76px rgba(55,48,130,0.18), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .student-glass-card,
+  .student-glass-modal,
+  .about-card,
+  .exam-root .form-card,
+  .exam-root .progress-card,
+  .exam-root .submit-card,
+  .exam-root .state-card {
+    border-radius: 20px !important;
+  }
+
+  .student-hero {
+    min-height: 72svh;
+    height: 72svh !important;
+  }
+
+  .student-home-hero {
+    min-height: 100svh;
+    height: auto !important;
+  }
+
+  .student-page > :not(.student-hero) > .max-w-7xl,
+  .student-page > .max-w-7xl {
+    width: min(100% - 24px, 80rem);
+  }
+}
+
+/* Responsive liquid-glass navbar: compact on iPhone, floating on MacBook. */
+nav.app-navbar,
+html:not(.dark-mode) nav.app-navbar,
+html.dark-mode nav.app-navbar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding-top: max(8px, env(safe-area-inset-top)) !important;
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+  pointer-events: none;
+}
+
+nav.app-navbar .app-navbar-shell,
+nav.app-navbar .mobile-nav-sheet {
+  pointer-events: auto;
+}
+
+nav.app-navbar .app-navbar-shell {
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 22px;
+  background: rgba(15,23,42,0.68);
+  box-shadow: 0 18px 46px rgba(15,23,42,0.20), inset 0 1px 0 rgba(255,255,255,0.12);
+  backdrop-filter: blur(28px) saturate(165%);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-navbar-shell {
+  border-color: rgba(255,255,255,0.78);
+  background: rgba(248,250,255,0.76);
+  box-shadow: 0 18px 46px rgba(45,55,100,0.14), inset 0 1px 0 rgba(255,255,255,0.92);
+}
+
+html.dark-mode nav.app-navbar .app-navbar-shell {
+  border-color: rgba(165,180,252,0.17);
+  background: rgba(10,14,31,0.76);
+  box-shadow: 0 20px 52px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+nav.app-navbar.app-navbar-top [data-brand="elearning"],
+html.dark-mode nav.app-navbar [data-brand="elearning"] {
+  color: #ffffff !important;
+}
+
+nav.app-navbar.app-navbar-top [data-brand="elearning"] span,
+html.dark-mode nav.app-navbar [data-brand="elearning"] span {
+  color: #c7d2fe !important;
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled [data-brand="elearning"] {
+  color: #172033 !important;
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled [data-brand="elearning"] span {
+  color: #4f46e5 !important;
+}
+
+nav.app-navbar .app-nav-control,
+nav.app-navbar .app-profile-control {
+  border-color: rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-nav-control,
+html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-profile-control {
+  border-color: rgba(148,163,184,0.20) !important;
+  background: rgba(255,255,255,0.62) !important;
+  color: #334155 !important;
+}
+
+nav.app-navbar .app-nav-control:hover,
+nav.app-navbar .app-nav-control:focus-visible,
+nav.app-navbar .app-profile-control:hover,
+nav.app-navbar .app-profile-control:focus-visible {
+  background: rgba(129,140,248,0.18) !important;
+  border-color: rgba(165,180,252,0.30) !important;
+}
+
+nav.app-navbar .mobile-nav-sheet {
+  width: min(100%, 80rem);
+  margin: 8px auto 0;
+  border: 1px solid rgba(165,180,252,0.16) !important;
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(10,14,31,0.84) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+@media (min-width: 1024px) {
+  nav.app-navbar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  nav.app-navbar .app-navbar-shell {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  nav.app-navbar {
+    padding-left: max(6px, env(safe-area-inset-left));
+    padding-right: max(6px, env(safe-area-inset-right));
+  }
+
+  nav.app-navbar .app-navbar-shell {
+    border-radius: 19px;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  nav.app-navbar .mobile-nav-sheet {
+    border-radius: 19px;
+  }
+}
+
+@media (max-width: 430px) {
+  nav.app-navbar .app-navbar-shell > div {
+    gap: 6px !important;
+  }
+
+  nav.app-navbar [data-brand="elearning"] {
+    font-size: 1rem !important;
+  }
+
+  nav.app-navbar .app-nav-control {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+  }
+
+  nav.app-navbar .app-profile-control {
+    padding-right: 6px !important;
+    gap: 4px !important;
+  }
+}
+
+/* Shared authentication, subscription, and account dialog material. */
+.student-liquid-modal {
+  border: 1px solid rgba(255,255,255,0.76) !important;
+  background: rgba(255,255,255,0.80) !important;
+  box-shadow: 0 34px 90px rgba(30,38,86,0.24), inset 0 1px 0 rgba(255,255,255,0.94) !important;
+  backdrop-filter: blur(30px) saturate(165%);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+}
+
+html.dark-mode .student-liquid-modal {
+  border-color: rgba(165,180,252,0.18) !important;
+  background: rgba(16,18,42,0.88) !important;
+  color: #f4f7ff !important;
+  box-shadow: 0 38px 96px rgba(0,0,0,0.54), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+html.dark-mode .student-liquid-modal h1,
+html.dark-mode .student-liquid-modal h2,
+html.dark-mode .student-liquid-modal h3,
+html.dark-mode .student-liquid-modal label {
+  color: #f4f7ff !important;
+}
+
+html.dark-mode .student-liquid-modal input,
+html.dark-mode .student-liquid-modal select,
+html.dark-mode .student-liquid-modal textarea {
+  background: rgba(7,8,22,0.56) !important;
+  border-color: rgba(165,180,252,0.20) !important;
+  color: #f4f7ff !important;
+}
+
+html.dark-mode .student-liquid-modal p[class*="text-gray-"],
+html.dark-mode .student-liquid-modal p[class*="text-slate-"] {
+  color: #a8b1d6 !important;
+}
+
+@media (max-width: 640px) {
+  .student-liquid-modal {
+    max-height: calc(100dvh - max(12px, env(safe-area-inset-top))) !important;
+    border-radius: 24px 24px 0 0 !important;
+    margin-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* === REDUCE ANIMATIONS === */
