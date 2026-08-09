@@ -31,6 +31,7 @@ const applyFlags = (s) => {
   r.classList.toggle("reduce-animations", !!(s.reduceAnimations || s.reducedMotion));
   r.classList.toggle("high-contrast",     !!(s.highContrast || s.highContrastMode));
   r.classList.toggle("compact-view",      !!s.compactView);
+  r.classList.toggle("liquid-glass-disabled", s.liquidGlass === false);
 };
 
 const STORAGE_KEY = "learnflow_settings";
@@ -128,6 +129,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     theme: "light",
     fontSize: "medium",
     compactView: false,
+    liquidGlass: true,
     reduceAnimations: false,
     highContrast: false,
     fontFamily: "Inter",
@@ -172,6 +174,10 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     };
   });
   const [settingsError, setSettingsError] = useState("");
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [activeTab]);
 
   useEffect(() => {
     let cancelled = false;
@@ -219,7 +225,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
       if (key === "theme")      applyTheme(value);
       if (key === "fontSize")   applyFontSize(value);
       if (key === "fontFamily") applyFontFamily(value);
-      if (["reduceAnimations","highContrast","compactView","highContrastMode","reducedMotion"].includes(key))
+      if (["reduceAnimations","highContrast","compactView","liquidGlass","highContrastMode","reducedMotion"].includes(key))
         applyFlags(next);
       return next;
     });
@@ -380,9 +386,118 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         html.dark-mode .danger-zone { background: #2a0e0e !important; border-color: #7f1d1d !important; }
         html.dark-mode .toast { background: #1a1a35 !important; border-color: #166534 !important; }
 
+        /* iOS-style liquid glass shared by every Settings tab. */
+        .sett-root {
+          background:
+            radial-gradient(circle at 8% 4%, rgba(99,102,241,.18), transparent 28rem),
+            radial-gradient(circle at 94% 14%, rgba(56,189,248,.14), transparent 30rem),
+            linear-gradient(145deg,#f8faff 0%,#edf3ff 56%,#f8f5ff 100%) !important;
+          background-attachment:fixed !important;
+        }
+        .content-panel {
+          background:rgba(255,255,255,.68) !important;
+          border:1px solid rgba(255,255,255,.82) !important;
+          box-shadow:0 28px 72px rgba(45,55,100,.14),inset 0 1px 0 rgba(255,255,255,.96) !important;
+          backdrop-filter:blur(28px) saturate(160%);
+          -webkit-backdrop-filter:blur(28px) saturate(160%);
+        }
+        .sett-card,.settings-empty-state {
+          background:rgba(255,255,255,.60) !important;
+          border-color:rgba(100,116,160,.15) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.86);
+        }
+        .sett-input,.sett-select {
+          min-height:44px;
+          background:rgba(255,255,255,.66) !important;
+          border-color:rgba(100,116,160,.20) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
+        }
+        .sett-input:focus,.sett-select:focus {
+          background:rgba(255,255,255,.94) !important;
+          border-color:#818cf8 !important;
+          box-shadow:0 0 0 4px rgba(99,102,241,.13),inset 0 1px 0 #fff !important;
+        }
+        .sidebar-btn:hover { background:rgba(99,102,241,.08) !important; }
+        .sidebar-btn.active {
+          background:rgba(99,102,241,.12) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 8px 22px rgba(79,70,229,.08);
+        }
+        .settings-autosave {
+          background:rgba(255,255,255,.58) !important;
+          border:1px solid rgba(255,255,255,.72);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.90);
+          backdrop-filter:blur(14px) saturate(150%);
+        }
+        .settings-theme-option {
+          min-height:102px;
+          background:rgba(255,255,255,.58) !important;
+          border-color:rgba(100,116,160,.18) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.88);
+        }
+        .settings-theme-option.selected {
+          background:rgba(224,231,255,.78) !important;
+          border-color:#6366f1 !important;
+          box-shadow:0 10px 28px rgba(79,70,229,.14),inset 0 1px 0 #fff;
+        }
+
+        html.dark-mode .sett-root {
+          background:
+            radial-gradient(circle at 8% 4%,rgba(99,102,241,.22),transparent 30rem),
+            radial-gradient(circle at 92% 18%,rgba(14,165,233,.13),transparent 30rem),
+            linear-gradient(145deg,#070816 0%,#0c1024 58%,#0d0b1d 100%) !important;
+        }
+        html.dark-mode .content-panel {
+          background:rgba(16,18,42,.78) !important;
+          border-color:rgba(165,180,252,.18) !important;
+          box-shadow:0 32px 78px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.08) !important;
+          backdrop-filter:blur(28px) saturate(150%);
+          -webkit-backdrop-filter:blur(28px) saturate(150%);
+        }
+        html.dark-mode .sett-card,
+        html.dark-mode .settings-empty-state {
+          background:rgba(7,8,22,.48) !important;
+          border-color:rgba(165,180,252,.14) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+        }
+        html.dark-mode .sett-input,html.dark-mode .sett-select {
+          background:rgba(7,8,22,.54) !important;
+          border-color:rgba(165,180,252,.20) !important;
+          color:#f4f7ff !important;
+        }
+        html.dark-mode .sett-input:focus,html.dark-mode .sett-select:focus {
+          background:rgba(12,15,34,.88) !important;
+          border-color:#818cf8 !important;
+          box-shadow:0 0 0 4px rgba(129,140,248,.14) !important;
+        }
+        html.dark-mode .sidebar-btn.active {
+          background:rgba(99,102,241,.20) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 26px rgba(0,0,0,.18);
+        }
+        html.dark-mode .settings-autosave {
+          background:rgba(30,34,70,.64) !important;
+          border-color:rgba(165,180,252,.14);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+        }
+
         @media (max-width: 640px) {
           .settings-page-heading { align-items:flex-start !important; gap:14px; flex-wrap:wrap; }
           .settings-autosave { align-self:flex-start; max-width:100%; }
+          .sett-root { padding-top:max(84px,calc(68px + env(safe-area-inset-top))); padding-bottom:max(28px,env(safe-area-inset-bottom)); }
+          .settings-main-panel { padding:20px 16px !important; border-radius:24px !important; }
+          .settings-section-header { gap:12px; margin-bottom:22px !important; }
+          .settings-section-header button { padding:10px 14px !important; margin-left:0 !important; }
+          .settings-theme-option { padding:12px 6px !important; }
+          .toast { left:12px; right:12px; top:max(76px,calc(64px + env(safe-area-inset-top))); }
+        }
+
+        @media (max-width:1023px) {
+          .settings-layout { gap:14px !important; }
+          .settings-layout > .lg\\:w-72 { width:100%; }
+          .settings-sidebar { position:static !important; padding:8px !important; border-radius:22px !important; }
+          .settings-sidebar nav { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:1px; }
+          .settings-sidebar nav::-webkit-scrollbar { display:none; }
+          .settings-sidebar nav .sidebar-btn { width:auto !important; min-width:154px; flex:0 0 auto; padding:9px 11px !important; }
+          .settings-signout { display:none; }
         }
       `}</style>
 
@@ -423,10 +538,10 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
             </div>
           )}
 
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="settings-layout flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
             <div className="lg:w-72 flex-shrink-0">
-              <div className="content-panel p-3 sticky top-24">
+              <div className="settings-sidebar content-panel p-3 sticky top-24">
                 <nav className="space-y-0.5">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
@@ -449,7 +564,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                     );
                   })}
                 </nav>
-                <div className="mt-3 pt-3" style={{ borderTop: "1px solid #f3f4f6" }}>
+                <div className="settings-signout mt-3 pt-3" style={{ borderTop: "1px solid #f3f4f6" }}>
                   <button onClick={onLogout} className="sidebar-btn hover:bg-red-50 w-full">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "#fff5f5" }}>
@@ -467,7 +582,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
             {/* Main panel */}
             <div className="flex-1 min-w-0">
-              <div className="content-panel p-6 sm:p-8">
+              <div className="settings-main-panel content-panel p-6 sm:p-8">
 
                 {/* PROFILE */}
                 {activeTab === "profile" && (
@@ -568,6 +683,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                       </div>
 
                       <div className="sett-card space-y-4">
+                        <ToggleSwitch label="Liquid Glass" description="Use translucent iOS-style surfaces and background blur" checked={settings.liquidGlass !== false} onChange={() => handleToggle("liquidGlass")} />
                         <ToggleSwitch label="Compact View" description="Show more content with reduced spacing" checked={settings.compactView} onChange={() => handleToggle("compactView")} />
                         <ToggleSwitch label="Reduce Animations" description="Minimize motion effects throughout the site" checked={settings.reduceAnimations} onChange={() => handleToggle("reduceAnimations")} />
                         <ToggleSwitch label="High Contrast" description="Increase contrast for better visibility" checked={settings.highContrast} onChange={() => handleToggle("highContrast")} />

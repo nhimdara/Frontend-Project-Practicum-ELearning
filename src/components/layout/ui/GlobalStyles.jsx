@@ -424,7 +424,7 @@ html.dark-mode .bg-violet-50,
 html.dark-mode .bg-violet-100 { background-color: #1e1430 !important; }
 
 /* Navigation and footer */
-html.dark-mode nav {
+html.dark-mode nav:not(.app-navbar) {
   background:
     linear-gradient(90deg, rgba(10, 12, 30, 0.96), rgba(38, 20, 74, 0.94)) !important;
   border-bottom-color: var(--lf-dark-border) !important;
@@ -888,14 +888,15 @@ html.dark-mode .form-field {
 
 /* Navbar materials need explicit states so white glass never meets white text. */
 html:not(.dark-mode) nav.app-navbar.app-navbar-top {
-  background: rgba(17, 24, 54, 0.74) !important;
-  border-color: rgba(255,255,255,0.16) !important;
-  box-shadow: 0 12px 36px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled {
-  background: rgba(248,250,255,0.88) !important;
-  border-color: rgba(255,255,255,0.72) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-nav-control {
@@ -904,14 +905,26 @@ html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-nav-control {
   box-shadow: inset 0 0 0 1px rgba(148,163,184,0.16);
 }
 
-html:not(.dark-mode) nav.app-navbar.app-navbar-top .app-nav-control,
 html.dark-mode nav.app-navbar .app-nav-control {
   color: #ffffff !important;
 }
 
+html:not(.dark-mode) nav.app-navbar .notification-bell {
+  color:#000000 !important;
+  stroke:#000000 !important;
+  opacity:1 !important;
+}
+
+html.dark-mode nav.app-navbar .notification-bell {
+  color:#ffffff !important;
+  stroke:#ffffff !important;
+  opacity:1 !important;
+}
+
 html.dark-mode nav.app-navbar {
-  background: rgba(7,8,22,0.76) !important;
-  border-color: rgba(165,180,252,0.15) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 nav.app-navbar .mobile-nav-sheet {
@@ -954,6 +967,14 @@ nav.app-navbar .mobile-nav-link.is-active span:last-child {
 .student-page > .student-hero,
 .student-hero {
   min-height: min(640px, 64svh);
+}
+
+/* The home landing image is a true edge-to-edge viewport hero. */
+.student-home-hero {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  height: 100vh !important;
+  height: 100dvh !important;
 }
 
 .student-page > :not(.student-hero) > .max-w-7xl,
@@ -1004,6 +1025,14 @@ html.dark-mode .exam-root .state-card {
   border-radius: 24px !important;
 }
 
+/* Keep card content pixel-sharp. Glass blur belongs on floating chrome, not
+   directly behind text-heavy student cards. */
+.student-glass-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+}
+
 html:not(.dark-mode) .student-page input,
 html:not(.dark-mode) .student-page select,
 html:not(.dark-mode) .student-page textarea {
@@ -1024,9 +1053,9 @@ html.dark-mode .student-page textarea {
 
 /* Keep the expanded mobile navigation as one continuous dark glass layer. */
 nav.app-navbar.menu-open {
-  background: rgba(10,14,31,0.90) !important;
-  border-color: rgba(165,180,252,0.16) !important;
-  box-shadow: 0 24px 56px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 nav.app-navbar.menu-open .app-nav-control {
@@ -1039,9 +1068,15 @@ nav.app-navbar.menu-open .app-nav-control {
     transition: transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s ease, border-color 0.28s ease;
   }
 
-  .student-glass-card:hover,
   .about-card:hover {
     transform: translateY(-5px);
+    border-color: rgba(129,140,248,0.34) !important;
+    box-shadow: 0 30px 76px rgba(55,48,130,0.18), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  }
+
+
+  .student-glass-card:hover {
+    transform: none !important;
     border-color: rgba(129,140,248,0.34) !important;
     box-shadow: 0 30px 76px rgba(55,48,130,0.18), inset 0 1px 0 rgba(255,255,255,0.90) !important;
   }
@@ -1064,8 +1099,8 @@ nav.app-navbar.menu-open .app-nav-control {
   }
 
   .student-home-hero {
-    min-height: 100svh;
-    height: auto !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
   }
 
   .student-page > :not(.student-hero) > .max-w-7xl,
@@ -1095,14 +1130,15 @@ nav.app-navbar .mobile-nav-sheet {
 }
 
 nav.app-navbar .app-navbar-shell {
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.78);
   border-radius: 22px;
-  background: rgba(15,23,42,0.68);
-  box-shadow: 0 18px 46px rgba(15,23,42,0.20), inset 0 1px 0 rgba(255,255,255,0.12);
+  background: rgba(248,250,255,0.78);
+  box-shadow: 0 18px 46px rgba(45,55,100,0.14), inset 0 1px 0 rgba(255,255,255,0.94);
   backdrop-filter: blur(28px) saturate(165%);
   -webkit-backdrop-filter: blur(28px) saturate(165%);
 }
 
+html:not(.dark-mode) nav.app-navbar .app-navbar-shell,
 html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-navbar-shell {
   border-color: rgba(255,255,255,0.78);
   background: rgba(248,250,255,0.76);
@@ -1115,39 +1151,84 @@ html.dark-mode nav.app-navbar .app-navbar-shell {
   box-shadow: 0 20px 52px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
-nav.app-navbar.app-navbar-top [data-brand="elearning"],
+html.dark-mode nav.app-navbar.app-navbar-top [data-brand="elearning"],
 html.dark-mode nav.app-navbar [data-brand="elearning"] {
   color: #ffffff !important;
 }
 
-nav.app-navbar.app-navbar-top [data-brand="elearning"] span,
+html.dark-mode nav.app-navbar.app-navbar-top [data-brand="elearning"] span,
 html.dark-mode nav.app-navbar [data-brand="elearning"] span {
   color: #c7d2fe !important;
 }
 
-html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled [data-brand="elearning"] {
+html:not(.dark-mode) nav.app-navbar [data-brand="elearning"] {
   color: #172033 !important;
 }
 
-html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled [data-brand="elearning"] span {
+html:not(.dark-mode) nav.app-navbar [data-brand="elearning"] span {
   color: #4f46e5 !important;
 }
 
 nav.app-navbar .app-nav-control,
 nav.app-navbar .app-profile-control {
-  border-color: rgba(255,255,255,0.14) !important;
-  background: rgba(255,255,255,0.07) !important;
-  color: #ffffff !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color: rgba(148,163,184,0.20) !important;
+  background: rgba(255,255,255,0.62) !important;
+  color: #334155 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.90);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-nav-control,
-html:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-profile-control {
-  border-color: rgba(148,163,184,0.20) !important;
-  background: rgba(255,255,255,0.62) !important;
-  color: #334155 !important;
+html.dark-mode nav.app-navbar .app-nav-control,
+html.dark-mode nav.app-navbar .app-profile-control {
+  border-color: rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+html:not(.dark-mode) nav.app-navbar .app-nav-link {
+  color: #475569 !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .app-nav-link:hover {
+  color: #4338ca !important;
+  background: rgba(79,70,229,0.08) !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .app-nav-link.is-active {
+  color: #3730a3 !important;
+  background: rgba(79,70,229,0.12) !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .app-nav-indicator {
+  background: linear-gradient(90deg, #4f46e5, #8b5cf6) !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .app-profile-name {
+  color: #172033 !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .app-profile-meta {
+  color: #64748b !important;
+}
+
+html.dark-mode nav.app-navbar .app-nav-link {
+  color: #d7def7 !important;
+}
+
+html.dark-mode nav.app-navbar .app-nav-link:hover,
+html.dark-mode nav.app-navbar .app-nav-link.is-active {
+  color: #ffffff !important;
+  background: rgba(129,140,248,0.18) !important;
+}
+
+html.dark-mode nav.app-navbar .app-profile-name {
+  color: #f4f7ff !important;
+}
+
+html.dark-mode nav.app-navbar .app-profile-meta {
+  color: #9ba7d1 !important;
 }
 
 nav.app-navbar .app-nav-control:hover,
@@ -1168,13 +1249,44 @@ nav.app-navbar .mobile-nav-sheet {
   box-shadow: 0 24px 60px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
+html:not(.dark-mode) nav.app-navbar .mobile-nav-sheet {
+  background: rgba(248,250,255,0.90) !important;
+  border-color: rgba(255,255,255,0.82) !important;
+  box-shadow: 0 24px 60px rgba(45,55,100,0.18), inset 0 1px 0 rgba(255,255,255,0.94);
+}
+
+html:not(.dark-mode) nav.app-navbar .mobile-nav-link {
+  color: #475569 !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .mobile-nav-link:hover,
+html:not(.dark-mode) nav.app-navbar .mobile-nav-link:focus-visible {
+  color: #4338ca !important;
+  background: rgba(79,70,229,0.08) !important;
+  border-color: rgba(79,70,229,0.10) !important;
+}
+
+html:not(.dark-mode) nav.app-navbar .mobile-nav-link.is-active {
+  color: #3730a3 !important;
+  background: rgba(79,70,229,0.12) !important;
+  border-color: rgba(79,70,229,0.14) !important;
+}
+
+html.dark-mode nav.app-navbar .mobile-nav-sheet {
+  background: rgba(10,14,31,0.90) !important;
+}
+
 @media (min-width: 1024px) {
   nav.app-navbar {
-    padding-left: 16px;
-    padding-right: 16px;
+    left: max(16px, calc((100vw - 820px) / 2)) !important;
+    right: max(16px, calc((100vw - 820px) / 2)) !important;
+    width: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   nav.app-navbar .app-navbar-shell {
+    width: 100%;
     padding-left: 20px !important;
     padding-right: 20px !important;
   }
@@ -1263,6 +1375,217 @@ html.dark-mode .student-liquid-modal p[class*="text-slate-"] {
 }
 
 /* === REDUCE ANIMATIONS === */
+/* Appearance setting: retain the layout while removing translucent blur. */
+html.liquid-glass-disabled *,
+html.liquid-glass-disabled *::before,
+html.liquid-glass-disabled *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .app-navbar-shell,
+html.liquid-glass-disabled:not(.dark-mode) .content-panel,
+html.liquid-glass-disabled:not(.dark-mode) .prof-card,
+html.liquid-glass-disabled:not(.dark-mode) .student-liquid-modal,
+html.liquid-glass-disabled:not(.dark-mode) .student-playlist-modal,
+html.liquid-glass-disabled:not(.dark-mode) .student-video-modal {
+  background: #f8faff !important;
+}
+
+html.liquid-glass-disabled.dark-mode .app-navbar-shell,
+html.liquid-glass-disabled.dark-mode .content-panel,
+html.liquid-glass-disabled.dark-mode .prof-card,
+html.liquid-glass-disabled.dark-mode .student-liquid-modal,
+html.liquid-glass-disabled.dark-mode .student-playlist-modal,
+html.liquid-glass-disabled.dark-mode .student-video-modal {
+  background: #10122a !important;
+}
+
+/* Classic mode: restore the opaque visual language used before Liquid Glass. */
+html.liquid-glass-disabled:not(.dark-mode) body {
+  background:#f8fafc !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .sett-root,
+html.liquid-glass-disabled:not(.dark-mode) .prof-root,
+html.liquid-glass-disabled:not(.dark-mode) .exam-root {
+  background:linear-gradient(160deg,#f8f8ff,#f0f0fe) !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .app-navbar-shell {
+  max-width:80rem !important;
+  background:transparent !important;
+  border-color:transparent !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled nav.app-navbar {
+  left:0 !important;
+  right:0 !important;
+  width:100% !important;
+  padding:0 !important;
+  pointer-events:auto !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top {
+  background:linear-gradient(90deg,rgba(49,46,129,.95),rgba(88,28,135,.95)) !important;
+  border-bottom:1px solid rgba(255,255,255,.20) !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-scrolled {
+  background:rgba(255,255,255,.95) !important;
+  border-bottom:1px solid rgba(229,231,235,.80) !important;
+  box-shadow:0 10px 24px rgba(15,23,42,.10) !important;
+}
+
+html.liquid-glass-disabled.dark-mode nav.app-navbar {
+  background:linear-gradient(90deg,rgba(10,12,30,.96),rgba(38,20,74,.94)) !important;
+  border-bottom:1px solid #2b315f !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled.dark-mode nav.app-navbar .app-navbar-shell {
+  max-width:80rem !important;
+  background:transparent !important;
+  border-color:transparent !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .app-nav-link,
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top [data-brand="elearning"],
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .app-profile-name {
+  color:#ffffff !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .app-profile-meta {
+  color:#cbd5e1 !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .app-nav-control,
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .app-profile-control {
+  background:transparent !important;
+  border-color:rgba(255,255,255,.30) !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .app-nav-control svg {
+  color:#ffffff !important;
+  stroke:#ffffff !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-nav-control,
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .app-profile-control {
+  background:transparent !important;
+  border-color:#e5e7eb !important;
+  color:#1f2937 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top [data-brand="elearning"] span {
+  color:#a5b4fc !important;
+}
+
+html.liquid-glass-disabled.dark-mode nav.app-navbar .app-nav-control,
+html.liquid-glass-disabled.dark-mode nav.app-navbar .app-profile-control {
+  background:transparent !important;
+  border-color:rgba(255,255,255,.24) !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-top .mobile-nav-sheet,
+html.liquid-glass-disabled.dark-mode nav.app-navbar .mobile-nav-sheet {
+  background:rgba(17,24,39,.95) !important;
+  border-color:rgba(255,255,255,.20) !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) nav.app-navbar.app-navbar-scrolled .mobile-nav-sheet {
+  background:rgba(255,255,255,.95) !important;
+  border-color:#e5e7eb !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .content-panel,
+html.liquid-glass-disabled:not(.dark-mode) .prof-card,
+html.liquid-glass-disabled:not(.dark-mode) .project-card,
+html.liquid-glass-disabled:not(.dark-mode) .student-glass-card,
+html.liquid-glass-disabled:not(.dark-mode) .form-header,
+html.liquid-glass-disabled:not(.dark-mode) .form-card,
+html.liquid-glass-disabled:not(.dark-mode) .progress-card,
+html.liquid-glass-disabled:not(.dark-mode) .question-card,
+html.liquid-glass-disabled:not(.dark-mode) .submit-card,
+html.liquid-glass-disabled:not(.dark-mode) .result-panel,
+html.liquid-glass-disabled:not(.dark-mode) .state-card,
+html.liquid-glass-disabled:not(.dark-mode) .modal-content {
+  background:#ffffff !important;
+  border-color:#e5e7eb !important;
+  box-shadow:0 2px 20px rgba(15,23,42,.06) !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .sett-card,
+html.liquid-glass-disabled:not(.dark-mode) .intro-stat,
+html.liquid-glass-disabled:not(.dark-mode) .settings-empty-state {
+  background:#fafafa !important;
+  border-color:#e5e7eb !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .sett-input,
+html.liquid-glass-disabled:not(.dark-mode) .sett-select,
+html.liquid-glass-disabled:not(.dark-mode) .form-field {
+  background:#fafafa !important;
+  border-color:#e5e7eb !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled.dark-mode body,
+html.liquid-glass-disabled.dark-mode .sett-root,
+html.liquid-glass-disabled.dark-mode .prof-root,
+html.liquid-glass-disabled.dark-mode .exam-root {
+  background:#0d0d1a !important;
+}
+
+html.liquid-glass-disabled.dark-mode .app-navbar-shell,
+html.liquid-glass-disabled.dark-mode .content-panel,
+html.liquid-glass-disabled.dark-mode .prof-card,
+html.liquid-glass-disabled.dark-mode .project-card,
+html.liquid-glass-disabled.dark-mode .student-glass-card,
+html.liquid-glass-disabled.dark-mode .form-header,
+html.liquid-glass-disabled.dark-mode .form-card,
+html.liquid-glass-disabled.dark-mode .progress-card,
+html.liquid-glass-disabled.dark-mode .question-card,
+html.liquid-glass-disabled.dark-mode .submit-card,
+html.liquid-glass-disabled.dark-mode .result-panel,
+html.liquid-glass-disabled.dark-mode .state-card,
+html.liquid-glass-disabled.dark-mode .modal-content {
+  background:#1a1a35 !important;
+  border-color:#2a2a4a !important;
+  box-shadow:0 4px 18px rgba(0,0,0,.24) !important;
+}
+
+html.liquid-glass-disabled.dark-mode .sett-card,
+html.liquid-glass-disabled.dark-mode .intro-stat,
+html.liquid-glass-disabled.dark-mode .settings-empty-state {
+  background:#14142b !important;
+  border-color:#2a2a4a !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled.dark-mode .sett-input,
+html.liquid-glass-disabled.dark-mode .sett-select,
+html.liquid-glass-disabled.dark-mode .form-field {
+  background:#1a1a35 !important;
+  border-color:#3a3a5c !important;
+  box-shadow:none !important;
+}
+
 html.reduce-animations *,
 html.reduce-animations *::before,
 html.reduce-animations *::after {

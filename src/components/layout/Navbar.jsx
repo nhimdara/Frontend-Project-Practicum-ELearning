@@ -368,7 +368,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                     key={link.name}
                     to={link.href}
                     className={`
-                      relative group flex items-center gap-2 px-4 py-2 rounded-xl
+                      app-nav-link ${isActive ? "is-active" : ""} relative group flex items-center gap-2 px-4 py-2 rounded-xl
                       text-sm font-medium transition-all duration-200
                       ${
                         isActive
@@ -387,7 +387,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
                     {isActive && (
                       <span
-                        className={`absolute -bottom-1 left-3 right-3 h-0.5 rounded-full ${
+                        className={`app-nav-indicator absolute -bottom-1 left-3 right-3 h-0.5 rounded-full ${
                           isScrolled
                             ? "bg-gradient-to-r from-indigo-500 to-purple-500"
                             : "bg-white"
@@ -417,7 +417,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                       aria-label="Notifications"
                     >
                       <div className="absolute inset-0 rounded-xl bg-current opacity-0 group-hover:opacity-10 transition-opacity" />
-                      <Bell className="h-5 w-5 relative z-10" strokeWidth={2} />
+                      <Bell className="notification-bell h-5 w-5 relative z-10" strokeWidth={2} />
 
                       {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 flex min-w-[1.25rem] h-5">
@@ -524,11 +524,11 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
                       <div className="hidden lg:block text-left">
                         <p
-                          className={`text-sm font-semibold leading-tight ${textPrimary}`}
+                          className={`app-profile-name text-sm font-semibold leading-tight ${textPrimary}`}
                         >
                           {user?.name?.split(" ")[0] || "User"}
                         </p>
-                        <p className={`text-xs ${textMuted}`}>
+                        <p className={`app-profile-meta text-xs ${textMuted}`}>
                           {user?.role || "Student"}
                         </p>
                       </div>

@@ -476,7 +476,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
   return (
     <>
       <div
-        className={`student-glass-card group rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border transform hover:-translate-y-2 ${
+        className={`student-glass-card group rounded-2xl shadow-sm hover:shadow-2xl transition-shadow duration-300 overflow-hidden border ${
           isDark ? "bg-[#1a1a35] border-[#2a2a4a]" : "bg-white border-gray-100"
         }`}
         onMouseEnter={() => setHovered(true)}

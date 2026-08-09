@@ -809,6 +809,118 @@ const ExamPage = ({ user }) => {
           border-color: rgba(248, 113, 113, 0.32) !important;
         }
 
+        /* Theme-aware liquid glass for every exam state. */
+        .exam-root {
+          min-height:100dvh;
+          background:
+            radial-gradient(circle at 7% 5%,rgba(99,102,241,.18),transparent 30rem),
+            radial-gradient(circle at 94% 15%,rgba(14,165,233,.13),transparent 30rem),
+            linear-gradient(145deg,#f8faff 0%,#edf3ff 58%,#faf7ff 100%) !important;
+          background-attachment:fixed !important;
+        }
+        .form-header,.form-card,.progress-card,.question-card,
+        .submit-card,.result-panel,.state-card {
+          border-color:rgba(255,255,255,.82) !important;
+          border-radius:24px !important;
+          background:rgba(255,255,255,.70) !important;
+          box-shadow:0 24px 64px rgba(45,55,100,.13),inset 0 1px 0 rgba(255,255,255,.96) !important;
+        }
+        .form-header,.progress-card {
+          backdrop-filter:blur(24px) saturate(160%);
+          -webkit-backdrop-filter:blur(24px) saturate(160%);
+        }
+        .form-header-strip {
+          height:8px;
+          background:linear-gradient(90deg,#4f46e5,#8b5cf6,#22d3ee) !important;
+        }
+        .form-eyebrow { color:#4f46e5 !important; letter-spacing:.12em; }
+        .form-title,.question-text,.result-title,.state-card strong { color:#172033 !important; }
+        .form-description,.intro-note,.question-number,.submit-hint,
+        .result-message,.state-card { color:#64708a !important; }
+        .form-meta-row { border-color:rgba(100,116,160,.14) !important; }
+        .form-chip,.intro-stat,.score-pill {
+          border-color:rgba(100,116,160,.16) !important;
+          border-radius:16px !important;
+          background:rgba(255,255,255,.58) !important;
+          color:#334155 !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.88);
+        }
+        .intro-stat strong,.progress-copy { color:#172033 !important; }
+        .intro-stat span { color:#64708a !important; }
+        .progress-card { top:max(78px,calc(66px + env(safe-area-inset-top))); }
+        .progress-track { height:10px; background:rgba(100,116,160,.14) !important; }
+        .progress-fill { background:linear-gradient(90deg,#4f46e5,#8b5cf6,#22d3ee) !important; }
+        .question-card { transition:border-color .2s ease,box-shadow .2s ease; }
+        .question-card:focus-within {
+          border-color:rgba(99,102,241,.32) !important;
+          box-shadow:0 26px 68px rgba(79,70,229,.15),inset 0 1px 0 #fff !important;
+        }
+        .option-row {
+          min-height:48px;
+          border-radius:15px;
+          color:#334155 !important;
+        }
+        .option-row:hover {
+          background:rgba(224,231,255,.62) !important;
+          border-color:rgba(99,102,241,.16) !important;
+        }
+        .option-row.selected {
+          background:rgba(224,231,255,.88) !important;
+          border-color:rgba(79,70,229,.34) !important;
+          color:#312e81 !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.88);
+        }
+        .exam-button { min-height:44px; border-radius:14px; }
+        .exam-button.primary {
+          background:linear-gradient(135deg,#4f46e5,#7c3aed) !important;
+          box-shadow:0 10px 24px rgba(79,70,229,.24),inset 0 1px 0 rgba(255,255,255,.22);
+        }
+        .exam-button.primary:hover:not(:disabled) {
+          background:linear-gradient(135deg,#4338ca,#6d28d9) !important;
+          box-shadow:0 14px 30px rgba(79,70,229,.30),inset 0 1px 0 rgba(255,255,255,.22);
+        }
+        .exam-button.secondary {
+          background:rgba(255,255,255,.62) !important;
+          border-color:rgba(100,116,160,.18) !important;
+          color:#334155 !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.90);
+        }
+        .exam-button.secondary:hover:not(:disabled) { background:rgba(255,255,255,.92) !important; }
+        .result-icon { box-shadow:inset 0 1px 0 rgba(255,255,255,.72); }
+
+        html.dark-mode .exam-root {
+          background:
+            radial-gradient(circle at 7% 5%,rgba(99,102,241,.23),transparent 30rem),
+            radial-gradient(circle at 94% 15%,rgba(14,165,233,.13),transparent 30rem),
+            linear-gradient(145deg,#070816 0%,#0c1024 58%,#0d0b1d 100%) !important;
+        }
+        html.dark-mode .form-header,html.dark-mode .form-card,
+        html.dark-mode .progress-card,html.dark-mode .question-card,
+        html.dark-mode .submit-card,html.dark-mode .result-panel,
+        html.dark-mode .state-card {
+          background:rgba(16,18,42,.80) !important;
+          border-color:rgba(165,180,252,.17) !important;
+          box-shadow:0 28px 70px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.07) !important;
+        }
+        html.dark-mode .form-chip,html.dark-mode .intro-stat,html.dark-mode .score-pill {
+          background:rgba(7,8,22,.48) !important;
+          border-color:rgba(165,180,252,.15) !important;
+          color:#d7def7 !important;
+        }
+        html.dark-mode .option-row { color:#d7def7 !important; }
+        html.dark-mode .option-row:hover { background:rgba(99,102,241,.12) !important; }
+        html.dark-mode .option-row.selected {
+          background:rgba(99,102,241,.22) !important;
+          border-color:rgba(165,180,252,.42) !important;
+          color:#f4f7ff !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+        }
+        html.dark-mode .exam-button.secondary {
+          background:rgba(7,8,22,.48) !important;
+          border-color:rgba(165,180,252,.17) !important;
+          color:#d7def7 !important;
+        }
+
         @keyframes exam-spin {
           to {
             transform: rotate(360deg);
@@ -817,13 +929,13 @@ const ExamPage = ({ user }) => {
 
         @media (max-width: 720px) {
           .exam-root {
-            padding: 82px 12px 28px;
+            padding:max(82px,calc(70px + env(safe-area-inset-top))) 10px max(28px,env(safe-area-inset-bottom));
           }
 
           .form-header-body,
           .form-card-pad,
           .question-card {
-            padding: 22px 18px;
+            padding:20px 16px;
           }
 
           .form-title {
@@ -835,7 +947,8 @@ const ExamPage = ({ user }) => {
           }
 
           .progress-card {
-            top: 68px;
+            top:max(68px,calc(58px + env(safe-area-inset-top)));
+            border-radius:20px !important;
           }
 
           .progress-card-inner,
@@ -852,6 +965,13 @@ const ExamPage = ({ user }) => {
           .exam-button {
             width: 100%;
           }
+
+          .form-header,.form-card,.question-card,.submit-card,
+          .result-panel,.state-card { border-radius:22px !important; }
+
+          .form-meta-row { gap:8px; }
+          .form-chip { width:100%; justify-content:flex-start; }
+          .option-row { padding:12px; }
         }
       `}</style>
 

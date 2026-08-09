@@ -703,6 +703,124 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
 
+        /* Unified iOS-style liquid glass profile experience. */
+        .prof-root {
+          min-height:100dvh;
+          background:
+            radial-gradient(circle at 8% 5%,rgba(99,102,241,.18),transparent 30rem),
+            radial-gradient(circle at 94% 16%,rgba(14,165,233,.13),transparent 30rem),
+            linear-gradient(145deg,#f8faff 0%,#edf3ff 58%,#faf7ff 100%) !important;
+          background-attachment:fixed !important;
+        }
+        .prof-card,.project-card,.modal-content {
+          background:rgba(255,255,255,.70) !important;
+          border:1px solid rgba(255,255,255,.82) !important;
+          box-shadow:0 26px 68px rgba(45,55,100,.13),inset 0 1px 0 rgba(255,255,255,.96) !important;
+          backdrop-filter:blur(26px) saturate(155%);
+          -webkit-backdrop-filter:blur(26px) saturate(155%);
+        }
+        .project-card:hover {
+          transform:none;
+          border-color:rgba(99,102,241,.28) !important;
+          box-shadow:0 30px 76px rgba(79,70,229,.16),inset 0 1px 0 #fff !important;
+        }
+        .form-field {
+          min-height:44px;
+          color:#172033;
+          background:rgba(255,255,255,.66) !important;
+          border-color:rgba(100,116,160,.20) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
+        }
+        .form-field:focus {
+          background:rgba(255,255,255,.94) !important;
+          border-color:#818cf8 !important;
+          box-shadow:0 0 0 4px rgba(99,102,241,.13),inset 0 1px 0 #fff !important;
+        }
+        .tab-btn {
+          min-height:42px;
+          border:1px solid transparent;
+          border-radius:15px;
+        }
+        .tab-btn.active {
+          background:rgba(99,102,241,.12) !important;
+          border-color:rgba(99,102,241,.14);
+          color:#4338ca !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 8px 22px rgba(79,70,229,.08);
+        }
+        .tab-btn:not(.active):hover { background:rgba(255,255,255,.58) !important; }
+        .ghost-btn {
+          min-height:44px;
+          background:rgba(255,255,255,.64) !important;
+          border-color:rgba(100,116,160,.18) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.90);
+        }
+        .primary-btn { min-height:44px; box-shadow:0 10px 26px rgba(79,70,229,.24),inset 0 1px 0 rgba(255,255,255,.22); }
+        .primary-btn:hover { transform:none; box-shadow:0 14px 30px rgba(79,70,229,.30),inset 0 1px 0 rgba(255,255,255,.22); }
+        .skill-chip,.tech-tag {
+          background:rgba(224,231,255,.72) !important;
+          border-color:rgba(99,102,241,.18) !important;
+          color:#4338ca !important;
+        }
+        .modal-overlay {
+          background:rgba(15,23,42,.56) !important;
+          padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+        }
+        .success-toast {
+          background:rgba(255,255,255,.82) !important;
+          border-color:rgba(16,185,129,.28) !important;
+          backdrop-filter:blur(22px) saturate(150%);
+          -webkit-backdrop-filter:blur(22px) saturate(150%);
+        }
+
+        html.dark-mode .prof-root {
+          background:
+            radial-gradient(circle at 8% 5%,rgba(99,102,241,.23),transparent 30rem),
+            radial-gradient(circle at 94% 16%,rgba(14,165,233,.13),transparent 30rem),
+            linear-gradient(145deg,#070816 0%,#0c1024 58%,#0d0b1d 100%) !important;
+        }
+        html.dark-mode .prof-card,html.dark-mode .project-card,html.dark-mode .modal-content {
+          background:rgba(16,18,42,.80) !important;
+          border-color:rgba(165,180,252,.17) !important;
+          box-shadow:0 30px 76px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.07) !important;
+        }
+        html.dark-mode .prof-heading,
+        html.dark-mode .prof-card h2,html.dark-mode .prof-card h3,
+        html.dark-mode .project-card h4,html.dark-mode .modal-content h3 {
+          color:#f4f7ff !important;
+        }
+        html.dark-mode .form-field {
+          background:rgba(7,8,22,.54) !important;
+          border-color:rgba(165,180,252,.20) !important;
+          color:#f4f7ff !important;
+        }
+        html.dark-mode .form-field:focus {
+          background:rgba(12,15,34,.88) !important;
+          border-color:#818cf8 !important;
+          box-shadow:0 0 0 4px rgba(129,140,248,.14) !important;
+        }
+        html.dark-mode .tab-btn { color:#a8b1d6 !important; }
+        html.dark-mode .tab-btn.active {
+          color:#f4f7ff !important;
+          background:rgba(99,102,241,.22) !important;
+          border-color:rgba(165,180,252,.18);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+        }
+        html.dark-mode .ghost-btn {
+          background:rgba(7,8,22,.48) !important;
+          border-color:rgba(165,180,252,.18) !important;
+          color:#d7def7 !important;
+        }
+        html.dark-mode .skill-chip,html.dark-mode .tech-tag {
+          background:rgba(99,102,241,.18) !important;
+          border-color:rgba(165,180,252,.20) !important;
+          color:#c7d2fe !important;
+        }
+        html.dark-mode .modal-overlay { background:rgba(3,5,14,.78) !important; }
+        html.dark-mode .success-toast {
+          background:rgba(16,18,42,.88) !important;
+          border-color:rgba(52,211,153,.28) !important;
+        }
+
         @media (max-width: 1024px) {
           .prof-root .lg\\:col-span-1 {
             margin-bottom: 24px;
@@ -716,7 +834,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
         @media (max-width: 768px) {
           .prof-root {
-            padding-top: 80px;
+            padding-top:max(82px,calc(70px + env(safe-area-inset-top)));
+            padding-bottom:max(28px,env(safe-area-inset-bottom));
           }
           
           .prof-heading {
@@ -729,9 +848,19 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           }
           
           .tab-btn {
-            padding: 6px 12px;
+            flex:0 0 auto;
+            padding:8px 13px;
             font-size: 13px;
           }
+
+          .prof-root .flex.gap-2.mb-6.flex-wrap {
+            flex-wrap:nowrap !important;
+            overflow-x:auto;
+            scrollbar-width:none;
+            padding:2px 1px 7px;
+          }
+
+          .prof-root .flex.gap-2.mb-6.flex-wrap::-webkit-scrollbar { display:none; }
           
           .project-card .md\\:w-48 {
             width: 100%;
@@ -749,9 +878,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           }
           
           .modal-content {
-            padding: 24px;
-            margin: 16px;
+            max-height:calc(100dvh - max(16px,env(safe-area-inset-top))) !important;
+            padding:24px 18px max(22px,env(safe-area-inset-bottom));
+            margin:0;
+            border-radius:26px 26px 0 0 !important;
           }
+
+          .modal-overlay { align-items:flex-end; padding:0; }
           
           .grid-cols-1.sm\\:grid-cols-2 {
             grid-template-columns: 1fr;

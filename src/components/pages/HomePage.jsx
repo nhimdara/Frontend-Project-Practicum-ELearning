@@ -1,5 +1,5 @@
 // pages/HomePage.jsx
-import React, { useEffect, useRef, useCallback, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import banner from "./../assets/image/banner.jpg";
 
@@ -535,9 +535,9 @@ const HomePage = () => {
           <div className="relative z-10 w-full pb-8 sm:pb-10">
             <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                {stats.map(({ icon: Icon, value, label }, i) => (
+                {stats.map((stat, i) => (
                   <div
-                    key={label}
+                    key={stat.label}
                     className={`stat-card rounded-2xl px-4 sm:px-5 py-4 text-center ${
                       i % 2 === 0 ? "float-badge" : "float-badge-2"
                     }`}
@@ -547,13 +547,13 @@ const HomePage = () => {
                     }}
                   >
                     <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/30 mb-2">
-                      <Icon className="h-4 w-4 text-indigo-300" />
+                      {React.createElement(stat.icon, { className: "h-4 w-4 text-indigo-300" })}
                     </div>
                     <p className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                      {value}
+                      {stat.value}
                     </p>
                     <p className="text-[0.7rem] text-white/55 font-medium">
-                      {label}
+                      {stat.label}
                     </p>
                   </div>
                 ))}
@@ -600,21 +600,21 @@ const HomePage = () => {
 
           {/* Cards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {aboutCards.map(({ icon: Icon, color, bg, iconColor, title, desc }, idx) => (
+            {aboutCards.map((card, idx) => (
               <div
-                key={title}
+                key={card.title}
                 data-reveal
                 data-delay={idx * 90}
                 className="about-card group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 hover:-translate-y-1 transition-all duration-300"
               >
                 <div
-                  className={`absolute top-0 left-6 right-6 h-0.5 rounded-full bg-gradient-to-r ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                  className={`absolute top-0 left-6 right-6 h-0.5 rounded-full bg-gradient-to-r ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                 />
-                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${bg} mb-4`}>
-                  <Icon className={`h-5 w-5 ${iconColor}`} strokeWidth={2} />
+                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${card.bg} mb-4`}>
+                  {React.createElement(card.icon, { className: `h-5 w-5 ${card.iconColor}`, strokeWidth: 2 })}
                 </div>
-                <h3 className="text-[1rem] font-bold text-gray-900 mb-2">{title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+                <h3 className="text-[1rem] font-bold text-gray-900 mb-2">{card.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{card.desc}</p>
               </div>
             ))}
           </div>

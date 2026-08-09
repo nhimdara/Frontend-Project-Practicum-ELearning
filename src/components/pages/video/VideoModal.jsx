@@ -73,11 +73,11 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
   return (
     <div
       className="student-video-overlay fixed inset-0 z-[110] flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)" }}
+      style={{ background: "rgba(0,0,0,0.82)" }}
       onClick={onClose}
     >
       <div
-        className="student-video-modal relative w-full max-w-5xl bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+        className="student-video-modal relative w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl border"
         style={{ animation: "vmFadeIn 0.25s ease-out both" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -99,26 +99,26 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
         `}</style>
 
         {/* Header */}
-        <div className="student-video-header flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/20">
+        <div className="student-video-header flex items-center justify-between px-6 py-4 border-b">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
               <PlayCircle className="h-5 w-5 text-white" />
             </div>
             <div>
-              <span className="text-white font-semibold text-base line-clamp-1">
+              <span className="student-video-title font-semibold text-base line-clamp-1">
                 {videoTitle || "Video Lesson"}
               </span>
-              <span className="text-white/40 text-xs block mt-0.5">
+              <span className="student-video-subtitle text-xs block mt-0.5">
                 Educational Content
               </span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200 hover:scale-110"
+            className="student-video-close w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200"
             aria-label="Close modal"
           >
-            <X className="h-4 w-4 text-white" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
@@ -184,15 +184,15 @@ const VideoModal = ({ isOpen, onClose, videoLink, videoTitle }) => {
         </div>
 
         {/* Footer with helpful info */}
-        <div className="student-video-footer px-6 py-3 border-t border-white/10 bg-black/20">
-          <div className="flex items-center justify-between text-xs text-white/40">
+        <div className="student-video-footer px-6 py-3 border-t">
+          <div className="student-video-footer-content flex items-center justify-between text-xs">
             <div className="flex items-center gap-4">
               <span>🎓 Educational purposes only</span>
               <span>🔒 Secure playback</span>
             </div>
             <button
               onClick={onClose}
-              className="hover:text-white/80 transition-colors"
+              className="student-video-footer-close transition-colors"
             >
               Press ESC to close
             </button>
