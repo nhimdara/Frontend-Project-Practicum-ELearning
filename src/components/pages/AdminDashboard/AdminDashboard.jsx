@@ -11,6 +11,7 @@ import { useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../../../config/api";
 import CertificatesPage from "../CertificatesPage";
 import ExamQuestionForm from "../ExamQuestionForm";
+import AdminManagementPanel from "./components/AdminManagementPanel";
 import {
   Shield,
   Users,
@@ -37,6 +38,7 @@ import {
   Award,
   ClipboardCheck,
   Download,
+  ShieldCheck,
 } from "lucide-react";
 import logo from "../../assets/image/logo.png";
 import {
@@ -61,7 +63,7 @@ import {
 
 const API_BASE = API_BASE_URL;
 
-const AdminDashboard = ({ user, onLogout }) => {
+const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superadmin" }) => {
   const location = useLocation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1067,6 +1069,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     { id: "certificates", label: "Certificates", icon: Award },
     { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "settings", label: "Settings", icon: Settings },
+    ...(isSuperadmin ? [{ id: "admins", label: "Manage Admins", icon: ShieldCheck }] : []),
   ];
 
   // ── Sidebar content (shared desktop + mobile) ─────────────
@@ -1083,7 +1086,7 @@ const AdminDashboard = ({ user, onLogout }) => {
               Elearning
             </p>
             <p className="text-indigo-400 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
-              Admin Panel
+              {isSuperadmin ? "Superadmin Panel" : "Admin Panel"}
             </p>
           </div>
         </div>
@@ -1299,6 +1302,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                 {activeTab === "certificates" && "Certificate Management"}
                 {activeTab === "projects" && "Project Management"}
                 {activeTab === "settings" && "System Settings"}
+                {activeTab === "admins" && "Administrator Management"}
               </h1>
               <p className="text-slate-500 text-xs mt-0.5 hidden sm:block">
                 Welcome back, {displayUser.name?.split(" ")[0] || "Admin"} 👋
@@ -1339,7 +1343,7 @@ const AdminDashboard = ({ user, onLogout }) => {
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-indigo-600/20 border border-indigo-500/30 rounded-full">
               <Shield className="h-3.5 w-3.5 text-indigo-400" />
               <span className="text-indigo-300 text-xs font-semibold">
-                ADMIN
+                {isSuperadmin ? "SUPERADMIN" : "ADMIN"}
               </span>
             </div>
           </div>
@@ -3116,6 +3120,10 @@ const AdminDashboard = ({ user, onLogout }) => {
                 )}
               </div>
             </div>
+          )}
+
+          {activeTab === "admins" && isSuperadmin && (
+            <AdminManagementPanel user={user} />
           )}
         </div>
       </main>
