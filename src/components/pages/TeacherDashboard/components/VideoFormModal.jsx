@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import "./videoFormModal.css";
 import {
   CheckCircle,
   Eye,
@@ -206,6 +207,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
       }}
     >
       <div
+        className="video-form-modal"
         style={{
           background: "#fff",
           borderRadius: "20px",
@@ -218,6 +220,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
         }}
       >
         <div
+          className="video-form-modal-header"
           style={{
             padding: "22px 28px 18px",
             borderBottom: "1px solid #f3f4f6",
@@ -247,6 +250,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
             </div>
             <div>
               <p
+                className="video-form-modal-title"
                 style={{
                   margin: 0,
                   fontSize: "16px",
@@ -264,6 +268,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
             </div>
           </div>
           <button
+            className="video-form-modal-close"
             onClick={onClose}
             style={{
               background: "#f3f4f6",
@@ -290,13 +295,13 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           )}
 
           <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>Lesson *</label>
+            <label className="video-form-label" style={labelStyle}>Lesson *</label>
             {selectedLessonId && !editingVideo ? (
-              <div style={{ ...inputStyle("lesson_id"), color: "#374151", background: "#eef2ff" }}>
+              <div className="video-form-readonly" style={{ ...inputStyle("lesson_id"), color: "#374151", background: "#eef2ff" }}>
                 {lessons.find((lesson) => String(lesson.id) === String(selectedLessonId))?.title || `Lesson #${selectedLessonId}`}
               </div>
             ) : (
-              <select value={form.lesson_id} onChange={(e) => handleChange("lesson_id", e.target.value)} style={{ ...inputStyle("lesson_id"), cursor: "pointer" }}>
+              <select className="video-form-field" value={form.lesson_id} onChange={(e) => handleChange("lesson_id", e.target.value)} style={{ ...inputStyle("lesson_id"), cursor: "pointer" }}>
                 <option value="">— Select a lesson by title —</option>
                 {lessons.map((lesson) => <option key={lesson.id} value={lesson.id}>{lesson.title}</option>)}
               </select>
@@ -315,8 +320,9 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>Video Title *</label>
+            <label className="video-form-label" style={labelStyle}>Video Title *</label>
             <input
+              className="video-form-field"
               type="text"
               value={form.title}
               onChange={(e) => handleChange("title", e.target.value)}
@@ -337,7 +343,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>YouTube URL *</label>
+            <label className="video-form-label" style={labelStyle}>YouTube URL *</label>
             <div style={{ position: "relative" }}>
               <div
                 style={{
@@ -351,6 +357,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
                 <Youtube size={16} />
               </div>
               <input
+                className="video-form-field"
                 type="url"
                 value={form.link}
                 onChange={(e) => handleChange("link", e.target.value)}
@@ -407,6 +414,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
                 />
               </div>
               <div
+                className="video-form-preview-status"
                 style={{
                   padding: "8px 12px",
                   background: "#f9fafb",
@@ -438,8 +446,9 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
             }}
           >
             <div>
-              <label style={labelStyle}>Duration (minutes)</label>
+              <label className="video-form-label" style={labelStyle}>Duration (minutes)</label>
               <input
+                className="video-form-field"
                 type="number"
                 min="1"
                 value={form.duration_minutes}
@@ -463,8 +472,9 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
               )}
             </div>
             <div>
-              <label style={labelStyle}>Order Index *</label>
+              <label className="video-form-label" style={labelStyle}>Order Index *</label>
               <input
+                className="video-form-field"
                 type="number"
                 min="1"
                 value={form.order_index}
@@ -487,8 +497,9 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>Description</label>
+            <label className="video-form-label" style={labelStyle}>Description</label>
             <textarea
+              className="video-form-field"
               value={form.description}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Brief description of what this video covers…"
@@ -502,6 +513,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           </div>
 
           <div
+            className="video-form-access-panel"
             style={{
               display: "flex",
               alignItems: "center",
@@ -515,6 +527,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           >
             <div>
               <p
+                className="video-form-access-title"
                 style={{
                   margin: 0,
                   fontSize: "13.5px",
@@ -553,6 +566,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
               </p>
             </div>
             <button
+              className={`video-form-toggle ${form.is_free ? "is-active" : ""}`}
               onClick={() => handleChange("is_free", !form.is_free)}
               style={{
                 width: 44,
@@ -584,6 +598,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
 
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
             <button
+              className="video-form-cancel"
               onClick={onClose}
               style={{
                 padding: "10px 20px",

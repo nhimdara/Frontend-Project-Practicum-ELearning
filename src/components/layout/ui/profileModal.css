@@ -1,0 +1,83 @@
+.profile-sheet,
+.profile-sheet-header {
+  background: #ffffff !important;
+  color: #0f172a;
+}
+
+.profile-sheet-header {
+  border-color: #e5e7eb !important;
+}
+
+.profile-sheet-name {
+  color: #111827 !important;
+}
+
+.profile-sheet-muted,
+.profile-sheet-footer {
+  color: #64748b !important;
+}
+
+.profile-sheet-close {
+  background: #f1f5f9 !important;
+}
+
+.profile-sheet-close:hover,
+.profile-menu-button:hover {
+  background: #f8fafc !important;
+}
+
+.profile-menu-label {
+  color: #334155 !important;
+}
+
+.profile-menu-button:hover .profile-menu-label {
+  color: #0f172a !important;
+}
+
+.profile-menu-chevron {
+  color: #94a3b8 !important;
+}
+
+.profile-menu-button:hover .profile-menu-chevron {
+  color: #475569 !important;
+}
+
+html.dark-mode .profile-sheet,
+html.dark-mode .profile-sheet-header {
+  background: #151733 !important;
+  color: #f4f7ff;
+}
+
+html.dark-mode .profile-sheet-header {
+  border-color: #2b315f !important;
+}
+
+html.dark-mode .profile-sheet-name {
+  color: #f4f7ff !important;
+}
+
+html.dark-mode .profile-sheet-muted,
+html.dark-mode .profile-sheet-footer {
+  color: #a8b1d6 !important;
+}
+
+html.dark-mode .profile-sheet-close {
+  background: #23274c !important;
+}
+
+html.dark-mode .profile-sheet-close:hover,
+html.dark-mode .profile-menu-button:hover {
+  background: #1c1f42 !important;
+}
+
+html.dark-mode .profile-menu-label {
+  color: #d7def7 !important;
+}
+
+html.dark-mode .profile-menu-button:hover .profile-menu-label {
+  color: #ffffff !important;
+}
+
+html.dark-mode .profile-menu-chevron {
+  color: #8f9aca !important;
+}

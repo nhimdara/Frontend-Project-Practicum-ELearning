@@ -191,6 +191,47 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
           z-index: 50;
         }
 
+        html.dark-mode .profile-dropdown-surface {
+          background: #151733 !important;
+          box-shadow: 0 24px 60px rgba(0,0,0,0.46) !important;
+          --tw-ring-color: #2b315f !important;
+        }
+
+        html.dark-mode .profile-dropdown-link {
+          color: #d7def7 !important;
+        }
+
+        html.dark-mode .profile-dropdown-link:hover,
+        html.dark-mode .profile-dropdown-link:focus-visible {
+          background: #252550 !important;
+          color: #ffffff !important;
+        }
+
+        html.dark-mode .profile-dropdown-icon {
+          background: #1c1f42 !important;
+        }
+
+        html.dark-mode .profile-dropdown-link:hover .profile-dropdown-icon,
+        html.dark-mode .profile-dropdown-link:focus-visible .profile-dropdown-icon {
+          background: #303464 !important;
+        }
+
+        html.dark-mode .profile-dropdown-link:hover .profile-dropdown-label,
+        html.dark-mode .profile-dropdown-link:focus-visible .profile-dropdown-label,
+        html.dark-mode .profile-dropdown-link:hover .profile-dropdown-chevron,
+        html.dark-mode .profile-dropdown-link:focus-visible .profile-dropdown-chevron {
+          color: #aebcff !important;
+        }
+
+        html.dark-mode .profile-dropdown-divider {
+          border-color: #2b315f !important;
+        }
+
+        html.dark-mode .profile-dropdown-signout:hover,
+        html.dark-mode .profile-dropdown-signout:focus-visible {
+          background: rgba(239,68,68,0.12) !important;
+        }
+
         @media (max-width: 400px) {
           .dropdown-panel {
             position: fixed;
@@ -442,7 +483,7 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
                     {!isMobile && isProfileMenuOpen && (
                       <div className="dropdown-panel animate-in">
-                        <div className="rounded-2xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5 overflow-hidden">
+                        <div className="profile-dropdown-surface rounded-2xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5 overflow-hidden">
                           <div className="relative px-6 py-6 bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-700">
                             <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
 
@@ -529,19 +570,19 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                                 <button
                                   key={i}
                                   onClick={() => handleNavigation(item.path)}
-                                  className="w-full group flex items-center gap-3 px-6 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50/50 transition-all"
+                                  className="profile-dropdown-link w-full group flex items-center gap-3 px-6 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50/50 transition-all"
                                 >
-                                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+                                  <div className="profile-dropdown-icon flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
                                     <Icon className="h-4 w-4 text-gray-500 group-hover:text-indigo-600 transition-colors" />
                                   </div>
                                   <div className="flex-1 min-w-0 text-left">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-medium group-hover:text-indigo-700 transition-colors">
+                                      <span className="profile-dropdown-label font-medium group-hover:text-indigo-700 transition-colors">
                                         {item.name}
                                       </span>
                                     </div>
                                   </div>
-                                  <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5" />
+                                  <ChevronRight className="profile-dropdown-chevron h-4 w-4 text-gray-300 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5" />
                                 </button>
                               );
                             })}
@@ -572,10 +613,10 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                               </div>
                             )}
 
-                          <div className="border-t border-gray-100 p-2">
+                          <div className="profile-dropdown-divider border-t border-gray-100 p-2">
                             <button
                               onClick={handleLogout}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors group"
+                              className="profile-dropdown-signout w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors group"
                             >
                               <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center transition-colors">
                                 <LogOut className="h-4 w-4" />

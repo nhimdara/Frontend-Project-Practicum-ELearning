@@ -1,5 +1,6 @@
 // components/layout/ui/ProfileModal.jsx
 import React from "react";
+import "./profileModal.css";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
@@ -62,7 +63,7 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
 
       {/* Modal */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-[101] bg-white dark:bg-[#1a1a35] rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out ${
+        className={`profile-sheet fixed bottom-0 left-0 right-0 z-[101] rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{
@@ -73,7 +74,7 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
         }}
       >
         {/* Handle/Drag indicator */}
-        <div className="sticky top-0 bg-white dark:bg-[#1a1a35] pt-4 pb-2 px-6 border-b border-gray-100 dark:border-[#2a2a4a]">
+        <div className="profile-sheet-header sticky top-0 pt-4 pb-2 px-6 border-b">
           <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4" />
 
           <div className="flex items-center justify-between">
@@ -89,10 +90,10 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-[#1a1a35]" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                <h3 className="profile-sheet-name font-bold text-lg">
                   {user?.name || 'User'}
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="profile-sheet-muted text-xs">
                   {user?.email || 'user@example.com'}
                 </p>
                 <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">
@@ -102,7 +103,7 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-[#252545] flex items-center justify-center hover:bg-gray-200 dark:hover:bg-[#2a2a4a] transition-colors"
+              className="profile-sheet-close w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
             >
               <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
@@ -140,7 +141,7 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
                 <button
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
-                  className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-[#252545] transition-colors group"
+                  className="profile-menu-button w-full flex items-center justify-between p-4 rounded-xl transition-colors group"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -149,11 +150,11 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
                     >
                       <Icon className="h-5 w-5" style={{ color: item.color }} />
                     </div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
+                    <span className="profile-menu-label font-semibold">
                       {item.label}
                     </span>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                  <ChevronRight className="profile-menu-chevron h-5 w-5" />
                 </button>
               );
             })}
@@ -177,7 +178,7 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout, profileLinks }) => {
 
         {/* Footer */}
         <div className="px-4 pb-6 text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500">
+          <p className="profile-sheet-footer text-xs">
             Joined {user?.joinDate ? new Date(user.joinDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'recently'}
           </p>
         </div>

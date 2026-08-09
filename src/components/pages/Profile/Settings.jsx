@@ -64,7 +64,7 @@ const ToggleSwitch = ({ label, description, checked, onChange }) => (
 );
 
 const SectionHeader = ({ title, description, onSave, isLoading }) => (
-  <div className="flex items-start justify-between mb-7 pb-5" style={{ borderBottom: "1px solid #f3f4f6" }}>
+  <div className="settings-section-header flex items-start justify-between mb-7 pb-5">
     <div>
       <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>{title}</h2>
       <p className="text-sm text-gray-500 mt-0.5">{description}</p>
@@ -331,6 +331,14 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         .sidebar-btn.active { background:#eef2ff; }
         .content-panel { background:white; border-radius:24px; border:1px solid #f0f0f8; box-shadow:0 2px 20px rgba(0,0,0,0.04); overflow:hidden; }
         .sett-card { background:#fafafa; border-radius:16px; border:1px solid #f0f0f8; padding:16px; }
+        .settings-section-header { border-bottom:1px solid #f3f4f6; }
+        .settings-theme-option { border:2px solid #e5e7eb; background:#fff; }
+        .settings-theme-option.selected { border-color:#6366f1; background:#eef2ff; }
+        .settings-theme-label { color:#374151; }
+        .settings-theme-option.selected .settings-theme-label { color:#4f46e5; }
+        .settings-empty-state { background:#fff; border:1px solid #f0f0f8; }
+        .settings-add-payment { border:1.5px dashed #c7d2fe; color:#4f46e5; background:#fafafe; }
+        .settings-autosave { background:#eef2ff; }
         .section-divider { border-top:1px solid #f3f4f6; margin-top:24px; padding-top:24px; }
         .danger-zone { background:#fff5f5; border-radius:16px; border:1px solid #fecaca; padding:16px; }
         .toast { position:fixed; top:84px; right:20px; z-index:9999; background:white; border:1.5px solid #a7f3d0; border-radius:16px; padding:12px 20px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(16,185,129,0.18); animation:toastIn 0.3s ease; }
@@ -342,6 +350,24 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         html.dark-mode .sett-card { background: #14142b !important; border-color: #2a2a4a !important; }
         html.dark-mode .sidebar-btn:hover { background: #252545 !important; }
         html.dark-mode .sidebar-btn.active { background: #252550 !important; }
+        html.dark-mode .settings-tab-icon { background:#23274c !important; }
+        html.dark-mode .settings-tab-icon svg { color:#a8b1d6 !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-icon { background:#303464 !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-icon svg { color:#aebcff !important; }
+        html.dark-mode .settings-tab-title { color:#d7def7 !important; }
+        html.dark-mode .settings-tab-description { color:#8f9aca !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-title { color:#aebcff !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-description { color:#b8c1e6 !important; }
+        html.dark-mode .settings-section-header { border-bottom:1px solid #3a3f70 !important; }
+        html.dark-mode .settings-input-addon { background:#23274c !important; border-color:#3a3a5c !important; color:#a8b1d6 !important; }
+        html.dark-mode .settings-theme-option { background:#14142b !important; border-color:#3a3a5c !important; }
+        html.dark-mode .settings-theme-option.selected { background:#252550 !important; border-color:#818cf8 !important; }
+        html.dark-mode .settings-theme-label { color:#d7def7 !important; }
+        html.dark-mode .settings-theme-option.selected .settings-theme-label { color:#aebcff !important; }
+        html.dark-mode .settings-empty-state { background:#10122a !important; border-color:#3a3a5c !important; color:#a8b1d6 !important; }
+        html.dark-mode .settings-add-payment { background:#151733 !important; border-color:#6366f1 !important; color:#aebcff !important; }
+        html.dark-mode .settings-add-payment:hover { background:#252550 !important; }
+        html.dark-mode .settings-autosave { background:#23274c !important; }
         html.dark-mode .sett-input, html.dark-mode .sett-select { background:#1a1a35 !important; border-color:#3a3a5c !important; color:#e8e8f5 !important; }
         html.dark-mode .sett-input:focus, html.dark-mode .sett-select:focus { background:#1e1e3a !important; border-color:#6366f1 !important; }
         html.dark-mode .danger-zone { background: #2a0e0e !important; border-color: #7f1d1d !important; }
@@ -373,7 +399,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
               <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "2.25rem", fontWeight: 700, color: "inherit", lineHeight: 1.2 }}>Settings</h1>
               <p className="text-gray-500 mt-1">Manage your preferences and account configuration</p>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: "#eef2ff" }}>
+            <div className="settings-autosave flex items-center gap-2 px-3 py-1.5 rounded-full">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <span className="text-xs font-semibold text-indigo-700">Auto-save on</span>
             </div>
@@ -397,13 +423,13 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                       <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                         className={`sidebar-btn ${isActive ? "active" : ""}`}>
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                          <div className="settings-tab-icon w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                             style={{ background: isActive ? "#eef2ff" : "#f3f4f6" }}>
                             <Icon className="h-4 w-4" style={{ color: isActive ? "#4f46e5" : "#9ca3af" }} />
                           </div>
                           <div className="text-left">
-                            <p className="text-sm font-semibold" style={{ color: isActive ? "#4f46e5" : "#374151" }}>{tab.label}</p>
-                            <p className="text-xs text-gray-400">{tab.desc}</p>
+                            <p className="settings-tab-title text-sm font-semibold" style={{ color: isActive ? "#4f46e5" : "#374151" }}>{tab.label}</p>
+                            <p className="settings-tab-description text-xs text-gray-400">{tab.desc}</p>
                           </div>
                           {isActive && <div className="ml-auto w-1.5 h-5 rounded-full" style={{ background: "#6366f1" }} />}
                         </div>
@@ -459,7 +485,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                         <Field label="Full Name"><input className="sett-input" type="text" value={settings.name} onChange={e => handleChange("name", e.target.value)} /></Field>
                         <Field label="Username">
                           <div className="flex">
-                            <span className="flex items-center px-3 rounded-l-xl text-sm text-gray-500" style={{ background: "#f3f4f6", border: "1.5px solid #e5e7eb", borderRight: "none" }}>@</span>
+                            <span className="settings-input-addon flex items-center px-3 rounded-l-xl text-sm text-gray-500" style={{ background: "#f3f4f6", border: "1.5px solid #e5e7eb", borderRight: "none" }}>@</span>
                             <input className="sett-input" style={{ borderRadius: "0 12px 12px 0" }} type="text" value={settings.username} onChange={e => handleChange("username", e.target.value)} />
                           </div>
                         </Field>
@@ -489,14 +515,13 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                             { id: "system", icon: Monitor, label: "System", bg: "linear-gradient(135deg,#6b7280,#374151)" },
                           ].map(({ id, icon, label, bg }) => (
                             <button key={id} onClick={() => handleChange("theme", id)}
-                              className="p-4 rounded-2xl text-center transition-all"
-                              style={{ border: `2px solid ${settings.theme === id ? "#6366f1" : "#e5e7eb"}`, background: settings.theme === id ? "#eef2ff" : "white" }}>
+                              className={`settings-theme-option ${settings.theme === id ? "selected" : ""} p-4 rounded-2xl text-center transition-all`}>
                               <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{ background: bg }}>
                                 {React.createElement(icon, {
                                   className: "h-5 w-5 text-white",
                                 })}
                               </div>
-                              <span className="text-sm font-semibold" style={{ color: settings.theme === id ? "#4f46e5" : "#374151" }}>{label}</span>
+                              <span className="settings-theme-label text-sm font-semibold">{label}</span>
                             </button>
                           ))}
                         </div>
@@ -598,7 +623,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Payment Methods</p>
                         <div className="space-y-2">
                           {settings.paymentMethods.map(m => (
-                            <div key={m.id} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "white", border: "1px solid #f0f0f8" }}>
+                            <div key={m.id} className="settings-empty-state flex items-center justify-between p-3 rounded-xl">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "#eef2ff" }}>
                                   <CreditCard className="h-4 w-4 text-indigo-600" />
@@ -615,12 +640,11 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                             </div>
                           ))}
                           {settings.paymentMethods.length === 0 && (
-                            <p className="p-3 rounded-xl text-sm text-gray-500" style={{ background: "white", border: "1px solid #f0f0f8" }}>
+                            <p className="settings-empty-state p-3 rounded-xl text-sm text-gray-500">
                               No payment methods saved.
                             </p>
                           )}
-                          <button className="w-full mt-2 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                            style={{ border: "1.5px dashed #c7d2fe", color: "#4f46e5", background: "#fafafe" }}>
+                          <button className="settings-add-payment w-full mt-2 py-2.5 rounded-xl text-sm font-semibold transition-all">
                             + Add Payment Method
                           </button>
                         </div>
@@ -632,7 +656,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                       <div className="sett-card">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Billing History</p>
                         <div className="space-y-2">
-                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "white", border: "1px solid #f0f0f8" }}>
+                          <div className="settings-empty-state flex items-center gap-3 p-3 rounded-xl">
                             <History className="h-4 w-4 text-gray-400" />
                             <p className="text-sm text-gray-500">No billing history available.</p>
                           </div>

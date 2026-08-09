@@ -1,0 +1,64 @@
+html.dark-mode .video-form-modal,
+html.dark-mode .video-form-modal-header {
+  background: #151733 !important;
+  color: #f4f7ff !important;
+}
+
+html.dark-mode .video-form-modal-header {
+  border-bottom-color: #2b315f !important;
+}
+
+html.dark-mode .video-form-modal-title,
+html.dark-mode .video-form-label,
+html.dark-mode .video-form-access-title {
+  color: #f4f7ff !important;
+}
+
+html.dark-mode .video-form-modal-close {
+  background: #23274c !important;
+  color: #a8b1d6 !important;
+}
+
+html.dark-mode .video-form-modal-close:hover {
+  background: #303464 !important;
+  color: #ffffff !important;
+}
+
+html.dark-mode .video-form-field,
+html.dark-mode .video-form-readonly {
+  background: #10122a !important;
+  border-color: #3a3f70 !important;
+  color: #f4f7ff !important;
+}
+
+html.dark-mode .video-form-field::placeholder {
+  color: #7f8ab8 !important;
+}
+
+html.dark-mode .video-form-readonly {
+  background: #1c1f42 !important;
+}
+
+html.dark-mode .video-form-access-panel {
+  background: #10122a !important;
+  border-color: #2b315f !important;
+}
+
+html.dark-mode .video-form-preview-status {
+  background: #10122a !important;
+}
+
+html.dark-mode .video-form-toggle:not(.is-active) {
+  background: #30375f !important;
+}
+
+html.dark-mode .video-form-cancel {
+  background: #1c1f42 !important;
+  border-color: #3a3f70 !important;
+  color: #d7def7 !important;
+}
+
+html.dark-mode .video-form-cancel:hover {
+  background: #252950 !important;
+  color: #ffffff !important;
+}

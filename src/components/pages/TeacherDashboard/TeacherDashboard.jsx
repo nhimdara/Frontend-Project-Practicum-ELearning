@@ -1786,6 +1786,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                           )}
                         </div>
                         <button
+                          className="teacher-add-video-button"
                           onClick={() => {
                             openAdd(lesson.id);
                           }}
@@ -1806,12 +1807,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
                             fontFamily: "'DM Sans', sans-serif",
                             transition: "background 0.15s",
                           }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.background = "#f5f3ff")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.background = "transparent")
-                          }
                         >
                           <Plus size={13} /> Add Video
                         </button>
