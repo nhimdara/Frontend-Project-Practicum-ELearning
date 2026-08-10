@@ -435,6 +435,88 @@ html.dark-mode footer {
   border-top-color: var(--lf-dark-border) !important;
 }
 
+/* Theme-aware iOS liquid-glass footer. */
+.student-site-footer {
+  color: #172033;
+  background:
+    radial-gradient(circle at 12% 82%, rgba(129, 140, 248, 0.18), transparent 28rem),
+    radial-gradient(circle at 88% 20%, rgba(34, 211, 238, 0.14), transparent 30rem),
+    linear-gradient(145deg, #f8fbff 0%, #edf3ff 54%, #f6f1ff 100%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.student-site-footer .footer-glass-panel {
+  background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(255,255,255,.46));
+  border-color: rgba(255,255,255,.92) !important;
+  box-shadow: 0 18px 48px rgba(42, 55, 95, .12), inset 0 1px 0 rgba(255,255,255,.98) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(165%);
+  backdrop-filter: blur(24px) saturate(165%);
+}
+
+.student-site-footer .footer-glass-highlight { background-image: linear-gradient(to right, transparent, rgba(255,255,255,.98), transparent); }
+.student-site-footer .footer-glass-glow { background: rgba(255,255,255,.66); }
+.student-site-footer .footer-ambient { opacity: .62; }
+.student-site-footer p,
+.student-site-footer a,
+.student-site-footer .text-indigo-100,
+.student-site-footer .text-purple-100,
+.student-site-footer .text-cyan-100,
+.student-site-footer .text-indigo-200 { color: #34415b !important; }
+.student-site-footer a:hover { color: #4338ca !important; }
+.student-site-footer .footer-social-button {
+  color: #334155;
+  background: rgba(255,255,255,.58);
+  border-color: rgba(255,255,255,.9) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 8px 20px rgba(51,65,85,.10);
+}
+.student-site-footer .footer-social-button:hover { color: #fff !important; }
+.student-site-footer .footer-language-select {
+  color: #1e293b !important;
+  background: rgba(255,255,255,.68) !important;
+  border-color: rgba(255,255,255,.92) !important;
+}
+.student-site-footer .footer-language-select option { color: #172033; background: #fff; }
+
+html.dark-mode .student-site-footer {
+  color: #f4f7ff;
+  background:
+    radial-gradient(circle at 10% 90%, rgba(124,58,237,.23), transparent 28rem),
+    radial-gradient(circle at 90% 15%, rgba(6,182,212,.15), transparent 30rem),
+    linear-gradient(145deg, #080b19 0%, #11182b 52%, #171238 100%) !important;
+  border-top-color: rgba(165,180,252,.18) !important;
+}
+html.dark-mode .student-site-footer .footer-glass-panel {
+  background: linear-gradient(145deg, rgba(30,41,67,.70), rgba(25,22,57,.54)) !important;
+  border-color: rgba(199,210,254,.24) !important;
+  box-shadow: 0 20px 54px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+html.dark-mode .student-site-footer .footer-glass-highlight { background-image: linear-gradient(to right, transparent, rgba(255,255,255,.35), transparent); }
+html.dark-mode .student-site-footer .footer-glass-glow { background: rgba(129,140,248,.12); }
+html.dark-mode .student-site-footer p,
+html.dark-mode .student-site-footer a,
+html.dark-mode .student-site-footer .text-indigo-100,
+html.dark-mode .student-site-footer .text-purple-100,
+html.dark-mode .student-site-footer .text-cyan-100,
+html.dark-mode .student-site-footer .text-indigo-200 { color: #dbe4ff !important; }
+html.dark-mode .student-site-footer a:hover { color: #fff !important; }
+html.dark-mode .student-site-footer .footer-social-button {
+  color: #eef2ff;
+  background: rgba(255,255,255,.07);
+  border-color: rgba(199,210,254,.2) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+}
+html.dark-mode .student-site-footer .footer-language-select {
+  color: #eef2ff !important;
+  background: rgba(15,20,44,.72) !important;
+  border-color: rgba(199,210,254,.24) !important;
+}
+html.dark-mode .student-site-footer .footer-language-select option { color: #eef2ff; background: #11152d; }
+
+@media (max-width: 767px) {
+  .student-site-footer .footer-glass-panel { border-radius: 22px; }
+  .student-site-footer .footer-language-select { min-height: 40px; }
+}
+
 /* Hover states */
 html.dark-mode .hover\\:bg-gray-50:hover {
   background-color: #1e1e38 !important;
@@ -1594,6 +1676,65 @@ html.reduce-animations *::after {
   transition-duration: 0.001ms !important;
   transition-delay: 0ms !important;
   scroll-behavior: auto !important;
+}
+
+/* Final footer contrast guard: keep utility colors from washing out glass text. */
+html:not(.dark-mode) .student-site-footer {
+  background:
+    radial-gradient(circle at 7% 86%, rgba(124, 58, 237, .27), transparent 30rem),
+    radial-gradient(circle at 84% 8%, rgba(14, 165, 233, .25), transparent 34rem),
+    radial-gradient(circle at 61% 92%, rgba(236, 72, 153, .15), transparent 27rem),
+    linear-gradient(135deg, #f5f7ff 0%, #e4f2ff 50%, #f3e8ff 100%) !important;
+}
+
+html:not(.dark-mode) .student-site-footer .footer-glass-panel {
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(247,250,255,.68)) !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark-mode) .student-site-footer .grid > .footer-glass-panel:nth-child(1) {
+  background: linear-gradient(145deg, rgba(255,255,255,.92), rgba(224,242,254,.74)) !important;
+  border-color: rgba(125,211,252,.56) !important;
+}
+html:not(.dark-mode) .student-site-footer .grid > .footer-glass-panel:nth-child(2) {
+  background: linear-gradient(145deg, rgba(238,242,255,.92), rgba(224,231,255,.72)) !important;
+  border-color: rgba(165,180,252,.58) !important;
+}
+html:not(.dark-mode) .student-site-footer .grid > .footer-glass-panel:nth-child(3) {
+  background: linear-gradient(145deg, rgba(250,245,255,.94), rgba(243,232,255,.72)) !important;
+  border-color: rgba(216,180,254,.6) !important;
+}
+html:not(.dark-mode) .student-site-footer .grid > .footer-glass-panel:nth-child(4) {
+  background: linear-gradient(145deg, rgba(236,254,255,.94), rgba(207,250,254,.7)) !important;
+  border-color: rgba(103,232,249,.58) !important;
+}
+
+html:not(.dark-mode) .student-site-footer p,
+html:not(.dark-mode) .student-site-footer a,
+html:not(.dark-mode) .student-site-footer .text-indigo-100,
+html:not(.dark-mode) .student-site-footer .text-purple-100,
+html:not(.dark-mode) .student-site-footer .text-cyan-100,
+html:not(.dark-mode) .student-site-footer .text-fuchsia-100,
+html:not(.dark-mode) .student-site-footer .text-indigo-200,
+html:not(.dark-mode) .student-site-footer .footer-language-select {
+  color: #172033 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark-mode) .student-site-footer a:hover {
+  color: #4338ca !important;
+}
+
+html.dark-mode .student-site-footer p,
+html.dark-mode .student-site-footer a,
+html.dark-mode .student-site-footer .text-indigo-100,
+html.dark-mode .student-site-footer .text-purple-100,
+html.dark-mode .student-site-footer .text-cyan-100,
+html.dark-mode .student-site-footer .text-fuchsia-100,
+html.dark-mode .student-site-footer .text-indigo-200,
+html.dark-mode .student-site-footer .footer-language-select {
+  color: #eef2ff !important;
+  opacity: 1 !important;
 }
 
 /* === HIGH CONTRAST === */

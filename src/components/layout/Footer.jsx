@@ -22,10 +22,10 @@ import { FaFacebook, FaTwitter, FaLinkedin, FaYoutube, FaInstagram } from "react
 // glow tucked in one corner.
 const GlassPanel = ({ className = "", children }) => (
   <div
-    className={`relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] ${className}`}
+    className={`footer-glass-panel relative overflow-hidden rounded-[28px] border backdrop-blur-2xl ${className}`}
   >
-    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-    <div className="pointer-events-none absolute -top-12 -left-12 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
+    <div className="footer-glass-highlight pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
+    <div className="footer-glass-glow pointer-events-none absolute -top-12 -left-12 h-32 w-32 rounded-full blur-3xl" />
     <div className="relative">{children}</div>
   </div>
 );
@@ -107,9 +107,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 text-white overflow-hidden">
+    <footer className="student-site-footer relative overflow-hidden">
       {/* Ambient liquid background — this is the color/light the glass panels refract */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="footer-ambient absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
@@ -230,7 +230,7 @@ const Footer = () => {
                     key={index}
                     href={social.href}
                     aria-label={social.label}
-                    className={`relative p-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:scale-110 hover:border-white/25 transition-all duration-300 hover:text-white ${social.color}`}
+                    className={`footer-social-button relative p-3 rounded-full border backdrop-blur-sm hover:scale-110 transition-all duration-300 ${social.color}`}
                   >
                     <Icon className="h-4 w-4" />
                   </a>
@@ -269,7 +269,7 @@ const Footer = () => {
                 </span>
 
                 <select
-                  className="bg-white/5 border border-white/10 backdrop-blur-sm rounded-full px-3 py-1 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="footer-language-select border backdrop-blur-sm rounded-full px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   defaultValue="en"
                 >
                   <option value="en">English</option>

@@ -106,6 +106,29 @@ const SEMESTER_STYLES = [
   { rgb: "217,70,239", text: "text-fuchsia-600", dot: "bg-fuchsia-500" },
 ];
 
+// Runtime Tailwind gradient class names returned by the API are not guaranteed
+// to be included in the production CSS bundle. Use real CSS gradients so every
+// lesson header keeps a vivid color in development and production.
+const LESSON_GRADIENTS = [
+  "linear-gradient(135deg, #4f46e5 0%, #7c3aed 52%, #a21caf 100%)",
+  "linear-gradient(135deg, #0891b2 0%, #0284c7 48%, #4f46e5 100%)",
+  "linear-gradient(135deg, #059669 0%, #0d9488 52%, #0891b2 100%)",
+  "linear-gradient(135deg, #d97706 0%, #ea580c 52%, #f43f5e 100%)",
+  "linear-gradient(135deg, #e11d48 0%, #db2777 50%, #9333ea 100%)",
+  "linear-gradient(135deg, #7c3aed 0%, #9333ea 48%, #c026d3 100%)",
+  "linear-gradient(135deg, #0369a1 0%, #2563eb 52%, #4338ca 100%)",
+  "linear-gradient(135deg, #c2410c 0%, #f97316 48%, #e11d48 100%)",
+];
+
+const getLessonGradient = (lesson) => {
+  const value = `${lesson.id || ""}:${lesson.title || "Lesson"}`;
+  const hash = [...value].reduce(
+    (total, character) => (total * 31 + character.charCodeAt(0)) >>> 0,
+    0,
+  );
+  return LESSON_GRADIENTS[hash % LESSON_GRADIENTS.length];
+};
+
 // Video Count Badge Component
 const VideoCountBadge = ({ count }) => {
   if (!count) return null;
@@ -403,7 +426,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
   const hasVideos = lesson.videos && lesson.videos.length > 0;
   const videoCount = hasVideos ? lesson.videos.length : 0;
-  const cardGradient = lesson.color || "from-indigo-500 to-purple-600";
+  const cardGradient = getLessonGradient(lesson);
 
   const handlePlayVideo = () => {
     if (videoCount > 1) {
@@ -449,7 +472,8 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
         {/* Card Header */}
         <div
-          className={`relative h-44 bg-gradient-to-br ${cardGradient} overflow-hidden cursor-pointer`}
+          className="lesson-card-header relative h-44 overflow-hidden cursor-pointer"
+          style={{ background: cardGradient }}
           onClick={handlePlayVideo}
         >
           <div
