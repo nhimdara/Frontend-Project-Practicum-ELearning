@@ -21,6 +21,7 @@ import {
   User,
   Mail,
 } from "lucide-react";
+import ScrollToTopButton from "../layout/ui/ScrollToTopButton";
 import lessonImage from "./../assets/image/lessonpage.jpeg";
 import VideoModal from "./video/VideoModal";
 import VideoPlaylistModal from "./video/VideoPlaylistModal";
@@ -1156,14 +1157,7 @@ const LessonsPage = () => {
       />
 
       {/* Back to Top */}
-      {scrollProgress > 20 && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="lg-play-orb fixed bottom-8 right-8 z-40 w-12 h-12 text-white transition-transform hover:scale-105 flex items-center justify-center"
-        >
-          ↑
-        </button>
-      )}
+      <ScrollToTopButton visible={scrollProgress > 20} />
 
       {/* Hero Section */}
       <div className="student-hero relative w-full h-[500px] overflow-hidden">

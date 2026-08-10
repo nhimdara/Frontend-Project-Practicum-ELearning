@@ -126,7 +126,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     showCourses: true,
     showCertificates: true,
     activityStatus: true,
-    theme: "light",
+    theme: "system",
     fontSize: "medium",
     compactView: false,
     liquidGlass: true,
@@ -209,13 +209,23 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     };
   }, [user?.id]);
 
-  /* Apply saved settings on first mount */
+  /* Apply saved settings on first mount. */
   useEffect(() => {
-    applyTheme(settings.theme);
     applyFontSize(settings.fontSize);
     applyFontFamily(settings.fontFamily);
     applyFlags(settings);
   }, []); // eslint-disable-line
+
+  /* System mode follows device changes live; explicit light/dark stay fixed. */
+  useEffect(() => {
+    applyTheme(settings.theme);
+    if (settings.theme !== "system") return undefined;
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const syncSystemTheme = () => applyTheme("system");
+    media.addEventListener("change", syncSystemTheme);
+    return () => media.removeEventListener("change", syncSystemTheme);
+  }, [settings.theme]);
 
   /* ── change handler — applies immediately + saves ── */
   const handleChange = (key, value) => {

@@ -191,6 +191,42 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
           z-index: 50;
         }
 
+        .notification-dropdown-surface {
+          overflow:hidden;
+          border:1px solid rgba(255,255,255,.82);
+          border-radius:24px;
+          background:rgba(248,250,255,.82);
+          color:#172033;
+          box-shadow:0 28px 72px rgba(32,42,88,.24),inset 0 1px 0 rgba(255,255,255,.96);
+          backdrop-filter:blur(28px) saturate(165%);
+          -webkit-backdrop-filter:blur(28px) saturate(165%);
+        }
+        .notification-dropdown-header,
+        .notification-dropdown-footer { border-color:rgba(148,163,184,.18); }
+        .notification-dropdown-title,
+        .notification-item-title { color:#172033; }
+        .notification-item-message { color:#526078; }
+        .notification-item-time { color:#8591a8; }
+        .notification-dropdown-item:hover { background:rgba(99,102,241,.08); }
+        .notification-dropdown-item.is-unread { background:rgba(99,102,241,.07); }
+        .notification-view-all:hover { background:rgba(99,102,241,.09); }
+
+        html.dark-mode .notification-dropdown-surface {
+          border-color:rgba(165,180,252,.20);
+          background:rgba(10,14,31,.90);
+          color:#f5f7ff;
+          box-shadow:0 30px 78px rgba(0,0,0,.50),inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        html.dark-mode .notification-dropdown-header,
+        html.dark-mode .notification-dropdown-footer { border-color:rgba(165,180,252,.14); }
+        html.dark-mode .notification-dropdown-title,
+        html.dark-mode .notification-item-title { color:#f5f7ff; }
+        html.dark-mode .notification-item-message { color:#b3bddb; }
+        html.dark-mode .notification-item-time { color:#838eaf; }
+        html.dark-mode .notification-dropdown-item:hover { background:rgba(129,140,248,.14); }
+        html.dark-mode .notification-dropdown-item.is-unread { background:rgba(99,102,241,.12); }
+        html.dark-mode .notification-view-all:hover { background:rgba(129,140,248,.14); }
+
         .profile-dropdown-surface {
           position: relative;
           padding: 8px;
@@ -431,9 +467,9 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
                     {isNotificationsOpen && (
                       <div className="dropdown-panel animate-in">
-                        <div className="rounded-2xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5 overflow-hidden">
-                          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                            <h3 className="font-semibold text-gray-900">
+                        <div className="notification-dropdown-surface">
+                          <div className="notification-dropdown-header flex items-center justify-between px-5 py-4 border-b">
+                            <h3 className="notification-dropdown-title font-semibold">
                               Notifications
                             </h3>
                             {unreadCount > 0 && (
@@ -466,8 +502,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                                     setIsNotificationsOpen(false);
                                     if (notification.href) navigate(notification.href);
                                   }}
-                                  className={`flex gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                                    !notification.read ? "bg-indigo-50/30" : ""
+                                  className={`notification-dropdown-item flex gap-3 px-5 py-4 transition-colors cursor-pointer ${
+                                    !notification.read ? "is-unread" : ""
                                   }`}
                                 >
                                   <div
@@ -476,13 +512,13 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                                     <Icon className="h-5 w-5" />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-gray-900">
+                                    <p className="notification-item-title text-sm font-semibold">
                                       {notification.title}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-0.5">
+                                    <p className="notification-item-message text-xs mt-0.5">
                                       {notification.message}
                                     </p>
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="notification-item-time text-xs mt-1">
                                       {formatNotificationTime(notification.createdAt)}
                                     </p>
                                   </div>
@@ -494,8 +530,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
                             })}
                           </div>
 
-                          <div className="border-t border-gray-100 p-3">
-                            <button onClick={() => { setIsNotificationsOpen(false); navigate("/notifications"); }} className="w-full text-center text-sm font-medium text-indigo-600 hover:text-indigo-700 py-2 hover:bg-indigo-50 rounded-xl transition-colors">
+                          <div className="notification-dropdown-footer border-t p-3">
+                            <button onClick={() => { setIsNotificationsOpen(false); navigate("/notifications"); }} className="notification-view-all w-full text-center text-sm font-medium text-indigo-600 py-2 rounded-xl transition-colors">
                               View all notifications
                             </button>
                           </div>

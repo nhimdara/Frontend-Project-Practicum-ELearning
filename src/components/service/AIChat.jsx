@@ -197,12 +197,12 @@ const AIChat = () => {
         >
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 animate-ping opacity-20" />
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl shadow-indigo-500/40 group-hover:shadow-indigo-500/60">
+            <div className="lg-fab-button relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center transition-all duration-300">
               <Bot className="h-8 w-8 text-white" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white/80 animate-pulse" />
             </div>
           </div>
-          <span className="absolute left-20 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <span className="lg-tooltip absolute left-20 top-1/2 -translate-y-1/2 text-white px-3 py-1.5 text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Ask AI Assistant
           </span>
         </button>
@@ -211,28 +211,28 @@ const AIChat = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed left-3 right-3 z-50 transition-all duration-300 ease-in-out sm:left-8 sm:right-auto ${
+          className={`chat-window fixed left-3 right-3 z-50 transition-all duration-300 ease-in-out sm:left-8 sm:right-auto ${
             isMinimized ? "bottom-3 h-14 sm:bottom-8 sm:w-72" : "bottom-3 h-[min(600px,calc(100dvh-1.5rem))] sm:bottom-8 sm:w-96"
           }`}
         >
           {/* Chat Container */}
-          <div className="relative h-full bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+          <div className="lg-chat-shell relative h-full flex flex-col overflow-hidden">
             {/* Header */}
             <div
-              className="bg-gradient-to-r from-indigo-600 to-violet-600 p-4 flex items-center justify-between cursor-pointer"
+              className="lg-chat-header p-4 flex items-center justify-between cursor-pointer"
               onClick={() => isMinimized && setIsMinimized(false)}
             >
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Bot className="h-6 w-6 text-white" />
-                  <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-indigo-600" />
+                <div className="lg-avatar-chip relative w-9 h-9 flex items-center justify-center">
+                  <Bot className="h-5 w-5 text-white" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white/40" />
                 </div>
                 <div>
                   <h3 className="text-white font-semibold text-sm flex items-center gap-1">
                     AI Learning Assistant
                     <Sparkles className="h-3 w-3 text-yellow-300" />
                   </h3>
-                  <p className="text-indigo-200 text-xs">
+                  <p className="text-white/70 text-xs">
                     Online • Ready to help
                   </p>
                 </div>
@@ -243,7 +243,7 @@ const AIChat = () => {
                     e.stopPropagation();
                     clearChat();
                   }}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="lg-header-btn p-1.5"
                   title="Clear chat"
                 >
                   <AlertCircle className="h-4 w-4 text-white" />
@@ -253,7 +253,7 @@ const AIChat = () => {
                     e.stopPropagation();
                     setIsMinimized(!isMinimized);
                   }}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="lg-header-btn p-1.5"
                 >
                   {isMinimized ? (
                     <Maximize2 className="h-4 w-4 text-white" />
@@ -267,7 +267,7 @@ const AIChat = () => {
                     setIsOpen(false);
                     setIsMinimized(false);
                   }}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="lg-header-btn p-1.5"
                 >
                   <X className="h-4 w-4 text-white" />
                 </button>
@@ -277,7 +277,7 @@ const AIChat = () => {
             {/* Messages Area - Only show when not minimized */}
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 lg-messages-bg">
                   {messages.map((msg) => (
                     <div
                       key={msg.id}
@@ -303,15 +303,15 @@ const AIChat = () => {
                           <div
                             className={`rounded-2xl p-3 ${
                               msg.type === "user"
-                                ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white"
-                                : "bg-white text-gray-800 shadow-sm border border-gray-200"
+                                ? "lg-bubble-user text-white"
+                                : "lg-bubble-bot"
                             }`}
                           >
                             <p className="text-sm whitespace-pre-wrap">
                               {msg.content}
                             </p>
                           </div>
-                          <p className="text-xs text-gray-400 mt-1 px-2">
+                          <p className="chat-timestamp text-xs mt-1 px-2">
                             {formatTime(msg.timestamp)}
                           </p>
                         </div>
@@ -324,7 +324,7 @@ const AIChat = () => {
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 flex items-center justify-center">
                           <Bot className="h-4 w-4 text-white" />
                         </div>
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
+                        <div className="lg-bubble-bot rounded-2xl p-4">
                           <Loader2 className="h-5 w-5 text-indigo-600 animate-spin" />
                         </div>
                       </div>
@@ -334,7 +334,7 @@ const AIChat = () => {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="px-4 py-2 bg-white border-t border-gray-100">
+                <div className="lg-quickbar px-4 py-2.5">
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {["Foundation Year", "Projects", "Videos", "Pricing"].map(
                       (quick) => (
@@ -344,7 +344,7 @@ const AIChat = () => {
                             setInput(quick);
                             inputRef.current?.focus();
                           }}
-                          className="text-xs bg-gray-100 hover:bg-indigo-100 text-gray-700 hover:text-indigo-700 px-3 py-1.5 rounded-full whitespace-nowrap transition-colors"
+                          className="lg-quick-chip text-xs px-3 py-1.5 whitespace-nowrap"
                         >
                           {quick}
                         </button>
@@ -354,7 +354,7 @@ const AIChat = () => {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 bg-white border-t border-gray-200">
+                <div className="lg-inputbar p-4">
                   <div className="flex items-end gap-2">
                     <div className="flex-1 relative">
                       <textarea
@@ -363,20 +363,20 @@ const AIChat = () => {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Ask me anything..."
-                        className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-sm"
+                        className="lg-textarea w-full px-4 py-3 pr-12 resize-none text-sm"
                         rows="1"
                         style={{ minHeight: "44px", maxHeight: "120px" }}
                       />
                       <button
                         onClick={handleSend}
                         disabled={!input.trim() || isLoading}
-                        className="absolute right-2 bottom-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="lg-send-btn absolute right-2 bottom-2 p-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <Send className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2 text-center">
+                  <p className="chat-disclaimer text-xs mt-2 text-center">
                     AI assistant may make mistakes. Verify important
                     information.
                   </p>
@@ -398,9 +398,167 @@ const AIChat = () => {
             transform: translateY(0) scale(1);
           }
         }
-        
+
         .chat-window {
           animation: slideIn 0.3s ease-out;
+        }
+
+        /* ── Liquid glass primitives ───────────────────────── */
+        .lg-fab-button {
+          background: linear-gradient(135deg, rgba(99,102,241,0.92), rgba(139,92,246,0.92));
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.35);
+          border-radius: 999px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.4) inset, 0 12px 30px rgba(99,102,241,0.45);
+        }
+        .lg-fab-button:hover {
+          transform: scale(1.08);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.4) inset, 0 16px 36px rgba(99,102,241,0.55);
+        }
+        .lg-tooltip {
+          background: rgba(20,20,35,0.7);
+          backdrop-filter: blur(12px) saturate(180%);
+          -webkit-backdrop-filter: blur(12px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 10px;
+        }
+
+        .lg-chat-shell {
+          color: #172033;
+          background: rgba(255,255,255,0.72);
+          backdrop-filter: blur(28px) saturate(180%);
+          -webkit-backdrop-filter: blur(28px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.6);
+          border-radius: 24px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.7) inset, 0 24px 60px rgba(15,15,35,0.25);
+        }
+
+        .lg-chat-header {
+          background: linear-gradient(135deg, rgba(79,70,229,0.9), rgba(139,92,246,0.9));
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+        .lg-avatar-chip {
+          background: rgba(255,255,255,0.18);
+          border: 1px solid rgba(255,255,255,0.3);
+          border-radius: 12px;
+        }
+        .lg-header-btn {
+          background: rgba(255,255,255,0.1);
+          border-radius: 10px;
+          transition: background 0.2s ease;
+        }
+        .lg-header-btn:hover { background: rgba(255,255,255,0.22); }
+
+        .lg-messages-bg {
+          background: rgba(244,245,251,0.5);
+        }
+
+        .lg-bubble-user {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          box-shadow: 0 6px 16px rgba(99,102,241,0.3);
+        }
+        .lg-bubble-bot {
+          color: #172033 !important;
+          background: rgba(255,255,255,0.85);
+          backdrop-filter: blur(10px) saturate(180%);
+          -webkit-backdrop-filter: blur(10px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.9);
+          box-shadow: 0 4px 14px rgba(31,41,55,0.06);
+        }
+
+        .lg-quickbar {
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(14px) saturate(180%);
+          -webkit-backdrop-filter: blur(14px) saturate(180%);
+          border-top: 1px solid rgba(255,255,255,0.6);
+        }
+        .lg-quick-chip {
+          background: rgba(99,102,241,0.08);
+          border: 1px solid rgba(99,102,241,0.15);
+          border-radius: 999px;
+          color: #4338ca;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+        .lg-quick-chip:hover {
+          background: rgba(99,102,241,0.16);
+        }
+
+        .lg-inputbar {
+          background: rgba(255,255,255,0.6);
+          backdrop-filter: blur(14px) saturate(180%);
+          -webkit-backdrop-filter: blur(14px) saturate(180%);
+          border-top: 1px solid rgba(255,255,255,0.7);
+        }
+        .lg-textarea {
+          background: rgba(255,255,255,0.7);
+          border: 1px solid rgba(31,41,55,0.08);
+          color: #172033;
+          border-radius: 16px;
+          outline: none;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .lg-textarea:focus {
+          border-color: rgba(99,102,241,0.5);
+          box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        .lg-textarea::placeholder { color:#7d899e; opacity:1; }
+        .chat-timestamp,
+        .chat-disclaimer { color:#7b879d; }
+        .lg-send-btn {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: #fff;
+          border-radius: 10px;
+          box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+          transition: transform 0.2s ease;
+        }
+        .lg-send-btn:hover:not(:disabled) {
+          transform: scale(1.06);
+        }
+
+        html.dark-mode .lg-chat-shell {
+          color:#f5f7ff;
+          background:rgba(10,14,31,.90);
+          border-color:rgba(165,180,252,.22);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 28px 72px rgba(0,0,0,.48);
+        }
+        html.dark-mode .lg-messages-bg { background:rgba(5,8,22,.48); }
+        html.dark-mode .lg-bubble-bot {
+          color:#eef2ff !important;
+          background:rgba(26,32,63,.88);
+          border-color:rgba(165,180,252,.16);
+          box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06);
+        }
+        html.dark-mode .lg-quickbar,
+        html.dark-mode .lg-inputbar {
+          background:rgba(11,15,34,.82);
+          border-color:rgba(165,180,252,.14);
+        }
+        html.dark-mode .lg-quick-chip {
+          color:#cbd5ff;
+          background:rgba(99,102,241,.16);
+          border-color:rgba(165,180,252,.20);
+        }
+        html.dark-mode .lg-quick-chip:hover { color:#fff; background:rgba(99,102,241,.28); }
+        html.dark-mode .lg-textarea {
+          color:#f5f7ff !important;
+          background:rgba(5,8,22,.76) !important;
+          border-color:rgba(165,180,252,.22) !important;
+          caret-color:#a5b4fc;
+        }
+        html.dark-mode .lg-textarea::placeholder { color:#818daf !important; }
+        html.dark-mode .chat-timestamp,
+        html.dark-mode .chat-disclaimer { color:#8994b6; }
+
+        @media (max-width:640px) {
+          .chat-window { bottom:max(8px,env(safe-area-inset-bottom)); }
+          .lg-chat-shell { border-radius:26px; }
+          .lg-chat-header { padding:12px; }
+          .lg-messages-bg { padding:14px 12px; }
+          .lg-inputbar { padding:12px; padding-bottom:max(12px,env(safe-area-inset-bottom)); }
         }
       `}</style>
     </>
