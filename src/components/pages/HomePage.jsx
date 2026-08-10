@@ -32,8 +32,8 @@ import {
   Trophy,
   Play,
   GraduationCap,
-  ArrowUp,
 } from "lucide-react";
+import ScrollToTopButton from "../layout/ui/ScrollToTopButton";
 
 /* ─────────────────────────── Particle Canvas ─────────────────────────── */
 const ParticleCanvas = () => {
@@ -249,41 +249,31 @@ const HomePage = () => {
   const aboutCards = [
     {
       icon: BookOpen,
-      color: "from-indigo-500 to-violet-600",
-      bg: "bg-indigo-50",
-      iconColor: "text-indigo-600",
+      rgb: "99,102,241",
       title: "200+ Expert Courses",
       desc: "From coding and design to business and creativity — our curriculum is crafted by industry professionals and updated regularly.",
     },
     {
       icon: Users,
-      color: "from-cyan-500 to-indigo-600",
-      bg: "bg-cyan-50",
-      iconColor: "text-cyan-600",
+      rgb: "6,182,212",
       title: "Live Mentorship",
       desc: "Get real-time guidance from mentors who've been where you want to go. Weekly office hours, 1-on-1 sessions, and group workshops.",
     },
     {
       icon: Trophy,
-      color: "from-amber-500 to-orange-600",
-      bg: "bg-amber-50",
-      iconColor: "text-amber-600",
+      rgb: "245,158,11",
       title: "Recognised Certificates",
       desc: "Earn certificates that employers trust. Our credentials are backed by top universities and Fortune 500 partners.",
     },
     {
       icon: Zap,
-      color: "from-violet-500 to-pink-600",
-      bg: "bg-violet-50",
-      iconColor: "text-violet-600",
+      rgb: "168,85,247",
       title: "Learn at Your Pace",
       desc: "Lifetime access to every course you enrol in. Pause, replay, and revisit lessons whenever and wherever you want.",
     },
     {
       icon: CheckCircle,
-      color: "from-rose-500 to-red-600",
-      bg: "bg-rose-50",
-      iconColor: "text-rose-600",
+      rgb: "244,63,94",
       title: "98% Success Rate",
       desc: "Our structured learning paths and accountability tools ensure you finish what you start and actually apply what you learn.",
     },
@@ -293,6 +283,8 @@ const HomePage = () => {
     <>
       {/* ── Scroll-reveal + animation styles ── */}
       <style>{`
+        * { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif; }
+
         /* ── Scroll reveal ── */
         [data-reveal] {
           opacity: 0;
@@ -357,7 +349,7 @@ const HomePage = () => {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+          background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.14) 50%, transparent 70%);
           transform: translateX(-100%);
           transition: transform 0.55s ease;
         }
@@ -382,7 +374,7 @@ const HomePage = () => {
           background: linear-gradient(
             90deg,
             transparent,
-            rgba(255,255,255,0.18),
+            rgba(255,255,255,0.35),
             transparent
           );
           transform: skewX(-20deg) translateX(-100%);
@@ -405,11 +397,81 @@ const HomePage = () => {
           will-change: transform;
         }
 
-        /* ── Glass card ── */
+        /* ── Liquid glass primitives ── */
         .glass-card {
-          background: rgba(255,255,255,0.08);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.12);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .lg-primary-btn {
+          background: linear-gradient(135deg, rgba(99,102,241,0.92), rgba(139,92,246,0.92));
+          backdrop-filter: blur(14px) saturate(180%);
+          -webkit-backdrop-filter: blur(14px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.3);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.35) inset, 0 16px 40px rgba(99,102,241,0.4);
+        }
+        .lg-ghost-btn {
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(14px) saturate(180%);
+          -webkit-backdrop-filter: blur(14px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.28);
+        }
+        .lg-ghost-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .lg-stat-card {
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(18px) saturate(180%);
+          -webkit-backdrop-filter: blur(18px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        .lg-about-card {
+          background: rgba(255,255,255,0.6);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.75);
+          border-radius: 22px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.85) inset, 0 8px 26px rgba(31,41,55,0.06);
+        }
+        .lg-about-card:hover {
+          box-shadow: 0 1px 1px rgba(255,255,255,0.85) inset, 0 18px 40px rgba(31,41,55,0.14);
+        }
+        .lg-about-card-dark {
+          background: rgba(26,26,53,0.5);
+          border-color: rgba(255,255,255,0.08);
+        }
+
+        .lg-icon-chip {
+          border-radius: 14px;
+        }
+
+        .lg-cta-banner {
+          background: linear-gradient(135deg, rgba(79,70,229,0.85), rgba(139,92,246,0.85), rgba(126,34,206,0.85));
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.18);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.2) inset, 0 30px 70px rgba(79,70,229,0.35);
+        }
+        .lg-cta-primary {
+          background: rgba(255,255,255,0.92);
+          backdrop-filter: blur(10px);
+          color: #4338ca;
+          box-shadow: 0 10px 26px rgba(0,0,0,0.2);
+        }
+        .lg-cta-ghost {
+          background: rgba(255,255,255,0.12);
+          backdrop-filter: blur(14px) saturate(180%);
+          -webkit-backdrop-filter: blur(14px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.28);
+        }
+        .lg-cta-ghost:hover { background: rgba(255,255,255,0.22); }
+
+        .lg-eyebrow {
+          background: rgba(99,102,241,0.08);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(99,102,241,0.15);
         }
 
         /* ── CTA banner aurora ── */
@@ -443,8 +505,6 @@ const HomePage = () => {
           to   { transform: translate(30px, 20px) scale(1.15); }
         }
 
-        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .animate-spin-slow { animation: spin-slow 3s linear infinite; }
       `}</style>
 
       {/* ══════════════ HERO SECTION ══════════════ */}
@@ -513,7 +573,7 @@ const HomePage = () => {
               <div className="anim-4 flex flex-wrap gap-3 sm:gap-4">
                 <Link
                   to="/lessons"
-                  className="learn-btn-pulse relative flex items-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 text-white text-[0.9rem] sm:text-base font-bold shadow-2xl shadow-indigo-500/40 hover:shadow-indigo-500/60 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200"
+                  className="lg-primary-btn learn-btn-pulse relative flex items-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-white text-[0.9rem] sm:text-base font-bold hover:scale-[1.03] active:scale-[0.98] transition-all duration-200"
                 >
                   <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-white" />
                   Start Learning Now
@@ -522,7 +582,7 @@ const HomePage = () => {
 
                 <Link
                   to="/lessons"
-                  className="flex items-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 rounded-2xl bg-white/10 backdrop-blur-sm text-white text-[0.9rem] sm:text-base font-semibold ring-1 ring-white/25 hover:bg-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="lg-ghost-btn flex items-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 rounded-2xl text-white text-[0.9rem] sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                   Explore Courses
@@ -538,21 +598,17 @@ const HomePage = () => {
                 {stats.map((stat, i) => (
                   <div
                     key={stat.label}
-                    className={`stat-card rounded-2xl px-4 sm:px-5 py-4 text-center ${
+                    className={`lg-stat-card stat-card rounded-2xl px-4 sm:px-5 py-4 text-center ${
                       i % 2 === 0 ? "float-badge" : "float-badge-2"
                     }`}
-                    style={{
-                      background: "rgba(0,0,0,0.30)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                    }}
                   >
-                    <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/30 mb-2">
-                      {React.createElement(stat.icon, { className: "h-4 w-4 text-indigo-300" })}
+                    <div className="lg-icon-chip inline-flex items-center justify-center w-8 h-8 bg-indigo-500/30 mb-2">
+                      {React.createElement(stat.icon, { className: "h-4 w-4 text-indigo-200" })}
                     </div>
                     <p className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                       {stat.value}
                     </p>
-                    <p className="text-[0.7rem] text-white/55 font-medium">
+                    <p className="text-[0.7rem] text-white/60 font-medium">
                       {stat.label}
                     </p>
                   </div>
@@ -564,7 +620,7 @@ const HomePage = () => {
       </section>
 
       {/* ══════════════ ABOUT SECTION ══════════════ */}
-      <section id="about" className="py-20 sm:py-28" style={{ background: dark ? "#0a0a14" : "white" }}>
+      <section id="about" className="py-20 sm:py-28" style={{ background: dark ? "#0a0a14" : "#f4f5fb" }}>
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
 
           {/* Section header */}
@@ -572,7 +628,7 @@ const HomePage = () => {
             <span
               data-reveal
               data-delay="0"
-              className="inline-block text-[0.72rem] font-bold uppercase tracking-[0.15em] text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full mb-4"
+              className="lg-eyebrow inline-block text-[0.72rem] font-bold uppercase tracking-[0.15em] text-indigo-600 px-4 py-1.5 rounded-full mb-4"
             >
               About EduLearn
             </span>
@@ -605,16 +661,20 @@ const HomePage = () => {
                 key={card.title}
                 data-reveal
                 data-delay={idx * 90}
-                className="about-card group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 hover:-translate-y-1 transition-all duration-300"
+                className={`about-card lg-about-card group relative p-6 hover:-translate-y-1 transition-all duration-300 ${dark ? "lg-about-card-dark" : ""}`}
               >
                 <div
-                  className={`absolute top-0 left-6 right-6 h-0.5 rounded-full bg-gradient-to-r ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                  className="absolute top-0 left-6 right-6 h-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: `linear-gradient(90deg, rgba(${card.rgb},1), rgba(${card.rgb},0.4))` }}
                 />
-                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${card.bg} mb-4`}>
-                  {React.createElement(card.icon, { className: `h-5 w-5 ${card.iconColor}`, strokeWidth: 2 })}
+                <div
+                  className="lg-icon-chip inline-flex items-center justify-center w-11 h-11 mb-4"
+                  style={{ background: `rgba(${card.rgb},0.12)` }}
+                >
+                  {React.createElement(card.icon, { className: "h-5 w-5", strokeWidth: 2, style: { color: `rgb(${card.rgb})` } })}
                 </div>
-                <h3 className="text-[1rem] font-bold text-gray-900 mb-2">{card.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{card.desc}</p>
+                <h3 className={`text-[1rem] font-bold mb-2 ${dark ? "text-gray-100" : "text-gray-900"}`}>{card.title}</h3>
+                <p className={`text-sm leading-relaxed ${dark ? "text-gray-400" : "text-gray-500"}`}>{card.desc}</p>
               </div>
             ))}
           </div>
@@ -623,7 +683,7 @@ const HomePage = () => {
           <div
             data-reveal="scale"
             data-delay="100"
-            className="mt-16 sm:mt-20 relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 px-6 sm:px-10 py-12 sm:py-14 text-center"
+            className="lg-cta-banner mt-16 sm:mt-20 relative overflow-hidden rounded-3xl px-6 sm:px-10 py-12 sm:py-14 text-center"
           >
             {/* Aurora effect */}
             <div className="cta-aurora" />
@@ -645,14 +705,14 @@ const HomePage = () => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button                 
                   onClick={() => window.location.href = "/lessons"}
-                  className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-white text-indigo-700 font-bold text-sm sm:text-base shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all"
+                  className="lg-cta-primary flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-sm sm:text-base hover:scale-[1.03] active:scale-[0.98] transition-all"
                 >
                   <Play className="h-4 w-4 fill-indigo-600" />
                   Start Learning Now
                 </button>
                 <Link
                   to="/lessons"
-                  className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-white/10 ring-1 ring-white/20 text-white font-semibold text-sm sm:text-base hover:bg-white/20 transition-all"
+                  className="lg-cta-ghost flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl text-white font-semibold text-sm sm:text-base transition-all"
                 >
                   <BookOpen className="h-4 w-4" />
                   Browse Free Courses
@@ -664,17 +724,7 @@ const HomePage = () => {
       </section>
 
       {/* ── Scroll To Top Button ── */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Scroll to top"
-        className={`fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 ${showScrollTop ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-6 pointer-events-none"}`}
-      >
-        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 animate-spin-slow opacity-80" />
-        <span className="relative z-10 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 flex items-center justify-center hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 hover:scale-110 group shadow-lg shadow-indigo-500/40">
-          <ArrowUp className="h-5 w-5 text-white group-hover:-translate-y-0.5 transition-transform duration-300" />
-        </span>
-        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 opacity-0 hover:opacity-30 blur-md transition-opacity duration-300" />
-      </button>
+      <ScrollToTopButton visible={showScrollTop} />
     </>
   );
 };

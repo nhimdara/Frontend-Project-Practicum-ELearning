@@ -4,17 +4,24 @@ const SETTINGS_KEY = "learnflow_settings";
 
 const useAppTheme = () => {
   useEffect(() => {
-    try {
-      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
-      const followsSystem =
-        settings.theme === "system" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const isDark = settings.theme === "dark" || followsSystem;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
 
+    const syncTheme = () => {
+      let theme = "system";
+      try {
+        const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+        theme = settings.theme || "system";
+      } catch {
+        theme = "system";
+      }
+
+      const isDark = theme === "dark" || (theme === "system" && media.matches);
       document.documentElement.classList.toggle("dark-mode", isDark);
-    } catch {
-      document.documentElement.classList.remove("dark-mode");
-    }
+    };
+
+    syncTheme();
+    media.addEventListener("change", syncTheme);
+    return () => media.removeEventListener("change", syncTheme);
   }, []);
 };
 
