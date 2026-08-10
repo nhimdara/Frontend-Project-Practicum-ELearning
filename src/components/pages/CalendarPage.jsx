@@ -45,6 +45,9 @@ const MAJOR_OPTIONS = APP_CONFIG.majors.map((major) => ({
 // glass panels reference via Tailwind arbitrary `animate-[...]`
 // utilities, so no tailwind.config changes are required.
 const LIQUID_GLASS_STYLES = `
+  .student-calendar {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  }
   @keyframes liquidShine {
     0%   { transform: translateX(-160%) rotate(14deg); opacity: 0; }
     12%  { opacity: .9; }
@@ -137,7 +140,11 @@ const getMajorStyle = (major, yearKey) => {
 // ambient corner glow tinted to the active year/major color, and a
 // slow diagonal sheen that drifts across the panel — the bit of
 // motion that reads as "liquid" rather than flat frosted glass.
-const GlassSurface = ({ className = "", glow = "bg-indigo-400/20", children }) => (
+const GlassSurface = ({
+  className = "",
+  glow = "bg-indigo-400/20",
+  children,
+}) => (
   <div
     className={`relative overflow-hidden bg-white/35 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8),inset_0_-1px_2px_0_rgba(17,24,39,0.05),0_20px_45px_-15px_rgba(30,27,75,0.28)] transition-all duration-500 ${className}`}
   >
@@ -197,7 +204,9 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
         glow={style.glow}
         className={`student-glass-card flex-1 min-w-0 rounded-[28px] ring-1 ${style.ring}`}
       >
-        <div className={`relative overflow-hidden bg-gradient-to-r ${style.grad} backdrop-blur-md px-5 py-4`}>
+        <div
+          className={`relative overflow-hidden bg-gradient-to-r ${style.grad} backdrop-blur-md px-5 py-4`}
+        >
           <h3 className="text-white text-lg font-extrabold">{semLabel}</h3>
         </div>
         <div className="p-8 text-center text-gray-400">No subjects found</div>
@@ -371,7 +380,7 @@ const CalendarPage = ({ user }) => {
 
   if (!selectedMajor) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-[#f4f5fb]">
         <div className="p-5 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 shadow-lg">
           <GraduationCap className="h-10 w-10 text-gray-400" />
         </div>
@@ -386,7 +395,7 @@ const CalendarPage = ({ user }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#f4f5fb]">
         <div className="p-5 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 shadow-lg">
           <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
         </div>
@@ -397,7 +406,7 @@ const CalendarPage = ({ user }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-[#f4f5fb]">
         <div className="text-5xl">⚠️</div>
         <h2 className="text-xl font-bold text-gray-800">
           Failed to load curriculum
@@ -422,11 +431,11 @@ const CalendarPage = ({ user }) => {
   }
 
   return (
-    <div className="student-page student-calendar min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-white relative overflow-hidden">
+    <div className="student-page student-calendar min-h-screen bg-[#f4f5fb] relative overflow-hidden">
       <style>{LIQUID_GLASS_STYLES}</style>
 
       {/* Ambient liquid background — the color/light the glass panels refract */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">  
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
           className={`absolute top-[620px] -right-32 w-96 h-96 rounded-full blur-3xl opacity-60 ${style.blob} animate-[liquidFloat_11s_ease-in-out_infinite]`}
         />
@@ -561,7 +570,8 @@ const CalendarPage = ({ user }) => {
             <span className="w-2 h-2 rounded-full bg-cyan-400" /> P = Practice
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/70 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" /> S = Self Study
+            <span className="w-2 h-2 rounded-full bg-emerald-400" /> S = Self
+            Study
           </span>
         </div>
       </div>
@@ -581,7 +591,9 @@ const CalendarPage = ({ user }) => {
             >
               <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-white/40" />
               <div className="pointer-events-none absolute -inset-y-10 -left-1/4 w-1/3 rotate-[14deg] bg-gradient-to-r from-transparent via-white/40 to-transparent mix-blend-overlay animate-[liquidShine_8s_ease-in-out_infinite]" />
-              <h3 className="relative text-2xl font-bold">{selectedSubject.title}</h3>
+              <h3 className="relative text-2xl font-bold">
+                {selectedSubject.title}
+              </h3>
               <p className="relative text-white/80 mt-2">
                 {selectedSubject.description || "No description available"}
               </p>
@@ -590,7 +602,9 @@ const CalendarPage = ({ user }) => {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)] p-3 rounded-2xl">
                   <span className="text-xs text-gray-500">Credit</span>
-                  <p className={`text-xl font-bold ${style.accent}`}>{selectedSubject.credit}</p>
+                  <p className={`text-xl font-bold ${style.accent}`}>
+                    {selectedSubject.credit}
+                  </p>
                 </div>
                 <div className="bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)] p-3 rounded-2xl">
                   <span className="text-xs text-gray-500">Hours</span>
