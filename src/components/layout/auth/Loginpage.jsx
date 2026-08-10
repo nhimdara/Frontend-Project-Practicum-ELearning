@@ -67,12 +67,12 @@ const LoginPage = ({ onAuthSuccess }) => {
     if (onAuthSuccess) onAuthSuccess(result);
   };
 
-  const inputBase = `w-full bg-white/5 backdrop-blur-sm border rounded-xl text-gray-200 text-sm py-3.5 
+  const inputBase = `auth-field w-full bg-white/5 backdrop-blur-sm border rounded-xl text-gray-200 text-sm py-3.5 
     transition-all duration-300 focus:outline-none focus:border-cyan-400 
     focus:bg-cyan-500/10 focus:ring-2 focus:ring-cyan-500/30 placeholder-gray-500`;
 
   return (
-    <div className="min-h-screen bg-[#05090f] font-sans relative overflow-hidden">
+    <div className="auth-login-root min-h-screen bg-[#05090f] font-sans relative overflow-hidden">
       {/* Interactive Cursor Glow */}
       <div
         className="fixed pointer-events-none z-30 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl transition-transform duration-300 ease-out"
@@ -87,7 +87,7 @@ const LoginPage = ({ onAuthSuccess }) => {
         <img
           src={banner}
           alt="Background Banner"
-          className="absolute top-0 left-0 w-full h-full object-cover opacity-20 blur-lg"
+          className="auth-login-background absolute top-0 left-0 w-full h-full object-cover opacity-20"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#05090f]/50 via-transparent to-[#05090f]/80" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,rgba(6,182,212,0.08),transparent_70%)]" />
@@ -189,7 +189,7 @@ const LoginPage = ({ onAuthSuccess }) => {
 
             {/* Main Card */}
             <div
-              className="relative rounded-3xl p-8 transition-all duration-500 animate-[fadeUp_0.6s_cubic-bezier(0.2,0.9,0.3,1.1)] overflow-hidden"
+              className="auth-login-card relative rounded-3xl p-8 transition-all duration-500 animate-[fadeUp_0.6s_cubic-bezier(0.2,0.9,0.3,1.1)] overflow-hidden"
               style={{
                 background:
                   "linear-gradient(135deg, rgba(15, 25, 40, 0.8) 0%, rgba(8, 15, 30, 0.9) 100%)",
@@ -228,10 +228,10 @@ const LoginPage = ({ onAuthSuccess }) => {
                   </div>
                 </div>
 
-                <h2 className="text-3xl font-bold text-white tracking-tight text-center mb-2">
+                <h2 className="auth-login-title text-3xl font-bold text-white tracking-tight text-center mb-2">
                   Sign in
                 </h2>
-                <p className="text-gray-400 text-center mb-8">
+                <p className="auth-login-subtitle text-gray-400 text-center mb-8">
                   Enter your credentials to continue
                 </p>
 
@@ -266,12 +266,12 @@ const LoginPage = ({ onAuthSuccess }) => {
                 >
                   {/* Email Field */}
                   <div className="relative group">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    <label className="auth-login-label block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                       Email address
                     </label>
                     <div className="relative">
                       <div
-                        className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${emailFocused ? "text-cyan-400 scale-110" : "text-gray-500"}`}
+                        className={`auth-field-icon absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${emailFocused ? "is-focused scale-110" : ""}`}
                       >
                         <svg
                           width="18"
@@ -325,7 +325,7 @@ const LoginPage = ({ onAuthSuccess }) => {
                   {/* Password Field */}
                   <div className="relative group">
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      <label className="auth-login-label text-xs font-bold text-gray-400 uppercase tracking-wider">
                         Password
                       </label>
                       <button
@@ -338,7 +338,7 @@ const LoginPage = ({ onAuthSuccess }) => {
                     </div>
                     <div className="relative">
                       <div
-                        className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${passwordFocused ? "text-cyan-400 scale-110" : "text-gray-500"}`}
+                        className={`auth-field-icon absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${passwordFocused ? "is-focused scale-110" : ""}`}
                       >
                         <svg
                           width="18"
@@ -381,7 +381,7 @@ const LoginPage = ({ onAuthSuccess }) => {
                       />
                       <button
                         type="button"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-cyan-400 transition-all duration-300"
+                        className="auth-field-action absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300"
                         onClick={() => setShowPw((v) => !v)}
                       >
                         {showPw ? (
@@ -483,7 +483,7 @@ const LoginPage = ({ onAuthSuccess }) => {
                           )}
                         </div>
                       </div>
-                      <span className="text-gray-400 text-sm group-hover:text-gray-300 transition">
+                      <span className="auth-login-remember text-gray-400 text-sm group-hover:text-gray-300 transition">
                         Remember me
                       </span>
                     </label>
@@ -586,6 +586,113 @@ const LoginPage = ({ onAuthSuccess }) => {
         
         .animate-spin {
           animation: spin 0.7s linear infinite;
+        }
+
+        .auth-login-card {
+          border-radius:28px !important;
+          backdrop-filter:blur(28px) saturate(160%) !important;
+          -webkit-backdrop-filter:blur(28px) saturate(160%) !important;
+        }
+
+        html:not(.dark-mode) .auth-login-card {
+          background:rgba(250,252,255,.92) !important;
+          border:1px solid rgba(255,255,255,.96) !important;
+          box-shadow:0 34px 90px rgba(30,38,86,.26),inset 0 1px 0 rgba(255,255,255,.96) !important;
+        }
+
+        html:not(.dark-mode) .auth-login-title { color:#172033 !important; }
+        html:not(.dark-mode) .auth-login-subtitle,
+        html:not(.dark-mode) .auth-login-remember { color:#64748b !important; }
+        html:not(.dark-mode) .auth-login-label { color:#536079 !important; }
+
+        html:not(.dark-mode) .auth-field {
+          background:rgba(255,255,255,.90) !important;
+          border-color:rgba(100,116,160,.24) !important;
+          color:#172033 !important;
+          caret-color:#4f46e5;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.94) !important;
+        }
+
+        html:not(.dark-mode) .auth-field:focus {
+          background:#ffffff !important;
+          border-color:#6366f1 !important;
+          box-shadow:0 0 0 4px rgba(99,102,241,.14),inset 0 1px 0 #fff !important;
+        }
+
+        html.dark-mode .auth-login-card {
+          background:rgba(8,15,30,.88) !important;
+          border:1px solid rgba(165,180,252,.18) !important;
+          box-shadow:0 36px 94px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07) !important;
+        }
+
+        html.dark-mode .auth-field {
+          background:rgba(7,12,26,.68) !important;
+          border-color:rgba(165,180,252,.18) !important;
+          color:#f4f7ff !important;
+          caret-color:#22d3ee;
+        }
+
+        html.dark-mode .auth-field:focus {
+          background:rgba(12,20,38,.92) !important;
+          border-color:#22d3ee !important;
+          box-shadow:0 0 0 4px rgba(34,211,238,.13) !important;
+        }
+
+        html:not(.dark-mode) .auth-field-icon,
+        html:not(.dark-mode) .auth-field-action {
+          color:#475569 !important;
+        }
+
+        html:not(.dark-mode) .auth-field-icon.is-focused,
+        html:not(.dark-mode) .auth-field-action:hover {
+          color:#4f46e5 !important;
+        }
+
+        html.dark-mode .auth-field-icon,
+        html.dark-mode .auth-field-action {
+          color:#8f9aca !important;
+        }
+
+        html.dark-mode .auth-field-icon.is-focused,
+        html.dark-mode .auth-field-action:hover {
+          color:#22d3ee !important;
+        }
+
+        .auth-field-icon,
+        .auth-field-action {
+          z-index:2;
+          opacity:1 !important;
+        }
+
+        /* Prevent Chrome/Safari autofill from painting yellow fields. */
+        html:not(.dark-mode) .auth-field:-webkit-autofill,
+        html:not(.dark-mode) .auth-field:-webkit-autofill:hover,
+        html:not(.dark-mode) .auth-field:-webkit-autofill:focus {
+          -webkit-text-fill-color:#172033 !important;
+          -webkit-box-shadow:0 0 0 1000px #f8faff inset !important;
+          caret-color:#4f46e5 !important;
+          transition:background-color 9999s ease-out 0s;
+        }
+
+        html.dark-mode .auth-field:-webkit-autofill,
+        html.dark-mode .auth-field:-webkit-autofill:hover,
+        html.dark-mode .auth-field:-webkit-autofill:focus {
+          -webkit-text-fill-color:#f4f7ff !important;
+          -webkit-box-shadow:0 0 0 1000px #0c1426 inset !important;
+          caret-color:#22d3ee !important;
+          transition:background-color 9999s ease-out 0s;
+        }
+
+        @media (max-width:1023px) {
+          .auth-login-root { overflow-y:auto; }
+          .auth-login-card { max-width:32rem; margin-inline:auto; }
+        }
+
+        @media (max-width:640px) {
+          .auth-login-card {
+            padding:24px 18px max(24px,env(safe-area-inset-bottom)) !important;
+            border-radius:26px !important;
+          }
         }
       `}</style>
     </div>
