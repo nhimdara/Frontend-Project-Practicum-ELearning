@@ -31,12 +31,14 @@ const GlassPanel = ({ className = "", children }) => (
 );
 
 // Accent colors — pulled from the same background blobs (indigo, purple,
-// cyan, fuchsia) so the palette stays coherent. All solid, no opacity,
-// so text stays bright and readable on the dark glass.
+// cyan, fuchsia) so the palette stays coherent. Each accent now also
+// carries a "text" tint (cyan-100 / purple-100 / fuchsia-100) so the
+// contact-info copy reads as brightly as the rest of the footer instead
+// of a flat, washed-out gray.
 const contactAccents = [
-  { icon: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/20" },
-  { icon: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/20" },
-  { icon: "text-fuchsia-300", bg: "bg-fuchsia-500/10", border: "border-fuchsia-400/20" },
+  { icon: "text-cyan-300", text: "text-cyan-100", bg: "bg-cyan-500/10", border: "border-cyan-400/20" },
+  { icon: "text-purple-300", text: "text-purple-100", bg: "bg-purple-500/10", border: "border-purple-400/20" },
+  { icon: "text-fuchsia-300", text: "text-fuchsia-100", bg: "bg-fuchsia-500/10", border: "border-fuchsia-400/20" },
 ];
 
 const quickLinkDots = [
@@ -150,14 +152,14 @@ const Footer = () => {
                   <a
                     key={index}
                     href={item.href}
-                    className="flex items-center gap-3 text-gray-100 hover:text-white transition-colors group"
+                    className="flex items-center gap-3 hover:text-white transition-colors group"
                   >
                     <div
                       className={`p-2 rounded-full ${accent.bg} border ${accent.border} backdrop-blur-sm group-hover:bg-white/15 group-hover:border-white/20 transition-colors`}
                     >
                       <item.icon className={`h-4 w-4 ${accent.icon}`} />
                     </div>
-                    <span className="text-sm">{item.text}</span>
+                    <span className={`text-sm font-medium ${accent.text}`}>{item.text}</span>
                   </a>
                 );
               })}

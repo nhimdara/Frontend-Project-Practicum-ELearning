@@ -40,72 +40,131 @@ const MAJOR_OPTIONS = APP_CONFIG.majors.map((major) => ({
   icon: major.icon,
 }));
 
+// ─── Liquid Glass CSS ───────────────────────────────────────
+// Injected once per page. Defines the shimmer/float keyframes the
+// glass panels reference via Tailwind arbitrary `animate-[...]`
+// utilities, so no tailwind.config changes are required.
+const LIQUID_GLASS_STYLES = `
+  @keyframes liquidShine {
+    0%   { transform: translateX(-160%) rotate(14deg); opacity: 0; }
+    12%  { opacity: .9; }
+    45%  { opacity: .35; }
+    60%  { transform: translateX(240%) rotate(14deg); opacity: 0; }
+    100% { transform: translateX(240%) rotate(14deg); opacity: 0; }
+  }
+  @keyframes liquidFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-8px, 10px) scale(1.06); }
+  }
+  @keyframes liquidBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+  }
+  .liquid-row:hover .liquid-row-icon {
+    transform: scale(1.08);
+    background: rgba(255,255,255,0.65);
+  }
+`;
+
 const YEAR_STYLE = {
   Foundation: {
-    grad: "from-indigo-600 to-violet-600",
+    grad: "from-indigo-500/90 to-violet-600/90",
     accent: "text-indigo-600",
-    border: "border-indigo-300",
-    rowHover: "hover:bg-indigo-50",
-    tag: "bg-indigo-100 text-indigo-700",
+    tag: "bg-indigo-100/70 text-indigo-700",
+    glow: "bg-indigo-400/30",
+    blob: "bg-indigo-400/25",
+    ring: "ring-indigo-300/40",
   },
   "Second Year": {
-    grad: "from-cyan-600 to-indigo-600",
+    grad: "from-cyan-500/90 to-indigo-600/90",
     accent: "text-cyan-600",
-    border: "border-cyan-300",
-    rowHover: "hover:bg-cyan-50",
-    tag: "bg-cyan-100 text-cyan-700",
+    tag: "bg-cyan-100/70 text-cyan-700",
+    glow: "bg-cyan-400/30",
+    blob: "bg-cyan-400/25",
+    ring: "ring-cyan-300/40",
   },
   "Third Year": {
-    grad: "from-emerald-600 to-teal-600",
+    grad: "from-emerald-500/90 to-teal-600/90",
     accent: "text-emerald-600",
-    border: "border-emerald-300",
-    rowHover: "hover:bg-emerald-50",
-    tag: "bg-emerald-100 text-emerald-700",
+    tag: "bg-emerald-100/70 text-emerald-700",
+    glow: "bg-emerald-400/30",
+    blob: "bg-emerald-400/25",
+    ring: "ring-emerald-300/40",
   },
   "Fourth Year": {
-    grad: "from-amber-500 to-orange-600",
+    grad: "from-amber-500/90 to-orange-600/90",
     accent: "text-amber-600",
-    border: "border-amber-300",
-    rowHover: "hover:bg-amber-50",
-    tag: "bg-amber-100 text-amber-700",
+    tag: "bg-amber-100/70 text-amber-700",
+    glow: "bg-amber-400/30",
+    blob: "bg-amber-400/25",
+    ring: "ring-amber-300/40",
   },
 };
 
 const getMajorStyle = (major, yearKey) => {
   const majorColors = {
     ITE: {
-      grad: "from-indigo-600 to-violet-600",
+      grad: "from-indigo-500/90 to-violet-600/90",
       accent: "text-indigo-600",
-      border: "border-indigo-300",
-      rowHover: "hover:bg-indigo-50",
-      tag: "bg-indigo-100 text-indigo-700",
+      tag: "bg-indigo-100/70 text-indigo-700",
+      glow: "bg-indigo-400/30",
+      blob: "bg-indigo-400/25",
+      ring: "ring-indigo-300/40",
     },
     IT: {
-      grad: "from-cyan-600 to-blue-600",
+      grad: "from-cyan-500/90 to-blue-600/90",
       accent: "text-cyan-600",
-      border: "border-cyan-300",
-      rowHover: "hover:bg-cyan-50",
-      tag: "bg-cyan-100 text-cyan-700",
+      tag: "bg-cyan-100/70 text-cyan-700",
+      glow: "bg-cyan-400/30",
+      blob: "bg-cyan-400/25",
+      ring: "ring-cyan-300/40",
     },
     Mathematics: {
-      grad: "from-emerald-600 to-teal-600",
+      grad: "from-emerald-500/90 to-teal-600/90",
       accent: "text-emerald-600",
-      border: "border-emerald-300",
-      rowHover: "hover:bg-emerald-50",
-      tag: "bg-emerald-100 text-emerald-700",
+      tag: "bg-emerald-100/70 text-emerald-700",
+      glow: "bg-emerald-400/30",
+      blob: "bg-emerald-400/25",
+      ring: "ring-emerald-300/40",
     },
   };
   return majorColors[major] || YEAR_STYLE[yearKey];
 };
 
+// ─── Liquid Glass surface ───────────────────────────────────────
+// True "macOS 26" style frosted panel: a translucent, saturated
+// blur fill, a bright hairline rim that catches the light, an
+// ambient corner glow tinted to the active year/major color, and a
+// slow diagonal sheen that drifts across the panel — the bit of
+// motion that reads as "liquid" rather than flat frosted glass.
+const GlassSurface = ({ className = "", glow = "bg-indigo-400/20", children }) => (
+  <div
+    className={`relative overflow-hidden bg-white/35 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8),inset_0_-1px_2px_0_rgba(17,24,39,0.05),0_20px_45px_-15px_rgba(30,27,75,0.28)] transition-all duration-500 ${className}`}
+  >
+    {/* bright top rim — light catching the glass edge */}
+    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/95 to-transparent" />
+    {/* ambient corner glow, tinted to the active year/major color */}
+    <div
+      className={`pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full ${glow} blur-3xl animate-[liquidFloat_9s_ease-in-out_infinite]`}
+    />
+    {/* drifting specular sheen — the "liquid" light sweep */}
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute -inset-y-12 -left-1/3 w-1/4 rotate-[14deg] bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[liquidShine_8s_ease-in-out_infinite]" />
+    </div>
+    <div className="relative">{children}</div>
+  </div>
+);
+
 const SubjectRow = ({ subj, style, onClick }) => (
   <tr
-    className={`border-b border-gray-200 ${style.rowHover} transition-colors duration-150 cursor-pointer group`}
+    className="liquid-row border-b border-white/40 hover:bg-white/35 hover:backdrop-blur-md transition-all duration-200 cursor-pointer group"
     onClick={() => onClick(subj)}
   >
     <td className="py-3.5 px-4 text-gray-700 text-sm group-hover:text-gray-900 transition-colors">
-      <div className="flex items-center gap-2">
-        <span className="text-lg leading-none">📘</span>
+      <div className="flex items-center gap-2.5">
+        <span className="liquid-row-icon flex items-center justify-center h-7 w-7 rounded-full bg-white/45 backdrop-blur-sm border border-white/60 shadow-sm transition-all duration-300 text-base leading-none">
+          📘
+        </span>
         <span className="font-medium">{subj.title}</span>
       </div>
     </td>
@@ -134,25 +193,30 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
 
   if (subjects.length === 0) {
     return (
-      <div
-        className={`student-glass-card flex-1 min-w-0 rounded-2xl overflow-hidden border ${style.border} bg-white shadow-sm`}
+      <GlassSurface
+        glow={style.glow}
+        className={`student-glass-card flex-1 min-w-0 rounded-[28px] ring-1 ${style.ring}`}
       >
-        <div className={`bg-gradient-to-r ${style.grad} px-5 py-4`}>
+        <div className={`relative overflow-hidden bg-gradient-to-r ${style.grad} backdrop-blur-md px-5 py-4`}>
           <h3 className="text-white text-lg font-extrabold">{semLabel}</h3>
         </div>
         <div className="p-8 text-center text-gray-400">No subjects found</div>
-      </div>
+      </GlassSurface>
     );
   }
 
   return (
-    <div
-      className={`student-glass-card flex-1 min-w-0 rounded-2xl overflow-hidden border ${style.border} bg-white shadow-sm`}
+    <GlassSurface
+      glow={style.glow}
+      className={`student-glass-card flex-1 min-w-0 rounded-[28px] ring-1 ${style.ring} hover:-translate-y-1 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.9),0_28px_60px_-18px_rgba(30,27,75,0.35)]`}
     >
       <div
-        className={`bg-gradient-to-r ${style.grad} px-5 py-4 flex items-center justify-between`}
+        className={`relative overflow-hidden bg-gradient-to-r ${style.grad} backdrop-blur-md px-5 py-4 flex items-center justify-between`}
       >
-        <div>
+        <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/50" />
+        {/* diagonal glass sheen across the color header, same drift as the panel */}
+        <div className="pointer-events-none absolute -inset-y-10 -left-1/4 w-1/3 rotate-[14deg] bg-gradient-to-r from-transparent via-white/40 to-transparent mix-blend-overlay animate-[liquidShine_8s_ease-in-out_infinite]" />
+        <div className="relative">
           <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mb-0.5">
             Programme
           </p>
@@ -160,7 +224,7 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
             {semLabel}
           </h3>
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className="relative flex flex-col items-end gap-1">
           <span className="text-white/80 text-xs">
             {subjects.length} subjects
           </span>
@@ -173,7 +237,7 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className={`border-b ${style.border} bg-gray-50`}>
+            <tr className="border-b border-white/50 bg-white/25 backdrop-blur-md">
               <th className="py-2.5 px-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
                 Subject
               </th>
@@ -185,7 +249,7 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white">
+          <tbody className="bg-transparent">
             {regular.map((s) => (
               <SubjectRow
                 key={s.id}
@@ -197,8 +261,8 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
             {opt1.length > 0 && (
               <>
                 <tr>
-                  <td colSpan={3} className="pt-4 pb-1 px-4 bg-white">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">
+                  <td colSpan={3} className="pt-4 pb-1 px-4 bg-transparent">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-700 bg-yellow-100/70 backdrop-blur-sm border border-yellow-300/50 px-3 py-1 rounded-full">
                       ✦ Option 1
                     </span>
                   </td>
@@ -216,8 +280,8 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
             {opt2.length > 0 && (
               <>
                 <tr>
-                  <td colSpan={3} className="pt-4 pb-1 px-4 bg-white">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                  <td colSpan={3} className="pt-4 pb-1 px-4 bg-transparent">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-orange-700 bg-orange-100/70 backdrop-blur-sm border border-orange-300/50 px-3 py-1 rounded-full">
                       ✦ Option 2 — GPA &gt; 3.5
                     </span>
                   </td>
@@ -235,7 +299,7 @@ const SemesterCard = ({ semLabel, subjects, style, onSubjectClick }) => {
           </tbody>
         </table>
       </div>
-    </div>
+    </GlassSurface>
   );
 };
 
@@ -307,8 +371,10 @@ const CalendarPage = ({ user }) => {
 
   if (!selectedMajor) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
-        <GraduationCap className="h-12 w-12 text-gray-400" />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
+        <div className="p-5 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 shadow-lg">
+          <GraduationCap className="h-10 w-10 text-gray-400" />
+        </div>
         <h2 className="text-xl font-bold text-gray-800">Major not assigned</h2>
         <p className="text-gray-500 text-sm text-center">
           Your account does not have a major assigned. Please contact an
@@ -320,8 +386,10 @@ const CalendarPage = ({ user }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-12 w-12 text-indigo-600 animate-spin" />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
+        <div className="p-5 rounded-full bg-white/60 backdrop-blur-xl border border-white/70 shadow-lg">
+          <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+        </div>
         <p className="text-gray-500 font-medium">Loading curriculum...</p>
       </div>
     );
@@ -329,12 +397,12 @@ const CalendarPage = ({ user }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
         <div className="text-5xl">⚠️</div>
         <h2 className="text-xl font-bold text-gray-800">
           Failed to load curriculum
         </h2>
-        <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-lg">
+        <p className="text-red-600 text-sm bg-red-50/80 backdrop-blur-sm border border-red-200/60 px-4 py-2 rounded-xl">
           {error}
         </p>
         <button
@@ -345,7 +413,7 @@ const CalendarPage = ({ user }) => {
               .catch((e) => setError(e.message))
               .finally(() => setLoading(false));
           }}
-          className="mt-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
+          className="mt-2 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl hover:brightness-110 shadow-lg shadow-indigo-500/30 transition-all"
         >
           Retry
         </button>
@@ -354,7 +422,18 @@ const CalendarPage = ({ user }) => {
   }
 
   return (
-    <div className="student-page student-calendar min-h-screen bg-white relative">
+    <div className="student-page student-calendar min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-white relative overflow-hidden">
+      <style>{LIQUID_GLASS_STYLES}</style>
+
+      {/* Ambient liquid background — the color/light the glass panels refract */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">  
+        <div
+          className={`absolute top-[620px] -right-32 w-96 h-96 rounded-full blur-3xl opacity-60 ${style.blob} animate-[liquidFloat_11s_ease-in-out_infinite]`}
+        />
+        <div className="absolute top-[900px] -left-32 w-96 h-96 rounded-full blur-3xl opacity-40 bg-violet-300/30 animate-[liquidFloat_13s_ease-in-out_infinite]" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-30 bg-cyan-300/30 animate-[liquidFloat_9s_ease-in-out_infinite]" />
+      </div>
+
       {/* Scroll bar */}
       <div
         className="fixed top-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 via-cyan-400 to-violet-500 z-50 transition-all duration-150"
@@ -405,23 +484,23 @@ const CalendarPage = ({ user }) => {
       </div>
 
       {/* Content */}
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12 py-12">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-12 py-12">
         <div className="mb-8">
           <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
             <input
               type="text"
               placeholder="Search subjects..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="relative w-full pl-11 pr-4 py-3 rounded-full border border-white/70 bg-white/50 backdrop-blur-xl shadow-[0_8px_24px_-8px_rgba(30,27,75,0.15)] focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white/70 transition-colors placeholder:text-gray-400"
             />
           </div>
         </div>
 
         {/* Year tabs */}
         <div className="flex justify-center mb-10">
-          <div className="flex items-center gap-1 p-1.5 bg-gray-100 rounded-2xl border border-gray-200">
+          <div className="flex items-center gap-1 p-1.5 bg-white/45 backdrop-blur-xl rounded-2xl border border-white/70 shadow-[0_8px_24px_-8px_rgba(30,27,75,0.15)]">
             {YEAR_TABS.map((tab) => (
               <button
                 key={tab}
@@ -432,7 +511,7 @@ const CalendarPage = ({ user }) => {
                 className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
                   activeYear === tab
                     ? `bg-gradient-to-r ${getMajorStyle(selectedMajor, tab).grad} text-white shadow-lg`
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
                 }`}
               >
                 {tab}
@@ -474,15 +553,15 @@ const CalendarPage = ({ user }) => {
         </div>
 
         {/* Legend */}
-        <div className="mt-8 flex items-center gap-6 text-gray-500 text-xs">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-gray-400" /> L = Lecture
+        <div className="mt-8 flex flex-wrap items-center gap-3 text-gray-600 text-xs">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/70 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)]">
+            <span className="w-2 h-2 rounded-full bg-indigo-400" /> L = Lecture
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-gray-400" /> P = Practice
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/70 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)]">
+            <span className="w-2 h-2 rounded-full bg-cyan-400" /> P = Practice
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-gray-400" /> S = Self Study
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/70 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" /> S = Self Study
           </span>
         </div>
       </div>
@@ -490,37 +569,39 @@ const CalendarPage = ({ user }) => {
       {/* Subject Detail Modal */}
       {selectedSubject && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedSubject(null)}
         >
           <div
-            className="student-glass-modal bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="student-glass-modal relative overflow-hidden bg-white/45 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 rounded-[28px] max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8),0_28px_70px_-15px_rgba(30,27,75,0.45)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className={`p-6 bg-gradient-to-r ${style.grad} text-white rounded-t-2xl`}
+              className={`relative overflow-hidden p-6 bg-gradient-to-r ${style.grad} backdrop-blur-md text-white`}
             >
-              <h3 className="text-2xl font-bold">{selectedSubject.title}</h3>
-              <p className="text-white/80 mt-2">
+              <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-white/40" />
+              <div className="pointer-events-none absolute -inset-y-10 -left-1/4 w-1/3 rotate-[14deg] bg-gradient-to-r from-transparent via-white/40 to-transparent mix-blend-overlay animate-[liquidShine_8s_ease-in-out_infinite]" />
+              <h3 className="relative text-2xl font-bold">{selectedSubject.title}</h3>
+              <p className="relative text-white/80 mt-2">
                 {selectedSubject.description || "No description available"}
               </p>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)] p-3 rounded-2xl">
                   <span className="text-xs text-gray-500">Credit</span>
-                  <p className="text-xl font-bold">{selectedSubject.credit}</p>
+                  <p className={`text-xl font-bold ${style.accent}`}>{selectedSubject.credit}</p>
                 </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="bg-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)] p-3 rounded-2xl">
                   <span className="text-xs text-gray-500">Hours</span>
-                  <p className="text-xl font-bold">
+                  <p className={`text-xl font-bold ${style.accent}`}>
                     {selectedSubject.hours || "—"}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedSubject(null)}
-                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700"
+                className={`w-full py-3 bg-gradient-to-r ${style.grad} text-white rounded-xl font-semibold hover:brightness-110 shadow-lg transition-all`}
               >
                 Close
               </button>
