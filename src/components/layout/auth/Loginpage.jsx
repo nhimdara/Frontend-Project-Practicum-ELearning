@@ -72,7 +72,7 @@ const LoginPage = ({ onAuthSuccess }) => {
     focus:bg-cyan-500/10 focus:ring-2 focus:ring-cyan-500/30 placeholder-gray-500`;
 
   return (
-    <div className="auth-login-root min-h-screen bg-[#05090f] font-sans relative overflow-hidden">
+    <div className="auth-login-root min-h-screen font-sans relative overflow-hidden">
       {/* Interactive Cursor Glow */}
       <div
         className="fixed pointer-events-none z-30 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl transition-transform duration-300 ease-out"
@@ -89,14 +89,14 @@ const LoginPage = ({ onAuthSuccess }) => {
           alt="Background Banner"
           className="auth-login-background absolute top-0 left-0 w-full h-full object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#05090f]/50 via-transparent to-[#05090f]/80" />
+        <div className="auth-login-scrim absolute inset-0" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,rgba(6,182,212,0.08),transparent_70%)]" />
       </div>
 
       {/* Main Layout */}
       <div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
         {/* LEFT HERO PANEL */}
-        <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col justify-center px-8 sm:px-12 lg:px-16 py-12 lg:py-16 border-r border-cyan-500/10 bg-gradient-to-r from-[#05090f]/50 to-transparent">
+        <div className="auth-login-hero w-full lg:w-1/2 xl:w-[45%] flex flex-col justify-center px-8 sm:px-12 lg:px-16 py-12 lg:py-16">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-16 lg:mb-20 group cursor-pointer">
             <div className="relative">
@@ -142,7 +142,7 @@ const LoginPage = ({ onAuthSuccess }) => {
             {/* Info Card */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative flex gap-4 items-start bg-gradient-to-r from-cyan-500/5 to-indigo-500/5 border border-cyan-500/20 rounded-xl p-5 backdrop-blur-sm">
+              <div className="auth-info-card relative flex gap-4 items-start border rounded-xl p-5">
                 <div className="shrink-0">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-indigo-500 flex items-center justify-center">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -179,7 +179,7 @@ const LoginPage = ({ onAuthSuccess }) => {
         </div>
 
         {/* RIGHT FORM PANEL */}
-        <div className="w-full lg:w-1/2 xl:w-[55%] flex items-center justify-center px-4 sm:px-6 py-12 lg:py-16">
+        <div className="auth-login-form-panel w-full lg:w-1/2 xl:w-[55%] flex items-center justify-center px-4 sm:px-6 py-12 lg:py-16">
           <div
             className={`w-full max-w-md relative ${shake ? "animate-[shake_0.5s_ease-in-out]" : ""}`}
           >
@@ -190,13 +190,6 @@ const LoginPage = ({ onAuthSuccess }) => {
             {/* Main Card */}
             <div
               className="auth-login-card relative rounded-3xl p-8 transition-all duration-500 animate-[fadeUp_0.6s_cubic-bezier(0.2,0.9,0.3,1.1)] overflow-hidden"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(15, 25, 40, 0.8) 0%, rgba(8, 15, 30, 0.9) 100%)",
-                backdropFilter: "blur(20px)",
-                border: "1px solid rgba(56, 189, 248, 0.2)",
-                boxShadow: "0 30px 60px -20px rgba(0, 0, 0, 0.8)",
-              }}
             >
               <div className="relative z-10">
                 {/* Avatar with Glow */}
@@ -588,6 +581,39 @@ const LoginPage = ({ onAuthSuccess }) => {
           animation: spin 0.7s linear infinite;
         }
 
+        .auth-login-root {
+          background:#eef3fb;
+          color:#172033;
+        }
+        .auth-login-background { opacity:.82 !important; }
+        .auth-login-scrim {
+          background:
+            radial-gradient(circle at 72% 34%,rgba(56,189,248,.10),transparent 38%),
+            linear-gradient(180deg,rgba(3,13,23,.48),rgba(3,13,23,.74)),
+            rgba(3,13,23,.20);
+        }
+        .auth-login-hero { background:transparent; }
+        .auth-info-card {
+          background:rgba(8,24,35,.58);
+          border-color:rgba(207,250,254,.62);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 16px 44px rgba(0,0,0,.16);
+          backdrop-filter:blur(18px) saturate(145%);
+          -webkit-backdrop-filter:blur(18px) saturate(145%);
+        }
+
+        html.dark-mode .auth-login-root { background:#050812; }
+        html.dark-mode .auth-login-background { opacity:.58 !important; }
+        html.dark-mode .auth-login-scrim {
+          background:
+            radial-gradient(circle at 72% 34%,rgba(79,70,229,.10),transparent 40%),
+            linear-gradient(180deg,rgba(2,7,16,.62),rgba(2,7,16,.84)),
+            rgba(2,7,16,.28);
+        }
+        html.dark-mode .auth-info-card {
+          background:rgba(7,14,29,.62);
+          border-color:rgba(103,232,249,.22);
+        }
+
         .auth-login-card {
           border-radius:28px !important;
           backdrop-filter:blur(28px) saturate(160%) !important;
@@ -595,9 +621,9 @@ const LoginPage = ({ onAuthSuccess }) => {
         }
 
         html:not(.dark-mode) .auth-login-card {
-          background:rgba(250,252,255,.92) !important;
+          background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(235,242,252,.70)) !important;
           border:1px solid rgba(255,255,255,.96) !important;
-          box-shadow:0 34px 90px rgba(30,38,86,.26),inset 0 1px 0 rgba(255,255,255,.96) !important;
+          box-shadow:0 34px 90px rgba(20,32,72,.26),inset 0 1px 0 rgba(255,255,255,.98) !important;
         }
 
         html:not(.dark-mode) .auth-login-title { color:#172033 !important; }
@@ -620,10 +646,15 @@ const LoginPage = ({ onAuthSuccess }) => {
         }
 
         html.dark-mode .auth-login-card {
-          background:rgba(8,15,30,.88) !important;
-          border:1px solid rgba(165,180,252,.18) !important;
+          background:linear-gradient(145deg,rgba(17,24,46,.84),rgba(5,10,25,.78)) !important;
+          border:1px solid rgba(165,180,252,.22) !important;
           box-shadow:0 36px 94px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07) !important;
         }
+
+        html.dark-mode .auth-login-title { color:#f7f8ff !important; }
+        html.dark-mode .auth-login-subtitle,
+        html.dark-mode .auth-login-remember { color:#aab5d6 !important; }
+        html.dark-mode .auth-login-label { color:#c5cdef !important; }
 
         html.dark-mode .auth-field {
           background:rgba(7,12,26,.68) !important;
@@ -685,14 +716,41 @@ const LoginPage = ({ onAuthSuccess }) => {
 
         @media (max-width:1023px) {
           .auth-login-root { overflow-y:auto; }
+          .auth-login-root > .relative.z-10 { min-height:100dvh; }
+          .auth-login-hero {
+            min-height:auto;
+            padding-top:max(28px,env(safe-area-inset-top));
+            padding-bottom:22px;
+            border-right:0;
+          }
+          .auth-login-hero > .group { margin-bottom:24px; }
+          .auth-login-hero .space-y-6 > h1 { font-size:clamp(2.5rem,9vw,4rem); }
+          .auth-login-hero .space-y-6 > p { font-size:1rem; }
           .auth-login-card { max-width:32rem; margin-inline:auto; }
         }
 
         @media (max-width:640px) {
+          .auth-login-background { opacity:.68 !important; }
+          .auth-login-scrim {
+            background:linear-gradient(180deg,rgba(3,12,22,.55),rgba(3,12,22,.78));
+          }
+          .auth-login-hero { padding:24px 20px 14px; }
+          .auth-login-hero > .group { margin-bottom:18px; }
+          .auth-login-hero .space-y-6 { gap:14px; }
+          .auth-login-hero .space-y-6 > h1 { font-size:2.6rem; }
+          .auth-login-hero .space-y-6 > p,
+          .auth-login-hero .auth-info-card { display:none; }
+          .auth-login-form-panel {
+            padding:10px 12px max(16px,env(safe-area-inset-bottom));
+          }
           .auth-login-card {
             padding:24px 18px max(24px,env(safe-area-inset-bottom)) !important;
-            border-radius:26px !important;
+            border-radius:28px !important;
+            max-height:calc(100dvh - 164px);
+            overflow-y:auto;
           }
+          .auth-login-card .flex.justify-center.mb-8 { margin-bottom:18px; }
+          .auth-login-card .w-20.h-20 { width:64px; height:64px; }
         }
       `}</style>
     </div>
