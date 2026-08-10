@@ -937,6 +937,71 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           padding-right: 40px;
         }
 
+        /* Dark theme: keep every glass layer and label on the same palette. */
+        html.dark-mode .lg-root {
+          color:#eef2ff;
+          background:
+            radial-gradient(ellipse 75% 55% at 8% 8%,rgba(99,102,241,.22),transparent 58%),
+            radial-gradient(ellipse 55% 70% at 92% 18%,rgba(14,165,233,.12),transparent 52%),
+            radial-gradient(ellipse 65% 45% at 50% 92%,rgba(139,92,246,.13),transparent 52%),
+            linear-gradient(155deg,#070916 0%,#0b1022 48%,#111027 100%);
+        }
+        html.dark-mode .lg-root::before { opacity:.24; filter:brightness(1.7); }
+        html.dark-mode .lg-glass,
+        html.dark-mode .lg-glass-strong,
+        html.dark-mode .lg-project-card,
+        html.dark-mode .lg-empty-state {
+          background:rgba(18,23,49,.72);
+          border-color:rgba(165,180,252,.16);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 18px 48px rgba(0,0,0,.26);
+        }
+        html.dark-mode .lg-glass-strong { background:rgba(20,24,52,.82); }
+        html.dark-mode .lg-project-card:hover {
+          background:rgba(27,33,66,.88);
+          border-color:rgba(129,140,248,.32);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 22px 54px rgba(0,0,0,.34);
+        }
+        html.dark-mode .lg-heading {
+          background:linear-gradient(135deg,#ffffff 0%,#c7d2fe 55%,#93c5fd 100%);
+          -webkit-background-clip:text;
+          background-clip:text;
+          -webkit-text-fill-color:transparent;
+        }
+        html.dark-mode .lg-subtext { color:#a5b4fc; }
+        html.dark-mode .lg-tab-pill { color:#aeb8d6; }
+        html.dark-mode .lg-tab-pill.active {
+          color:#eef2ff;
+          background:rgba(99,102,241,.25);
+          border-color:rgba(165,180,252,.23);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 22px rgba(0,0,0,.18);
+        }
+        html.dark-mode .lg-tab-pill:not(.active):hover { background:rgba(255,255,255,.07); color:#fff; }
+        html.dark-mode .lg-input {
+          color:#f4f7ff;
+          background:rgba(7,10,27,.58);
+          border-color:rgba(165,180,252,.19);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+        }
+        html.dark-mode .lg-input:hover { background:rgba(11,15,36,.78); border-color:rgba(165,180,252,.3); }
+        html.dark-mode .lg-input:focus { background:rgba(13,17,40,.92); border-color:#818cf8; }
+        html.dark-mode .lg-input::placeholder { color:#727b9d; }
+        html.dark-mode .lg-btn-ghost { color:#dbe2ff; background:rgba(255,255,255,.07); border-color:rgba(165,180,252,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+        html.dark-mode .lg-btn-ghost:hover { color:#fff; background:rgba(99,102,241,.17); }
+        html.dark-mode .lg-chip { color:#c7d2fe; background:rgba(99,102,241,.18); border-color:rgba(165,180,252,.2); box-shadow:inset 0 1px 0 rgba(255,255,255,.05); }
+        html.dark-mode .lg-modal { background:rgba(17,21,45,.92); border-color:rgba(165,180,252,.17); box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 28px 90px rgba(0,0,0,.55); }
+        html.dark-mode .lg-modal-overlay { background:rgba(2,4,13,.76); }
+        html.dark-mode .lg-toast { background:rgba(17,24,45,.9); border-color:rgba(52,211,153,.3); }
+        html.dark-mode .lg-divider { background:linear-gradient(90deg,transparent,rgba(165,180,252,.2),transparent); }
+        html.dark-mode .lg-root .text-gray-900,
+        html.dark-mode .lg-root .text-gray-800,
+        html.dark-mode .lg-root .text-slate-900 { color:#f4f7ff !important; }
+        html.dark-mode .lg-root .text-gray-700,
+        html.dark-mode .lg-root .text-slate-700 { color:#d6ddf3 !important; }
+        html.dark-mode .lg-root .text-gray-600,
+        html.dark-mode .lg-root .text-gray-500,
+        html.dark-mode .lg-root .text-slate-500 { color:#aab4d1 !important; }
+        html.dark-mode .lg-root .text-gray-400 { color:#8792b5 !important; }
+
         @media (max-width: 768px) {
           .lg-root {
             padding-top: 80px;
