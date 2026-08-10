@@ -7,6 +7,7 @@ import {
   Upload
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 /* ─────────────────────────────────────────────────
    APPLY FUNCTIONS — these write to <html> immediately
@@ -91,6 +92,7 @@ const Field = ({ label, children }) => (
    MAIN COMPONENT
    ───────────────────────────────────────────────── */
 const Settings = ({ user, onLogout, onUserUpdate }) => {
+  const { setLanguage: setAppLanguage } = useLanguage();
   const photoInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -229,6 +231,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
   /* ── change handler — applies immediately + saves ── */
   const handleChange = (key, value) => {
+    if (key === "language") setAppLanguage(value);
     setSettings(prev => {
       const next = { ...prev, [key]: value };
       save(next);
@@ -712,10 +715,6 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                         <select className="sett-select" value={settings.language} onChange={e => handleChange("language", e.target.value)}>
                           <option value="english">English (US)</option>
                           <option value="khmer">ភាសាខ្មែរ (Khmer)</option>
-                          <option value="spanish">Español</option>
-                          <option value="french">Français</option>
-                          <option value="chinese">中文</option>
-                          <option value="japanese">日本語</option>
                         </select>
                       </Field>
                       <Field label="Timezone">

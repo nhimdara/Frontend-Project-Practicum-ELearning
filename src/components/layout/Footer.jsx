@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 // Import brand icons from react-icons
 import { FaFacebook, FaTwitter, FaLinkedin, FaYoutube, FaInstagram } from "react-icons/fa";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 // Liquid Glass surface — mimics macOS 26's frosted, light-catching glass:
 // a blurred translucent fill, a hairline border, a bright edge-highlight
@@ -55,6 +56,7 @@ const resourceIconColors = ["text-indigo-300", "text-purple-300", "text-cyan-300
 const legalHovers = ["hover:text-cyan-300", "hover:text-purple-300", "hover:text-fuchsia-300"];
 
 const Footer = () => {
+  const { language, setLanguage } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
@@ -269,12 +271,11 @@ const Footer = () => {
 
                 <select
                   className="footer-language-select border backdrop-blur-sm rounded-full px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  defaultValue="en"
+                  value={language === "khmer" ? "kh" : "en"}
+                  onChange={(event) => setLanguage(event.target.value === "kh" ? "khmer" : "english")}
                 >
                   <option value="en">English</option>
                   <option value="kh">ភាសាខ្មែរ</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
                 </select>
               </div>
             </div>

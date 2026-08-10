@@ -102,6 +102,14 @@ body {
   color: #1e1b4b;
 }
 
+html.khmer-language body,
+html.khmer-language button,
+html.khmer-language input,
+html.khmer-language select,
+html.khmer-language textarea {
+  font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Khmer UI", var(--app-font-family, Inter), sans-serif;
+}
+
 button,
 a,
 input,
