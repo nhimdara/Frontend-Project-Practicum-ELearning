@@ -9,7 +9,7 @@ import {
   X,
   Youtube,
 } from "lucide-react";
-import { extractYouTubeId } from "../dashboardUtils";
+import { extractYouTubeId, normalizeYouTubeUrl } from "../dashboardUtils";
 
 let youtubeApiPromise;
 const loadYouTubeApi = () => {
@@ -44,6 +44,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
   const [preview, setPreview] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [durationStatus, setDurationStatus] = useState("");
+  const [previewError, setPreviewError] = useState("");
   const playerHostRef = useRef(null);
   const playerRef = useRef(null);
 
@@ -73,16 +74,30 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
       setPreview(null);
     }
     setErrors({});
+    setPreviewError("");
   }, [editingVideo, isOpen, selectedLessonId]);
 
   useEffect(() => {
     if (!isOpen || !preview || !playerHostRef.current) return undefined;
     let cancelled = false;
+    let activeHost = null;
+    setPreviewError("");
     setDurationStatus("Detecting duration…");
     loadYouTubeApi().then((YT) => {
       if (cancelled || !playerHostRef.current) return;
-      playerRef.current?.destroy?.();
-      playerRef.current = new YT.Player(playerHostRef.current, {
+      try {
+        playerRef.current?.destroy?.();
+      } catch {
+        // The iframe may already have been removed by a modal re-render.
+      }
+
+      const host = playerHostRef.current;
+      activeHost = host;
+      host.replaceChildren();
+      const playerMount = document.createElement("div");
+      host.appendChild(playerMount);
+
+      playerRef.current = new YT.Player(playerMount, {
         videoId: preview,
         playerVars: { rel: 0, modestbranding: 1 },
         events: {
@@ -96,14 +111,24 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
               setDurationStatus("Enter duration manually");
             }
           },
-          onError: () => setDurationStatus("Could not detect duration; enter it manually"),
+          onError: () => {
+            setPreviewError(
+              "This video cannot be played inside the dashboard. You can still save and open it on YouTube.",
+            );
+            setDurationStatus("Could not detect duration; enter it manually");
+          },
         },
       });
     });
     return () => {
       cancelled = true;
-      playerRef.current?.destroy?.();
+      try {
+        playerRef.current?.destroy?.();
+      } catch {
+        // Safe cleanup when YouTube has already replaced/removed its iframe.
+      }
       playerRef.current = null;
+      activeHost?.replaceChildren();
     };
   }, [isOpen, preview]);
 
@@ -113,8 +138,22 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
 
     if (field === "link") {
       const id = extractYouTubeId(value);
+      setPreviewError("");
       setPreview(id || null);
     }
+  };
+
+  const handleLinkPaste = (event) => {
+    const pastedValue = event.clipboardData.getData("text").trim();
+    const videoId = extractYouTubeId(pastedValue);
+    if (!videoId) return;
+
+    event.preventDefault();
+    const normalizedUrl = normalizeYouTubeUrl(pastedValue);
+    setForm((current) => ({ ...current, link: normalizedUrl }));
+    setErrors((current) => ({ ...current, link: null }));
+    setPreviewError("");
+    setPreview(videoId);
   };
 
   const validate = () => {
@@ -356,6 +395,7 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
                 type="url"
                 value={form.link}
                 onChange={(e) => handleChange("link", e.target.value)}
+                onPaste={handleLinkPaste}
                 placeholder="https://www.youtube.com/watch?v=..."
                 style={{ ...inputStyle("link"), paddingLeft: "36px" }}
               />
@@ -394,19 +434,34 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
                 background: "#000",
               }}
             >
-              <div style={{ position: "relative", paddingTop: "56.25%" }}>
-                <div
-                  key={preview}
-                  ref={playerHostRef}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                  }}
-                />
+              <div className="video-form-player" style={{ position: "relative", paddingTop: "56.25%" }}>
+                {previewError ? (
+                  <div className="video-form-preview-fallback">
+                    <Youtube size={38} />
+                    <strong>Preview unavailable</strong>
+                    <span>{previewError}</span>
+                    <a
+                      href={normalizeYouTubeUrl(form.link)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open on YouTube
+                    </a>
+                  </div>
+                ) : (
+                  <div
+                    ref={playerHostRef}
+                    className="video-form-player-host"
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      border: "none",
+                    }}
+                  />
+                )}
               </div>
               <div
                 className="video-form-preview-status"
@@ -418,15 +473,15 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
                   gap: 6,
                 }}
               >
-                <CheckCircle size={14} color="#10b981" />
+                <CheckCircle size={14} color={previewError ? "#f59e0b" : "#10b981"} />
                 <span
                   style={{
                     fontSize: "12px",
-                    color: "#10b981",
+                    color: previewError ? "#f59e0b" : "#10b981",
                     fontWeight: 600,
                   }}
                 >
-                  Valid YouTube video detected
+                  {previewError ? "Valid link — external playback required" : "Valid YouTube video detected"}
                 </span>
               </div>
             </div>

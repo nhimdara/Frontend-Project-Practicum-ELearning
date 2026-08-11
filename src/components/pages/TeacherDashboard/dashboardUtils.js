@@ -78,15 +78,41 @@ export const applyStoredTheme = (theme) => {
 };
 
 export const extractYouTubeId = (url) => {
+  const value = String(url || "").trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(value)) return value;
+
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    let candidate = "";
+
+    if (host === "youtu.be") candidate = parsed.pathname.split("/")[1] || "";
+    if (host === "youtube.com" || host.endsWith(".youtube.com")) {
+      candidate =
+        parsed.searchParams.get("v") ||
+        parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/]+)/)?.[1] ||
+        "";
+    }
+
+    if (/^[a-zA-Z0-9_-]{11}$/.test(candidate)) return candidate;
+  } catch {
+    // Fall through to support URLs pasted without a protocol.
+  }
+
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/shorts\/([^&\n?#]+)/,
+    /(?:youtube\.com\/watch\?(?:[^#\s]*&)?v=|youtu\.be\/|youtube\.com\/(?:embed|live)\/)([a-zA-Z0-9_-]{11})(?:[&\n?#/]|$)/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})(?:[&\n?#/]|$)/,
   ];
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match) return match[1];
   }
   return null;
+};
+
+export const normalizeYouTubeUrl = (url) => {
+  const id = extractYouTubeId(url);
+  return id ? `https://www.youtube.com/watch?v=${id}` : String(url || "").trim();
 };
 
 export const getYouTubeThumbnail = (videoId) =>
