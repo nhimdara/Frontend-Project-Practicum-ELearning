@@ -1,495 +1,906 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .teacher-dashboard-root {
-          --teacher-primary: #4f46e5;
-          --teacher-primary-soft: #eef2ff;
-          --teacher-border: #dbe5f1;
-          --teacher-surface: rgba(255,255,255,0.94);
-          --teacher-text: #0f172a;
-          --teacher-muted: #64748b;
-        }
-
-        .teacher-main {
-          scroll-behavior: smooth;
-          min-width: 0;
-          overflow-x: hidden !important;
-        }
-
-        .teacher-dashboard-root {
-          max-width: 100%;
-          overflow-x: hidden;
-        }
-
-        .teacher-content-section,
-        .teacher-report-toolbar {
-          width: min(100%, 1540px);
-          margin-left: auto;
-          margin-right: auto;
-          box-sizing: border-box;
-        }
-
-        .teacher-content-section {
-          padding: 14px 24px 40px !important;
-          animation: slideUp 0.28s ease-out;
-        }
-
-        .teacher-report-toolbar {
-          padding: 20px 24px 0 !important;
-        }
-
-        .teacher-report-toolbar button {
-          min-height: 40px;
-          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-        }
-
-        .teacher-report-toolbar button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 26px rgba(79,70,229,0.3) !important;
-          filter: saturate(1.08);
-        }
-
-        .teacher-content-section > div:first-child {
-          position: relative;
-          overflow: hidden;
-          padding: 24px 26px !important;
-          border: 1px solid var(--teacher-border);
-          border-radius: 18px;
-          background:
-            radial-gradient(circle at 92% 12%, rgba(99,102,241,0.18), transparent 14rem),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(245,247,255,0.94));
-          box-shadow: 0 14px 38px rgba(15,23,42,0.07);
-        }
-
-        .teacher-content-section > div:first-child::before {
-          content: "";
-          position: absolute;
-          inset: 0 auto 0 0;
-          width: 4px;
-          background: linear-gradient(180deg, #4f46e5, #8b5cf6);
-        }
-
-        .teacher-content-section > div:first-child h1 {
-          font-size: clamp(22px, 2.4vw, 30px) !important;
-          letter-spacing: -0.03em !important;
-        }
-
-        .teacher-stats-grid {
-          grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-          gap: 16px !important;
-        }
-
-        .teacher-stats-grid > div,
-        .teacher-video-grid > div,
-        .teacher-lessons-grid > div,
-        .teacher-settings-card {
-          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-
-        .teacher-stats-grid > div {
-          min-height: 142px;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          border-radius: 18px !important;
-        }
-
-        .teacher-stat-value {
-          max-width: 100%;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .teacher-stats-grid > div:hover,
-        .teacher-video-grid > div:hover,
-        .teacher-lessons-grid > div:hover,
-        .teacher-settings-card:hover {
-          transform: translateY(-3px);
-          border-color: rgba(99,102,241,0.42) !important;
-          box-shadow: 0 20px 48px rgba(15,23,42,0.12) !important;
-        }
-
-        .teacher-video-grid {
-          grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
-          gap: 18px !important;
-          align-items: stretch;
-        }
-
-        .teacher-video-grid > div {
-          height: 100%;
-          border-radius: 18px !important;
-          overflow: hidden;
-        }
-
-        .teacher-lessons-grid {
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
-          gap: 18px !important;
-        }
-
-        .teacher-lessons-grid > div,
-        .teacher-settings-card {
-          border-radius: 18px !important;
-        }
-
-        .teacher-add-video-button:hover {
-          background: #f5f3ff !important;
-        }
-
-        .teacher-filter-bar {
-          padding: 14px;
-          border: 1px solid var(--teacher-border);
-          border-radius: 14px;
-          background: var(--teacher-surface);
-          box-shadow: 0 8px 24px rgba(15,23,42,0.05);
-        }
-
-        .teacher-filter-bar input,
-        .teacher-filter-bar select {
-          min-height: 42px;
-        }
-
-        .teacher-dashboard-root button:focus-visible,
-        .teacher-dashboard-root input:focus-visible,
-        .teacher-dashboard-root select:focus-visible,
-        .teacher-dashboard-root textarea:focus-visible {
-          outline: 3px solid rgba(99,102,241,0.22) !important;
-          outline-offset: 2px;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main {
-          background:
-            radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 34rem),
-            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h1,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h2,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main h3 {
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main input,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main select,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main textarea {
-          background: #ffffff !important;
-          color: #0f172a !important;
-          border-color: #d8e2f0 !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-stats-grid > div,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-video-grid > div,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-lessons-grid > div,
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-settings-card {
-          background: rgba(255,255,255,0.94) !important;
-          border-color: #d8e2f0 !important;
-          color: #0f172a !important;
-          box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .sidebar {
-          background: rgba(255,255,255,0.96) !important;
-          border-right: 1px solid #d8e2f0 !important;
-          box-shadow: 12px 0 34px rgba(15,23,42,0.06);
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .sidebar p {
-          color: #0f172a !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .sidebar button {
-          color: #475569 !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
-          color: #ffffff !important;
-        }
-
-        html.dark-mode .teacher-main {
-          background:
-            radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 30rem),
-            linear-gradient(180deg, #070816 0%, #10122a 100%) !important;
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .teacher-main h1,
-        html.dark-mode .teacher-main h2,
-        html.dark-mode .teacher-main h3 {
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .sidebar {
-          background:
-            linear-gradient(180deg, rgba(13, 16, 36, 0.98), rgba(16, 18, 42, 0.98)) !important;
-          border-right: 1px solid #2b315f !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .sidebar button {
-          color: #a8b1d6 !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .sidebar button:hover {
-          background: rgba(99, 102, 241, 0.14) !important;
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .sidebar button[style*="rgba(99,102,241,0.15)"] {
-          background: rgba(99, 102, 241, 0.22) !important;
-          color: #c7d2fe !important;
-        }
-
-        html.dark-mode .teacher-settings-card,
-        html.dark-mode .teacher-stats-grid > div,
-        html.dark-mode .teacher-video-grid > div,
-        html.dark-mode .teacher-lessons-grid > div {
-          background: rgba(21, 23, 51, 0.96) !important;
-          border-color: #2b315f !important;
-          color: #f4f7ff !important;
-          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root {
-          --teacher-border: #2b315f;
-          --teacher-surface: rgba(21,23,51,0.96);
-          --teacher-text: #f4f7ff;
-          --teacher-muted: #a8b1d6;
-        }
-
-        html.dark-mode .teacher-content-section > div:first-child {
-          background:
-            radial-gradient(circle at 92% 12%, rgba(129,140,248,0.22), transparent 14rem),
-            linear-gradient(135deg, rgba(21,23,51,0.98), rgba(28,31,66,0.94)) !important;
-          border-color: #2b315f !important;
-          box-shadow: 0 18px 48px rgba(0,0,0,0.34) !important;
-        }
-
-        html.dark-mode .teacher-filter-bar {
-          background: rgba(21,23,51,0.96) !important;
-          border-color: #2b315f !important;
-          box-shadow: 0 14px 34px rgba(0,0,0,0.22);
-        }
-
-        html.dark-mode .teacher-settings-card button:not([style*="linear-gradient"]) {
-          background-color: #10142e !important;
-          border-color: #2b315f !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main input,
-        html.dark-mode .teacher-dashboard-root .teacher-main select,
-        html.dark-mode .teacher-dashboard-root .teacher-main textarea {
-          background: #10142e !important;
-          color: #f4f7ff !important;
-          border-color: #2b315f !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(255, 255, 255)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #fff"],
-        html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: rgb(255, 255, 255)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: #fff"],
-        html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: rgb(255, 255, 255)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: #fff"] {
-          background: rgba(21, 23, 51, 0.96) !important;
-          border-color: #2b315f !important;
-          color: #f4f7ff !important;
-          box-shadow: 0 20px 54px rgba(0, 0, 0, 0.42) !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(249, 250, 251)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f9fafb"],
-        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(243, 244, 246)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f3f4f6"],
-        html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: rgb(243, 244, 246)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: #f3f4f6"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(243, 244, 246)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #f3f4f6"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(238, 242, 255)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #eef2ff"] {
-          background: #10142e !important;
-          border-color: #2b315f !important;
-          color: #d7def7 !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div {
-          background:
-            linear-gradient(145deg, rgba(21, 23, 51, 0.98), rgba(28, 31, 66, 0.94)) !important;
-          border: 1px solid rgba(129, 140, 248, 0.28) !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div:hover {
-          border-color: rgba(165, 180, 252, 0.48) !important;
-          box-shadow: 0 20px 46px rgba(79, 70, 229, 0.18) !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-lessons-grid button,
-        html.dark-mode .teacher-dashboard-root [class*="teacher-video-grid"] button {
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-add-video-button {
-          background: transparent !important;
-          border-color: #6366f1 !important;
-          color: #c7d2fe !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-add-video-button:hover,
-        html.dark-mode .teacher-dashboard-root .teacher-add-video-button:focus-visible {
-          background: rgba(99, 102, 241, 0.18) !important;
-          border-color: #818cf8 !important;
-          color: #ffffff !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: rgb(99, 102, 241)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: #6366f1"] {
-          color: #c7d2fe !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main h1[style*="color"],
-        html.dark-mode .teacher-dashboard-root .teacher-main h2[style*="color"],
-        html.dark-mode .teacher-dashboard-root .teacher-main h3[style*="color"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(17, 24, 39)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #111827"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(15, 23, 42)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #0f172a"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(17, 24, 39)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #111827"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(15, 23, 42)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #0f172a"] {
-          color: #f4f7ff !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(107, 114, 128)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #6b7280"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(107, 114, 128)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #6b7280"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(156, 163, 175)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #9ca3af"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(156, 163, 175)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #9ca3af"] {
-          color: #a8b1d6 !important;
-        }
-
-        html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid rgb(229, 231, 235)"],
-        html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid #e5e7eb"] {
-          border-color: #2b315f !important;
-        }
-
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(15, 23, 42)"],
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #0f172a"],
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(17, 24, 39)"],
-        html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #111827"] {
-          background: rgba(255, 255, 255, 0.96) !important;
-          border-color: #d8e2f0 !important;
-          color: #0f172a !important;
-        }
-        
-        @media (max-width: 768px) {
-          .teacher-sidebar-spacer {
-            display: none !important;
-          }
-
-          .mobile-menu-button {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            z-index: 30 !important;
-            transition: left 0.25s ease, background 0.2s ease;
-          }
-          .mobile-menu-button.is-open {
-            left: 208px !important;
-            background: #1e293b !important;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.22) !important;
-          }
-          .mobile-overlay {
-            display: none !important;
-          }
-          .mobile-overlay.is-open {
-            display: block !important;
-          }
-          .teacher-main {
-            padding-top: 0;
-          }
-          .teacher-content-section {
-            padding: 12px 18px 28px !important;
-          }
-          .teacher-report-toolbar {
-            min-height: 66px;
-            padding: 12px 14px 10px 70px !important;
-            align-items: center;
-          }
-          .teacher-content-section > div:first-child {
-            padding: 20px !important;
-          }
-          .sidebar {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            z-index: 25 !important;
-            transform: translateX(-100%) !important;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-          }
-          .sidebar.is-open {
-            transform: translateX(0) !important;
-          }
-          .teacher-video-grid,
-          .teacher-lessons-grid,
-          .teacher-settings-grid {
-            grid-template-columns: 1fr !important;
-          }
-
-          .teacher-stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            gap: 12px !important;
-          }
-
-          .teacher-stats-grid > div {
-            min-height: 126px;
-            padding: 15px !important;
-          }
-        }
-
-        @media (max-width: 560px) {
-          .teacher-content-section {
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-          }
-          .teacher-report-toolbar button {
-            width: 100%;
-            justify-content: center;
-          }
-        }
-
-        @media (min-width: 769px) and (max-width: 1280px) {
-          .teacher-stats-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-          }
-        }
-
-        @media (max-width: 380px) {
-          .mobile-menu-button.is-open {
-            left: calc(100vw - 56px) !important;
-          }
-          .teacher-content-section {
-            padding-left: 14px !important;
-            padding-right: 14px !important;
-          }
-          .teacher-stats-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .teacher-report-button {
-            width: auto !important;
-            padding-left: 12px !important;
-            padding-right: 12px !important;
-          }
-
-          .teacher-report-button span {
-            display: none;
-          }
-        }
+﻿@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   KEYFRAMES
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+@keyframes slideUp {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Liquid Glass shimmer â€” light sweep across glass surface */
+@keyframes glassShine {
+  0%   { transform: translateX(-130%) skewX(-18deg); opacity: 0; }
+  15%  { opacity: 1; }
+  55%  { opacity: 1; }
+  100% { transform: translateX(230%) skewX(-18deg); opacity: 0; }
+}
+
+/* Prismatic rainbow edge sweep on card borders */
+@keyframes prismEdge {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animated blob drift â€” soft glowing orbs drifting across background */
+@keyframes blobDrift1 {
+  0%   { transform: translate(0px,   0px)   scale(1);    }
+  33%  { transform: translate(60px,  -40px) scale(1.08); }
+  66%  { transform: translate(-30px, 50px)  scale(0.95); }
+  100% { transform: translate(0px,   0px)   scale(1);    }
+}
+@keyframes blobDrift2 {
+  0%   { transform: translate(0px,  0px)    scale(1);    }
+  33%  { transform: translate(-50px, 40px)  scale(1.06); }
+  66%  { transform: translate(40px,  -30px) scale(0.97); }
+  100% { transform: translate(0px,  0px)    scale(1);    }
+}
+@keyframes blobDrift3 {
+  0%   { transform: translate(0px,  0px)   scale(1);    }
+  50%  { transform: translate(30px, 60px)  scale(1.05); }
+  100% { transform: translate(0px,  0px)   scale(1);    }
+}
+
+/* Specular pulse on hover */
+@keyframes specularPulse {
+  0%   { box-shadow: 0 28px 64px rgba(6,182,212,0.20), inset 0 1px 0 rgba(255,255,255,0.70); }
+  50%  { box-shadow: 0 32px 72px rgba(14,165,233,0.30), inset 0 1px 0 rgba(255,255,255,0.85); }
+  100% { box-shadow: 0 28px 64px rgba(6,182,212,0.20), inset 0 1px 0 rgba(255,255,255,0.70); }
+}
+
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DESIGN TOKENS  (macOS 26 â€” cool blue-cyan accent)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-dashboard-root {
+  --teacher-primary:      #0ea5e9;
+  --teacher-primary-mid:  #06b6d4;
+  --teacher-primary-soft: #e0f2fe;
+  --teacher-primary-glow: rgba(14,165,233,0.45);
+  --glass-blur:      28px;
+  --glass-saturate:  180%;
+  --teacher-text:  #0f172a;
+  --teacher-muted: #475569;
+  --prism-gradient: linear-gradient(
+    90deg,
+    rgba(56,189,248,0.90)  0%,
+    rgba(99,102,241,0.85)  20%,
+    rgba(168,85,247,0.85)  40%,
+    rgba(236,72,153,0.80)  60%,
+    rgba(14,165,233,0.85)  80%,
+    rgba(56,189,248,0.90)  100%
+  );
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   LAYOUT SHELL
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-dashboard-root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.teacher-main {
+  scroll-behavior: smooth;
+  min-width: 0;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+.teacher-content-section,
+.teacher-report-toolbar {
+  width: min(100%, 1540px);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.teacher-content-section {
+  padding: 14px 24px 48px !important;
+  animation: slideUp 0.32s cubic-bezier(0.22,1,0.36,1);
+}
+
+.teacher-report-toolbar {
+  padding: 20px 24px 0 !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ANIMATED BLOB MESH BACKGROUND
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-main::before,
+.teacher-main::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+
+.teacher-main::before {
+  width: 680px;
+  height: 680px;
+  top: -8%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(99,102,241,0.70) 0%, rgba(14,165,233,0.40) 55%, transparent 75%);
+  animation: blobDrift1 22s ease-in-out infinite;
+}
+
+.teacher-main::after {
+  width: 580px;
+  height: 580px;
+  top: 10%;
+  right: -8%;
+  background: radial-gradient(circle, rgba(139,92,246,0.65) 0%, rgba(168,85,247,0.35) 55%, transparent 75%);
+  animation: blobDrift2 28s ease-in-out infinite;
+}
+
+.teacher-blob-3 {
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  bottom: -6%;
+  left: 35%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(90px);
+  opacity: 0.40;
+  background: radial-gradient(circle, rgba(6,182,212,0.70) 0%, rgba(56,189,248,0.35) 55%, transparent 75%);
+  animation: blobDrift3 34s ease-in-out infinite;
+}
+
+.teacher-main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   GLASS SURFACE â€” shared properties
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-stats-grid > div,
+.teacher-video-grid > div,
+.teacher-lessons-grid > div,
+.teacher-settings-card,
+.teacher-filter-bar,
+.glass-card {
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.26s cubic-bezier(0.22,1,0.36,1),
+    box-shadow 0.26s cubic-bezier(0.22,1,0.36,1),
+    border-color 0.26s ease;
+}
+
+/* Prismatic rainbow top-edge â€” revealed on hover */
+.teacher-stats-grid > div::before,
+.teacher-video-grid > div::before,
+.teacher-lessons-grid > div::before,
+.teacher-settings-card::before,
+.teacher-filter-bar::before,
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--prism-gradient);
+  background-size: 300% 300%;
+  animation: prismEdge 6s ease infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 100px 100px 0 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Specular white highlight just below prism line */
+.teacher-stats-grid > div::after,
+.teacher-video-grid > div::after,
+.teacher-lessons-grid > div::after,
+.teacher-settings-card::after,
+.teacher-filter-bar::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0.85) 70%, transparent);
+  opacity: 0.6;
+  border-radius: 100px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Show prism on hover */
+.teacher-stats-grid > div:hover::before,
+.teacher-video-grid > div:hover::before,
+.teacher-lessons-grid > div:hover::before,
+.teacher-settings-card:hover::before,
+.teacher-filter-bar:hover::before,
+.glass-card:hover::before {
+  opacity: 1;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SIDEBAR
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.sidebar {
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 2px;
+  background: var(--prism-gradient);
+  background-size: 300% 300%;
+  animation: prismEdge 8s ease infinite;
+  opacity: 0.55;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STAT CARDS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-stats-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.teacher-stats-grid > div {
+  min-height: 142px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 20px !important;
+  padding: 20px !important;
+}
+
+.teacher-stat-value {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-stats-grid > div:hover,
+.teacher-video-grid > div:hover,
+.teacher-lessons-grid > div:hover,
+.teacher-settings-card:hover {
+  transform: translateY(-6px) !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   GRIDS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-video-grid {
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
+  gap: 20px !important;
+  align-items: stretch;
+}
+
+.teacher-video-grid > div {
+  height: 100%;
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.teacher-lessons-grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 20px !important;
+}
+
+.teacher-lessons-grid > div,
+.teacher-settings-card {
+  border-radius: 20px !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   FILTER BAR
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-filter-bar {
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.teacher-filter-bar input,
+.teacher-filter-bar select {
+  min-height: 42px;
+  border-radius: 12px !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.teacher-filter-bar input:focus,
+.teacher-filter-bar select:focus {
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.18) !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   WELCOME BANNER
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-content-section > div:first-child {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 30px !important;
+  border-radius: 24px;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  animation: slideUp 0.32s cubic-bezier(0.22,1,0.36,1);
+}
+
+.teacher-content-section > div:first-child::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--prism-gradient);
+  background-size: 300% 300%;
+  animation: prismEdge 6s ease infinite;
+  border-radius: 100px 100px 0 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.teacher-content-section > div:first-child::after {
+  content: "";
+  position: absolute;
+  top: -60%; left: -20%;
+  width: 45%;
+  height: 220%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.40), transparent);
+  animation: glassShine 2.4s ease-out 0.5s 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.teacher-content-section > div:first-child h1 {
+  font-size: clamp(22px, 2.4vw, 30px) !important;
+  letter-spacing: -0.03em !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   TOOLBAR BUTTONS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-report-toolbar button {
+  min-height: 40px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.teacher-report-toolbar button:hover {
+  transform: translateY(-3px);
+  filter: saturate(1.15) brightness(1.04);
+}
+
+.teacher-add-video-button:hover {
+  background: rgba(14,165,233,0.14) !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   FOCUS RINGS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.teacher-dashboard-root button:focus-visible,
+.teacher-dashboard-root input:focus-visible,
+.teacher-dashboard-root select:focus-visible,
+.teacher-dashboard-root textarea:focus-visible {
+  outline: 3px solid rgba(14,165,233,0.30) !important;
+  outline-offset: 2px;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   GLASS CARD
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.glass-card {
+  border-radius: 18px !important;
+  cursor: default;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   LIGHT MODE â€” frosted white/ice glass
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main {
+  background:
+    radial-gradient(50rem 50rem at 5%  5%,  rgba(14,165,233,0.18), transparent 65%),
+    radial-gradient(40rem 40rem at 90% 20%, rgba(99,102,241,0.14),  transparent 65%),
+    radial-gradient(44rem 44rem at 52% 94%, rgba(6,182,212,0.12),   transparent 65%),
+    linear-gradient(180deg, #f0f8ff 0%, #e8f4fd 50%, #f0f5ff 100%) !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main::before {
+  background: radial-gradient(circle, rgba(14,165,233,0.45) 0%, rgba(56,189,248,0.25) 55%, transparent 75%);
+  opacity: 0.35;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main::after {
+  background: radial-gradient(circle, rgba(99,102,241,0.40) 0%, rgba(139,92,246,0.22) 55%, transparent 75%);
+  opacity: 0.30;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main h1,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main h2,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-stats-grid > div,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-video-grid > div,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-lessons-grid > div,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-settings-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.68) 0%, rgba(224,242,254,0.45) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.72) !important;
+  color: #0f172a !important;
+  box-shadow:
+    0 20px 50px rgba(14,165,233,0.10),
+    0 8px 20px rgba(30,27,75,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.80) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-stats-grid > div:hover,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-video-grid > div:hover,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-lessons-grid > div:hover,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-settings-card:hover {
+  border-color: rgba(14,165,233,0.40) !important;
+  box-shadow:
+    0 30px 70px rgba(14,165,233,0.18),
+    0 10px 30px rgba(99,102,241,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  animation: specularPulse 2s ease-in-out infinite;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .glass-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(224,242,254,0.48) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.75) !important;
+  box-shadow: 0 18px 44px rgba(14,165,233,0.10), inset 0 1px 0 rgba(255,255,255,0.80) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 64px rgba(14,165,233,0.18), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-filter-bar {
+  background: linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(224,242,254,0.42) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.70) !important;
+  box-shadow: 0 10px 30px rgba(14,165,233,0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-content-section > div:first-child {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(14,165,233,0.24), transparent 14rem),
+    radial-gradient(circle at 8%  88%, rgba(99,102,241,0.16),  transparent 16rem),
+    linear-gradient(135deg, rgba(255,255,255,0.68) 0%, rgba(224,242,254,0.50) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.72) !important;
+  box-shadow: 0 22px 56px rgba(14,165,233,0.12), inset 0 1px 0 rgba(255,255,255,0.82) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar {
+  background:
+    radial-gradient(22rem 22rem at 10% 88%, rgba(14,165,233,0.14), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.68) 0%, rgba(224,242,254,0.55) 100%) !important;
+  border-right: 1px solid rgba(255,255,255,0.65) !important;
+  box-shadow: 12px 0 40px rgba(14,165,233,0.08), inset -1px 0 0 rgba(255,255,255,0.50);
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar p {
+  color: #0f172a !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button {
+  color: #475569 !important;
+  border-radius: 12px;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button:hover {
+  background: rgba(14,165,233,0.10) !important;
+  color: #0ea5e9 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50);
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 8px 20px rgba(14,165,233,0.30);
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main input,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main select,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main textarea {
+  background: rgba(255,255,255,0.72) !important;
+  color: #0f172a !important;
+  border-color: rgba(14,165,233,0.20) !important;
+  backdrop-filter: blur(8px);
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(15, 23, 42)"],
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #0f172a"],
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: rgb(17, 24, 39)"],
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main div[style*="background: #111827"] {
+  background: rgba(255,255,255,0.65) !important;
+  border-color: rgba(255,255,255,0.68) !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark-mode) .mobile-menu-button {
+  background: linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(224,242,254,0.55) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.68) !important;
+  color: #0f172a !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 6px 20px rgba(14,165,233,0.14);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DARK MODE â€” deep navy frosted glass
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+html.dark-mode .teacher-dashboard-root .teacher-main {
+  background:
+    radial-gradient(50rem 50rem at 5%  4%,  rgba(99,102,241,0.38),  transparent 62%),
+    radial-gradient(40rem 40rem at 92% 22%, rgba(139,92,246,0.30),  transparent 62%),
+    radial-gradient(38rem 38rem at 50% 96%, rgba(6,182,212,0.22),   transparent 62%),
+    linear-gradient(180deg, #030712 0%, #060a1a 60%, #0a0e20 100%) !important;
+  color: #f0f8ff !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main h1,
+html.dark-mode .teacher-dashboard-root .teacher-main h2,
+html.dark-mode .teacher-dashboard-root .teacher-main h3 {
+  color: #f0f8ff !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-stats-grid > div,
+html.dark-mode .teacher-dashboard-root .teacher-video-grid > div,
+html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div,
+html.dark-mode .teacher-dashboard-root .teacher-settings-card {
+  background: linear-gradient(135deg, rgba(14,20,54,0.62) 0%, rgba(10,14,38,0.70) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.16) !important;
+  color: #f0f8ff !important;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.55),
+    0 8px 20px rgba(14,165,233,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-stats-grid > div:hover,
+html.dark-mode .teacher-dashboard-root .teacher-video-grid > div:hover,
+html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div:hover,
+html.dark-mode .teacher-dashboard-root .teacher-settings-card:hover {
+  border-color: rgba(56,189,248,0.35) !important;
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.65),
+    0 12px 36px rgba(14,165,233,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.10) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .glass-card {
+  background: linear-gradient(135deg, rgba(14,20,54,0.65) 0%, rgba(10,14,38,0.72) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.16) !important;
+  box-shadow: 0 22px 54px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56,189,248,0.32) !important;
+  box-shadow: 0 30px 72px rgba(0,0,0,0.65), 0 10px 28px rgba(14,165,233,0.16), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-filter-bar {
+  background: linear-gradient(135deg, rgba(14,20,54,0.60) 0%, rgba(10,14,38,0.68) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.16) !important;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-content-section > div:first-child {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(56,189,248,0.24),  transparent 14rem),
+    radial-gradient(circle at 8%  88%, rgba(6,182,212,0.16),   transparent 16rem),
+    linear-gradient(135deg, rgba(14,20,54,0.60) 0%, rgba(10,14,38,0.68) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.60), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .sidebar {
+  background:
+    radial-gradient(22rem 22rem at 14% 86%, rgba(99,102,241,0.22), transparent 60%),
+    linear-gradient(180deg, rgba(8,10,28,0.72) 0%, rgba(10,14,34,0.78) 100%) !important;
+  border-right: 1px solid rgba(148,163,184,0.14) !important;
+  box-shadow: 14px 0 44px rgba(0,0,0,0.50), inset -1px 0 0 rgba(255,255,255,0.04);
+}
+
+html.dark-mode .teacher-dashboard-root .sidebar button {
+  color: #94a3b8 !important;
+  border-radius: 12px;
+}
+
+html.dark-mode .teacher-dashboard-root .sidebar button:hover {
+  background: rgba(14,165,233,0.14) !important;
+  color: #e0f2fe !important;
+}
+
+html.dark-mode .teacher-dashboard-root .sidebar button[style*="rgba(99,102,241,0.15)"] {
+  background: rgba(14,165,233,0.20) !important;
+  color: #bae6fd !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div {
+  background:
+    radial-gradient(circle at 84% 10%, rgba(56,189,248,0.16), transparent 55%),
+    linear-gradient(135deg, rgba(14,20,54,0.62) 0%, rgba(10,14,38,0.70) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-lessons-grid > div:hover {
+  border-color: rgba(56,189,248,0.40) !important;
+  box-shadow: 0 28px 64px rgba(0,0,0,0.65), 0 10px 30px rgba(14,165,233,0.18), inset 0 1px 0 rgba(255,255,255,0.09) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-add-video-button {
+  background: transparent !important;
+  border-color: rgba(56,189,248,0.50) !important;
+  color: #bae6fd !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-add-video-button:hover,
+html.dark-mode .teacher-dashboard-root .teacher-add-video-button:focus-visible {
+  background: rgba(14,165,233,0.18) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-lessons-grid button,
+html.dark-mode .teacher-dashboard-root [class*="teacher-video-grid"] button {
+  color: #f0f8ff !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main input,
+html.dark-mode .teacher-dashboard-root .teacher-main select,
+html.dark-mode .teacher-dashboard-root .teacher-main textarea {
+  background: rgba(10,14,36,0.75) !important;
+  color: #f0f8ff !important;
+  border-color: rgba(148,163,184,0.22) !important;
+  backdrop-filter: blur(8px);
+}
+
+html.dark-mode .teacher-dashboard-root {
+  --teacher-primary:      #38bdf8;
+  --teacher-primary-mid:  #0ea5e9;
+  --teacher-primary-soft: rgba(14,165,233,0.15);
+  --teacher-border:       rgba(148,163,184,0.18);
+  --teacher-surface:      rgba(14,20,54,0.62);
+  --teacher-text:         #f0f8ff;
+  --teacher-muted:        #94a3b8;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: rgb(99, 102, 241)"],
+html.dark-mode .teacher-dashboard-root .teacher-main [style*="color: #6366f1"] {
+  color: #38bdf8 !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main h1[style*="color"],
+html.dark-mode .teacher-dashboard-root .teacher-main h2[style*="color"],
+html.dark-mode .teacher-dashboard-root .teacher-main h3[style*="color"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(17, 24, 39)"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #111827"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(15, 23, 42)"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #0f172a"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(17, 24, 39)"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #111827"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(15, 23, 42)"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #0f172a"] {
+  color: #f0f8ff !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(107, 114, 128)"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #6b7280"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(107, 114, 128)"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #6b7280"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: rgb(156, 163, 175)"],
+html.dark-mode .teacher-dashboard-root .teacher-main p[style*="color: #9ca3af"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: rgb(156, 163, 175)"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="color: #9ca3af"] {
+  color: #94a3b8 !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid rgb(229, 231, 235)"],
+html.dark-mode .teacher-dashboard-root .teacher-main [style*="border: 1px solid #e5e7eb"] {
+  border-color: rgba(148,163,184,0.20) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(255, 255, 255)"],
+html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #fff"],
+html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: rgb(255, 255, 255)"],
+html.dark-mode .teacher-dashboard-root .teacher-main article[style*="background: #fff"],
+html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: rgb(255, 255, 255)"],
+html.dark-mode .teacher-dashboard-root .teacher-main section[style*="background: #fff"] {
+  background: linear-gradient(135deg, rgba(14,20,54,0.62) 0%, rgba(10,14,38,0.70) 100%) !important;
+  border-color: rgba(148,163,184,0.18) !important;
+  color: #f0f8ff !important;
+  box-shadow: 0 22px 54px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(249, 250, 251)"],
+html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f9fafb"],
+html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: rgb(243, 244, 246)"],
+html.dark-mode .teacher-dashboard-root .teacher-main div[style*="background: #f3f4f6"],
+html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: rgb(243, 244, 246)"],
+html.dark-mode .teacher-dashboard-root .teacher-main button[style*="background: #f3f4f6"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(243, 244, 246)"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #f3f4f6"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: rgb(238, 242, 255)"],
+html.dark-mode .teacher-dashboard-root .teacher-main span[style*="background: #eef2ff"] {
+  background: rgba(10,14,38,0.72) !important;
+  border-color: rgba(148,163,184,0.18) !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark-mode .teacher-settings-card button:not([style*="linear-gradient"]) {
+  background-color: rgba(10,14,36,0.70) !important;
+  border-color: rgba(148,163,184,0.20) !important;
+}
+
+html.dark-mode .mobile-menu-button {
+  background: linear-gradient(135deg, rgba(14,20,54,0.80) 0%, rgba(10,14,38,0.85) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.20) !important;
+  color: #e0f2fe !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.40);
+}
+
+html.dark-mode .mobile-menu-button.is-open {
+  left: 208px !important;
+  background: linear-gradient(135deg, rgba(14,20,54,0.85) 0%, rgba(10,14,38,0.90) 100%) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.50) !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MOBILE OVERLAY
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.mobile-overlay {
+  display: none !important;
+}
+.mobile-overlay.is-open {
+  display: block !important;
+  background: rgba(3,7,18,0.45) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RESPONSIVE
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+@media (max-width: 768px) {
+  .teacher-sidebar-spacer { display: none !important; }
+
+  .mobile-menu-button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    z-index: 30 !important;
+    transition: left 0.25s ease, background 0.2s ease;
+  }
+
+  .mobile-menu-button.is-open {
+    left: 208px !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .teacher-main { padding-top: 0; }
+
+  .teacher-content-section { padding: 12px 18px 32px !important; }
+
+  .teacher-report-toolbar {
+    min-height: 66px;
+    padding: 12px 14px 10px 70px !important;
+    align-items: center;
+  }
+
+  .teacher-content-section > div:first-child { padding: 20px !important; }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 25 !important;
+    transform: translateX(-100%) !important;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.18);
+  }
+
+  .sidebar.is-open { transform: translateX(0) !important; }
+
+  .teacher-video-grid,
+  .teacher-lessons-grid,
+  .teacher-settings-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .teacher-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .teacher-stats-grid > div {
+    min-height: 126px;
+    padding: 15px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .teacher-content-section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .teacher-report-toolbar button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1280px) {
+  .teacher-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .mobile-menu-button.is-open { left: calc(100vw - 58px) !important; }
+  .teacher-content-section {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .teacher-stats-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .teacher-report-button {
+    width: auto !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .teacher-report-button span { display: none; }
+}
+
+@media (max-width: 640px) {
+  .teacher-dashboard-root { --glass-blur: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teacher-main::before,
+  .teacher-main::after,
+  .teacher-blob-3 { animation: none !important; }
+
+  .teacher-stats-grid > div::before,
+  .teacher-video-grid > div::before,
+  .teacher-lessons-grid > div::before,
+  .teacher-settings-card::before,
+  .teacher-filter-bar::before,
+  .glass-card::before,
+  .sidebar::after {
+    animation: none !important;
+    opacity: 0.6;
+  }
+
+  .teacher-stats-grid > div:hover,
+  .teacher-video-grid > div:hover,
+  .teacher-lessons-grid > div:hover,
+  .teacher-settings-card:hover { animation: none !important; }
+}

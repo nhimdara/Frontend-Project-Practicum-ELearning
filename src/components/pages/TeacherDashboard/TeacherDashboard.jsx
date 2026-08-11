@@ -532,7 +532,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const sidebarStyle = {
     width: 260,
     minHeight: "100vh",
-    background: "#0f172a",
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
@@ -544,7 +543,6 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   const mainStyle = {
     flex: 1,
-    background: "#f8fafc",
     minHeight: "100vh",
     fontFamily: "'DM Sans', sans-serif",
     overflow: "auto",
@@ -557,20 +555,16 @@ const TeacherDashboard = ({ user, onLogout }) => {
     top: "16px",
     left: "16px",
     zIndex: 20,
-    background: "#0f172a",
     border: "none",
     borderRadius: "8px",
     padding: "8px",
     cursor: "pointer",
-    color: "#fff",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   };
 
   const mobileOverlayStyle = {
     display: "none",
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.5)",
     zIndex: 15,
   };
 
@@ -694,12 +688,13 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
           <nav
             style={{
-              flex: 1,
-              minHeight: 0,
-              padding: "12px 10px",
+              padding: "18px 12px 0",
               overflowY: "auto",
               overscrollBehavior: "contain",
               scrollbarWidth: "thin",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
             }}
           >
             {navItems.map(({ id, icon: Icon, label }) => (
@@ -713,17 +708,16 @@ const TeacherDashboard = ({ user, onLogout }) => {
                   width: "100%",
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
-                  padding: "9px 12px",
-                  borderRadius: "9px",
+                  gap: 12,
+                  padding: "11px 14px",
+                  borderRadius: "10px",
                   border: "none",
                   background:
                     activeTab === id ? "rgba(99,102,241,0.15)" : "transparent",
                   color: activeTab === id ? "#a5b4fc" : "#64748b",
-                  fontSize: "13.5px",
+                  fontSize: "14px",
                   fontWeight: activeTab === id ? 600 : 400,
                   cursor: "pointer",
-                  marginBottom: 2,
                   textAlign: "left",
                   fontFamily: "'DM Sans', sans-serif",
                   borderLeft:
@@ -739,7 +733,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
             ))}
           </nav>
 
-          <div style={{ padding: "12px 10px", flexShrink: 0 }}>
+          <div style={{ padding: "12px 10px", flexShrink: 0, marginTop: "auto" }}>
             <button
               onClick={() => openAdd()}
               style={{
@@ -847,6 +841,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
         {/* MAIN CONTENT */}
         <main style={mainStyle} className="teacher-main">
+          <div className="teacher-blob-3" aria-hidden="true" />
           <div
             className="teacher-report-toolbar"
             style={{

@@ -16,21 +16,10 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
 
   return (
     <div
+      className="glass-card"
       style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "14px",
         overflow: "hidden",
-        transition: "box-shadow 0.2s, transform 0.2s",
         cursor: "default",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(99,102,241,0.12)";
-        e.currentTarget.style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "none";
-        e.currentTarget.style.transform = "translateY(0)";
       }}
     >
       <div

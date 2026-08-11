@@ -191,12 +191,11 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
 
   return (
     <div
+      className="video-form-modal-overlay"
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 1000,
-        background: "rgba(0,0,0,0.55)",
-        backdropFilter: "blur(4px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -209,13 +208,11 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
       <div
         className="video-form-modal"
         style={{
-          background: "#fff",
           borderRadius: "20px",
           width: "100%",
           maxWidth: "640px",
           maxHeight: "90vh",
           overflow: "auto",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.2)",
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
@@ -223,13 +220,11 @@ const VideoFormModal = ({ isOpen, onClose, onSave, editingVideo, lessons, select
           className="video-form-modal-header"
           style={{
             padding: "22px 28px 18px",
-            borderBottom: "1px solid #f3f4f6",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             position: "sticky",
             top: 0,
-            background: "#fff",
             borderRadius: "20px 20px 0 0",
             zIndex: 2,
           }}

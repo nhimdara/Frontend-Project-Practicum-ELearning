@@ -1,64 +1,191 @@
-html.dark-mode .video-form-modal,
-html.dark-mode .video-form-modal-header {
-  background: #151733 !important;
-  color: #f4f7ff !important;
+/* ═══════════════════════════════════════════════════════════════
+   VIDEO FORM MODAL — macOS 26 Liquid Glass Overhaul
+═══════════════════════════════════════════════════════════════ */
+
+/* Glass Backdrop Blur on Modal Overlay */
+.video-form-modal-overlay {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: backdrop-filter 0.3s ease;
+}
+
+/* Glass Modal Container */
+.video-form-modal {
+  backdrop-filter: blur(28px) saturate(185%);
+  -webkit-backdrop-filter: blur(28px) saturate(185%);
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Rainbow top-edge highlight on modal */
+.video-form-modal::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(56,189,248,0.9) 0%,
+    rgba(99,102,241,0.8) 20%,
+    rgba(168,85,247,0.8) 40%,
+    rgba(236,72,153,0.8) 60%,
+    rgba(14,165,233,0.8) 80%,
+    rgba(56,189,248,0.9) 100%
+  );
+  background-size: 300% 300%;
+  animation: prismEdge 6s ease infinite;
+  z-index: 10;
+}
+
+/* Specular white highlight below prism line */
+.video-form-modal::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 6%; right: 6%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.8) 70%, transparent);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Modal Header styling */
+.video-form-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Modal Title */
+.video-form-modal-title {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Access Toggle / Checkboxes */
+.video-form-access-panel {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+/* Fields & Inputs */
+.video-form-field {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(14, 165, 233, 0.15) !important;
+  border-radius: 10px !important;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  color: #0f172a !important;
+}
+
+.video-form-field:focus {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15) !important;
+}
+
+.video-form-readonly {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #475569 !important;
+}
+
+/* Preview status box */
+.video-form-preview-status {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Close Button */
+.video-form-modal-close {
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #475569 !important;
+  transition: background 0.2s, color 0.2s;
+}
+
+.video-form-modal-close:hover {
+  background: rgba(15, 23, 42, 0.12) !important;
+  color: #0f172a !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE (Not Dark Mode Default overrides)
+═══════════════════════════════════════════════════════════════ */
+html:not(.dark-mode) .video-form-modal-overlay {
+  background: rgba(15, 23, 42, 0.25) !important;
+}
+
+html:not(.dark-mode) .video-form-modal {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(224, 242, 254, 0.55) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  box-shadow: 0 30px 80px rgba(14, 165, 233, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE
+═══════════════════════════════════════════════════════════════ */
+html.dark-mode .video-form-modal-overlay {
+  background: rgba(3, 7, 18, 0.5) !important;
+}
+
+html.dark-mode .video-form-modal {
+  background: linear-gradient(135deg, rgba(15, 20, 54, 0.72) 0%, rgba(10, 14, 38, 0.8) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: #f0f8ff !important;
 }
 
 html.dark-mode .video-form-modal-header {
-  border-bottom-color: #2b315f !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.dark-mode .video-form-modal-title,
 html.dark-mode .video-form-label,
 html.dark-mode .video-form-access-title {
-  color: #f4f7ff !important;
+  color: #f0f8ff !important;
 }
 
 html.dark-mode .video-form-modal-close {
-  background: #23274c !important;
-  color: #a8b1d6 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #94a3b8 !important;
 }
 
 html.dark-mode .video-form-modal-close:hover {
-  background: #303464 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
   color: #ffffff !important;
 }
 
-html.dark-mode .video-form-field,
-html.dark-mode .video-form-readonly {
-  background: #10122a !important;
-  border-color: #3a3f70 !important;
-  color: #f4f7ff !important;
+html.dark-mode .video-form-field {
+  background: rgba(10, 14, 36, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f0f8ff !important;
+}
+
+html.dark-mode .video-form-field:focus {
+  background: rgba(10, 14, 36, 0.85) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15) !important;
 }
 
 html.dark-mode .video-form-field::placeholder {
-  color: #7f8ab8 !important;
+  color: #64748b !important;
 }
 
 html.dark-mode .video-form-readonly {
-  background: #1c1f42 !important;
+  background: rgba(10, 14, 36, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
 }
 
 html.dark-mode .video-form-access-panel {
-  background: #10122a !important;
-  border-color: #2b315f !important;
+  background: rgba(10, 14, 36, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.dark-mode .video-form-preview-status {
-  background: #10122a !important;
-}
-
-html.dark-mode .video-form-toggle:not(.is-active) {
-  background: #30375f !important;
-}
-
-html.dark-mode .video-form-cancel {
-  background: #1c1f42 !important;
-  border-color: #3a3f70 !important;
-  color: #d7def7 !important;
-}
-
-html.dark-mode .video-form-cancel:hover {
-  background: #252950 !important;
-  color: #ffffff !important;
+  background: rgba(10, 14, 36, 0.5) !important;
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
