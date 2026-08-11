@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logo from "../../assets/image/logo.png";
 import banner from "../../assets/image/banner.jpg";
 import { loginMiddleware } from "../../../auth/authMiddleware";
@@ -20,13 +20,25 @@ const LoginPage = ({ onAuthSuccess }) => {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const pointerFrameRef = useRef(null);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    const allowPointerGlow = window.matchMedia(
+      "(hover: hover) and (prefers-reduced-motion: no-preference)",
+    ).matches;
+    if (!allowPointerGlow) return undefined;
+    const handleMouseMove = (event) => {
+      if (pointerFrameRef.current) return;
+      pointerFrameRef.current = requestAnimationFrame(() => {
+        setMousePosition({ x: event.clientX, y: event.clientY });
+        pointerFrameRef.current = null;
+      });
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (pointerFrameRef.current) cancelAnimationFrame(pointerFrameRef.current);
+    };
   }, []);
 
   const validate = () => {
@@ -87,6 +99,8 @@ const LoginPage = ({ onAuthSuccess }) => {
         <img
           src={banner}
           alt="Background Banner"
+          fetchPriority="high"
+          decoding="async"
           className="auth-login-background absolute top-0 left-0 w-full h-full object-cover opacity-20"
         />
         <div className="auth-login-scrim absolute inset-0" />

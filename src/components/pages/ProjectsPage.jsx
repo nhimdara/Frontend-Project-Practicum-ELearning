@@ -167,6 +167,8 @@ const ProjectsPage = () => {
           <img
             src={projectImage}
             alt="Project Showcase"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-1000 ease-out"
           />
 
@@ -260,7 +262,7 @@ const ProjectsPage = () => {
               key={project.id}
               className="student-glass-card lg-project-card group relative overflow-hidden animate-fade-in-up"
               style={{
-                animationDelay: `${index * 150}ms`,
+                animationDelay: `${Math.min(index, 8) * 60}ms`,
               }}
             >
               {/* Project Image */}
@@ -268,6 +270,8 @@ const ProjectsPage = () => {
                 <img
                   src={project.image || project.image_url || projectImage}
                   alt={project.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
 

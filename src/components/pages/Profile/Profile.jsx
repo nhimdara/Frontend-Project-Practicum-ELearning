@@ -1051,6 +1051,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   <img
                     src={avatarPreview}
                     alt="Avatar preview"
+                    decoding="async"
                     className="w-36 h-36 rounded-[28px] object-cover ring-4 ring-white/80 shadow-2xl"
                   />
                 </div>
@@ -1373,6 +1374,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                         <img
                           src={isEditing ? editForm.avatar : user.avatar}
                           alt={user.name}
+                          decoding="async"
                           className="w-28 h-28 rounded-[28px] object-cover ring-[6px] ring-white/90 shadow-2xl"
                         />
                       </div>
@@ -1628,6 +1630,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                             <img
                               src={project.image || makeAvatar(project.title)}
                               alt={project.title}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

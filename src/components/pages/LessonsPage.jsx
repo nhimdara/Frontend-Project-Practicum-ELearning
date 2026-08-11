@@ -1,5 +1,5 @@
 // pages/LessonsPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { API_BASE_URL } from "../../config/api";
 import {
   BookOpen,
@@ -728,6 +728,7 @@ const LessonsPage = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const motionFrameRef = useRef(null);
 
   // ── Read user's major from session ───────────────────────
   const userMajor = (() => {
@@ -761,9 +762,12 @@ const LessonsPage = () => {
   }, [userMajor, userAcademicYear]);
   // ─────────────────────────────────────────────────────────
 
-  const categories = ["All", ...new Set(lessons.map((l) => l.category))];
+  const categories = useMemo(
+    () => ["All", ...new Set(lessons.map((lesson) => lesson.category))],
+    [lessons],
+  );
   const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
-  const semesters = buildSemesters(lessons);
+  const semesters = useMemo(() => buildSemesters(lessons), [lessons]);
   // Define which categories to HIDE
   const hiddenCategories = [
     "Programming",
@@ -784,19 +788,32 @@ const LessonsPage = () => {
 
   useEffect(() => {
     const onScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
-    };
-    const onMouse = (e) =>
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      if (motionFrameRef.current) return;
+      motionFrameRef.current = requestAnimationFrame(() => {
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
+        motionFrameRef.current = null;
       });
-    window.addEventListener("scroll", onScroll);
-    window.addEventListener("mousemove", onMouse);
+    };
+    const allowPointerMotion = window.matchMedia(
+      "(hover: hover) and (prefers-reduced-motion: no-preference)",
+    ).matches;
+    const onMouse = (event) => {
+      if (motionFrameRef.current) return;
+      motionFrameRef.current = requestAnimationFrame(() => {
+        setMousePos({
+          x: (event.clientX / window.innerWidth - 0.5) * 20,
+          y: (event.clientY / window.innerHeight - 0.5) * 20,
+        });
+        motionFrameRef.current = null;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (allowPointerMotion) window.addEventListener("mousemove", onMouse);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("mousemove", onMouse);
+      if (allowPointerMotion) window.removeEventListener("mousemove", onMouse);
+      if (motionFrameRef.current) cancelAnimationFrame(motionFrameRef.current);
     };
   }, []);
 
@@ -1253,6 +1270,8 @@ const LessonsPage = () => {
         <img
           src={lessonImage}
           alt="Banner"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out"
           style={{
             transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.05)`,

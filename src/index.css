@@ -125,6 +125,37 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   gap: 1rem;
 }
 
+/* Skip paint/layout work for large below-the-fold collections. */
+.student-glass-card,
+.lg-project-card,
+.certificate-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
+/* Keep animated effects composited and avoid costly interaction work on touch. */
+@media (hover: none), (pointer: coarse) {
+  .student-glass-card:hover,
+  .lg-project-card:hover,
+  .ui-card:hover {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  [class*="blur-3xl"] {
+    animation: none !important;
+  }
+}
+
+@media print {
+  .student-glass-card,
+  .lg-project-card,
+  .certificate-card {
+    content-visibility: visible;
+  }
+}
+
 @media (min-width: 640px) {
   .ui-container { width: min(100% - 3rem, 80rem); }
 }

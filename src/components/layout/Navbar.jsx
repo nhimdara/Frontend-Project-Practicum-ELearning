@@ -43,31 +43,28 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   // Check if mobile/tablet view
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+      const nextIsMobile = window.innerWidth < 1024;
+      setIsMobile((current) =>
+        current === nextIsMobile ? current : nextIsMobile,
+      );
+      if (!nextIsMobile) setIsMobileMenuOpen(false);
     };
     checkMobile();
-    window.addEventListener("resize", checkMobile);
+    window.addEventListener("resize", checkMobile, { passive: true });
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Scroll effect
   useEffect(() => {
     const onScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const nextScrolled = window.scrollY > 20;
+      setIsScrolled((current) =>
+        current === nextScrolled ? current : nextScrolled,
+      );
     };
-    window.addEventListener("scroll", onScroll);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Close menus on resize
-  useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // Close menus on click outside

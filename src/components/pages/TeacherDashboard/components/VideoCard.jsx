@@ -34,6 +34,8 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
           <img
             src={thumb}
             alt={video.title}
+            loading="lazy"
+            decoding="async"
             style={{
               width: "100%",
               height: "100%",
@@ -58,7 +60,6 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
           </div>
         )}
         <div
-          className={`teacher-access-badge ${isFree ? "is-free" : "is-paid"}`}
           style={{
             position: "absolute",
             top: "50%",
@@ -76,6 +77,7 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
           <Play size={16} fill="#fff" color="#fff" style={{ marginLeft: 2 }} />
         </div>
         <div
+          className={`teacher-access-badge ${isFree ? "is-free" : "is-paid"}`}
           style={{
             position: "absolute",
             top: 8,

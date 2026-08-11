@@ -4,7 +4,14 @@ import Toast from "./components/Toast";
 import VideoCard from "./components/VideoCard";
 import VideoFormModal from "./components/VideoFormModal";
 // TeacherDashboard.jsx — Complete with major filtering
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useDeferredValue,
+  useMemo,
+  useRef,
+} from "react";
 import { API_BASE_URL } from "../../../config/api";
 import ExamQuestionForm from "../ExamQuestionForm";
 import logo from "../../assets/image/logo.png";
@@ -98,6 +105,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   // ========== TEACHER'S MAJOR from session ==========
   const teacherMajor = user?.major || null;
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   useEffect(() => {
     applyStoredTheme(themeMode);
@@ -220,44 +228,48 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   // New videos belong to the signed-in teacher. Legacy rows without a
   // teacher_id remain visible when they belong to one of the teacher's lessons.
-  const teacherLessonIds = lessons.map((l) => String(l.id));
-  const teacherVideos = dedupeVideosByLessonSlot(
-    videos.filter(
-      (v) =>
-        teacherLessonIds.includes(String(v.lesson_id)) &&
-        (!v.teacher_id || String(v.teacher_id) === String(user?.id)),
-    ),
+  const teacherVideos = useMemo(() => {
+    const teacherLessonIds = new Set(lessons.map((lesson) => String(lesson.id)));
+    return dedupeVideosByLessonSlot(
+      videos.filter(
+        (video) =>
+          teacherLessonIds.has(String(video.lesson_id)) &&
+          (!video.teacher_id || String(video.teacher_id) === String(user?.id)),
+      ),
+    );
+  }, [lessons, user?.id, videos]);
+
+  const stats = useMemo(
+    () => ({
+      totalVideos: teacherVideos.length,
+      freeVideos: teacherVideos.filter((v) => Number(v.is_free) === 1).length,
+      paidVideos: teacherVideos.filter((v) => Number(v.is_free) !== 1).length,
+      lessonsWithVideo: new Set(teacherVideos.map((v) => v.lesson_id)).size,
+      totalMinutes: teacherVideos.reduce((sum, video) => {
+        const duration = Number(video.duration_minutes);
+        return sum + (Number.isFinite(duration) && duration > 0 ? duration : 0);
+      }, 0),
+    }),
+    [teacherVideos],
   );
 
-  const stats = {
-    totalVideos: teacherVideos.length,
-    freeVideos: teacherVideos.filter((v) => Number(v.is_free) === 1).length,
-    paidVideos: teacherVideos.filter((v) => Number(v.is_free) !== 1).length,
-    lessonsWithVideo: [...new Set(teacherVideos.map((v) => v.lesson_id))]
-      .length,
-    totalMinutes: teacherVideos.reduce((sum, video) => {
-      const duration = Number(video.duration_minutes);
-      return sum + (Number.isFinite(duration) && duration > 0 ? duration : 0);
-    }, 0),
-  };
-
   // Filtered videos - only show teacher's videos
-  const filteredVideos = teacherVideos.filter((v) => {
-    const matchLesson =
-      filterLesson === "all" || String(v.lesson_id) === String(filterLesson);
-    const matchSearch =
-      !searchQuery ||
-      String(v.title || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      String(v.description || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-    return matchLesson && matchSearch;
-  });
+  const filteredVideos = useMemo(() => {
+    const normalizedSearch = deferredSearchQuery.trim().toLowerCase();
+    return teacherVideos.filter((video) => {
+      const matchLesson =
+        filterLesson === "all" ||
+        String(video.lesson_id) === String(filterLesson);
+      const matchSearch =
+        !normalizedSearch ||
+        String(video.title || "").toLowerCase().includes(normalizedSearch) ||
+        String(video.description || "").toLowerCase().includes(normalizedSearch);
+      return matchLesson && matchSearch;
+    });
+  }, [deferredSearchQuery, filterLesson, teacherVideos]);
 
   // Filter lessons based on selected filters
-  const getFilteredLessons = () => {
+  const filteredLessons = useMemo(() => {
     let result = lessons;
 
     if (selectedSubject) {
@@ -277,19 +289,26 @@ const TeacherDashboard = ({ user, onLogout }) => {
     }
 
     return result;
-  };
-
-  const filteredLessons = getFilteredLessons();
+  }, [lessons, selectedSemester, selectedSubject, selectedYear, subjects]);
 
   // Videos grouped by lesson
-  const videosByLesson = filteredLessons
-    .map((lesson) => ({
-      lesson,
-      videos: teacherVideos
-        .filter((v) => String(v.lesson_id) === String(lesson.id))
-        .sort((a, b) => a.order_index - b.order_index),
-    }))
-    .filter((g) => g.videos.length > 0);
+  const videosByLesson = useMemo(() => {
+    const groupedVideos = new Map();
+    teacherVideos.forEach((video) => {
+      const lessonId = String(video.lesson_id);
+      const group = groupedVideos.get(lessonId) || [];
+      group.push(video);
+      groupedVideos.set(lessonId, group);
+    });
+    return filteredLessons
+      .map((lesson) => ({
+        lesson,
+        videos: (groupedVideos.get(String(lesson.id)) || []).sort(
+          (a, b) => a.order_index - b.order_index,
+        ),
+      }))
+      .filter((group) => group.videos.length > 0);
+  }, [filteredLessons, teacherVideos]);
 
   // Save handler
   const handleSave = useCallback(

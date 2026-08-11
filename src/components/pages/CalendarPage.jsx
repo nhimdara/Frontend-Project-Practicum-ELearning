@@ -1,5 +1,5 @@
 // pages/CalendarPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../../config/api";
 import {
   Search,
@@ -350,6 +350,7 @@ const CalendarPage = ({ user }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const motionFrameRef = useRef(null);
 
   // Fetch lessons when major changes
   useEffect(() => {
@@ -370,19 +371,32 @@ const CalendarPage = ({ user }) => {
   // Scroll and mouse effects
   useEffect(() => {
     const onScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
-    };
-    const onMouse = (e) =>
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 18,
-        y: (e.clientY / window.innerHeight - 0.5) * 18,
+      if (motionFrameRef.current) return;
+      motionFrameRef.current = requestAnimationFrame(() => {
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
+        motionFrameRef.current = null;
       });
-    window.addEventListener("scroll", onScroll);
-    window.addEventListener("mousemove", onMouse);
+    };
+    const allowPointerMotion = window.matchMedia(
+      "(hover: hover) and (prefers-reduced-motion: no-preference)",
+    ).matches;
+    const onMouse = (event) => {
+      if (motionFrameRef.current) return;
+      motionFrameRef.current = requestAnimationFrame(() => {
+        setMousePos({
+          x: (event.clientX / window.innerWidth - 0.5) * 18,
+          y: (event.clientY / window.innerHeight - 0.5) * 18,
+        });
+        motionFrameRef.current = null;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (allowPointerMotion) window.addEventListener("mousemove", onMouse);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("mousemove", onMouse);
+      if (allowPointerMotion) window.removeEventListener("mousemove", onMouse);
+      if (motionFrameRef.current) cancelAnimationFrame(motionFrameRef.current);
     };
   }, []);
 
@@ -482,6 +496,8 @@ const CalendarPage = ({ user }) => {
         <img
           src={lessonBanner}
           alt="Curriculum Banner"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
           style={{
             transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.1)`,

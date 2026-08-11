@@ -349,6 +349,8 @@
   height: 100%;
   border-radius: 20px !important;
   overflow: hidden;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 360px;
 }
 
 .teacher-lessons-grid {
@@ -359,6 +361,39 @@
 .teacher-lessons-grid > div,
 .teacher-settings-card {
   border-radius: 20px !important;
+}
+
+.teacher-lessons-grid > div {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
+.teacher-main {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.teacher-main::before,
+.teacher-main::after,
+.teacher-blob-3 {
+  will-change: transform;
+  contain: strict;
+}
+
+@media (max-width: 1024px) {
+  .teacher-main::before,
+  .teacher-main::after,
+  .teacher-blob-3 {
+    animation: none !important;
+    opacity: 0.22;
+  }
+
+  .teacher-stats-grid > div:hover,
+  .teacher-video-grid > div:hover,
+  .teacher-lessons-grid > div:hover,
+  .teacher-settings-card:hover {
+    transform: none !important;
+  }
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•

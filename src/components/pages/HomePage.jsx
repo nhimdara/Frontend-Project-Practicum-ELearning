@@ -44,19 +44,25 @@ const ParticleCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const compactDevice = window.matchMedia("(max-width: 768px)").matches;
+    let isVisible = !document.hidden;
+    let isIntersecting = true;
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.round(canvas.offsetWidth * ratio);
+      canvas.height = Math.round(canvas.offsetHeight * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
     resize();
     window.addEventListener("resize", resize);
 
     // Create particles
-    const COUNT = 120;
+    const COUNT = reducedMotion ? 0 : compactDevice ? 36 : 64;
     const particles = Array.from({ length: COUNT }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * canvas.offsetWidth,
+      y: Math.random() * canvas.offsetHeight,
       r: Math.random() * 1.6 + 0.3,
       vx: (Math.random() - 0.5) * 0.25,
       vy: (Math.random() - 0.5) * 0.25,
@@ -65,16 +71,20 @@ const ParticleCanvas = () => {
     }));
 
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!isVisible || !isIntersecting) {
+        rafRef.current = null;
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
 
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
         p.pulse += 0.012;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+        if (p.x < 0) p.x = canvas.offsetWidth;
+        if (p.x > canvas.offsetWidth) p.x = 0;
+        if (p.y < 0) p.y = canvas.offsetHeight;
+        if (p.y > canvas.offsetHeight) p.y = 0;
 
         const a = p.alpha * (0.7 + 0.3 * Math.sin(p.pulse));
 
@@ -113,9 +123,37 @@ const ParticleCanvas = () => {
       rafRef.current = requestAnimationFrame(draw);
     };
 
-    draw();
+    const start = () => {
+      if (!rafRef.current && isVisible && isIntersecting && COUNT > 0) {
+        rafRef.current = requestAnimationFrame(draw);
+      }
+    };
+    const onVisibilityChange = () => {
+      isVisible = !document.hidden;
+      if (!isVisible && rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      } else {
+        start();
+      }
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      isIntersecting = entry.isIntersecting;
+      if (!isIntersecting && rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      } else {
+        start();
+      }
+    });
+    observer.observe(canvas);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    start();
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", resize);
     };
   }, []);
@@ -135,14 +173,22 @@ const CursorSpotlight = ({ containerRef }) => {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    const allowSpotlight = window.matchMedia(
+      "(hover: hover) and (prefers-reduced-motion: no-preference)",
+    ).matches;
+    if (!allowSpotlight) return undefined;
+    let frame = null;
 
     const move = (e) => {
-      if (!spotRef.current) return;
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      spotRef.current.style.transform = `translate(${x}px, ${y}px)`;
-      spotRef.current.style.opacity = "1";
+      if (!spotRef.current || frame) return;
+      frame = requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        spotRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        spotRef.current.style.opacity = "1";
+        frame = null;
+      });
     };
     const leave = () => {
       if (spotRef.current) spotRef.current.style.opacity = "0";
@@ -153,6 +199,7 @@ const CursorSpotlight = ({ containerRef }) => {
     return () => {
       container.removeEventListener("mousemove", move);
       container.removeEventListener("mouseleave", leave);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, [containerRef]);
 
@@ -530,6 +577,8 @@ const HomePage = () => {
           alt="EduLearn campus"
           className="hero-bg"
           loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
 
         {/* Particle field */}
