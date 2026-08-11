@@ -1,10 +1,33 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  User, Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap,
-  BookOpen, Award, Globe, Github, Linkedin, Twitter,
-  Camera, Save, X, Edit2, Check, Shield, Star,
-  FolderGit2, Plus, Link, ExternalLink, Code2, Trash2,
-  Upload, Image as ImageIcon
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Briefcase,
+  GraduationCap,
+  BookOpen,
+  Award,
+  Globe,
+  Github,
+  Linkedin,
+  Twitter,
+  Camera,
+  Save,
+  X,
+  Edit2,
+  Check,
+  Shield,
+  Star,
+  FolderGit2,
+  Plus,
+  Link,
+  ExternalLink,
+  Code2,
+  Trash2,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
 import { API_BASE_URL } from "../../../config/api";
@@ -31,7 +54,11 @@ const normalizeProfile = (source = {}) => {
     role,
     dbRole: source.dbRole || (role === "client" ? "student" : role),
     displayRole:
-      role === "client" ? "Student" : role ? role.charAt(0).toUpperCase() + role.slice(1) : "Student",
+      role === "client"
+        ? "Student"
+        : role
+          ? role.charAt(0).toUpperCase() + role.slice(1)
+          : "Student",
     joinDate: source.joinDate || source.created_at || new Date().toISOString(),
     major: source.major || "",
     progress: Number(source.progress || 0),
@@ -183,11 +210,12 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     live: "",
     featured: false,
     category: "Software",
-    completedDate: new Date().toISOString().split('T')[0]
+    completedDate: new Date().toISOString().split("T")[0],
   });
   const [techInput, setTechInput] = useState("");
 
-  const handleInput = (e) => setEditForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleInput = (e) =>
+    setEditForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSave = async () => {
     if (profileSaving) return;
@@ -201,7 +229,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       const userId = user.id || initialUser?.id;
       let saved = normalizeProfile(editForm);
       if (userId && !String(userId).startsWith("user-")) {
-        saved = normalizeProfile(await profileApi.updateProfile(userId, editForm));
+        saved = normalizeProfile(
+          await profileApi.updateProfile(userId, editForm),
+        );
         syncStoredSession(saved);
       }
       setUser(saved);
@@ -218,9 +248,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     }
   };
 
-  const handleCancel = () => { 
-    setEditForm({ ...user }); 
-    setIsEditing(false); 
+  const handleCancel = () => {
+    setEditForm({ ...user });
+    setIsEditing(false);
   };
 
   const addSkill = () => {
@@ -252,7 +282,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         e.target.value = "";
         return;
       }
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         setProfileError("Please choose a valid image file.");
         e.target.value = "";
         return;
@@ -296,7 +326,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     setShowAvatarModal(false);
     setAvatarPreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -312,7 +342,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         live: project.live || "",
         featured: false,
         category: project.category || "Software",
-        completedDate: project.completedDate || new Date().toISOString().split('T')[0]
+        completedDate:
+          project.completedDate || new Date().toISOString().split("T")[0],
       });
     } else {
       setEditingProject(null);
@@ -325,7 +356,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         live: "",
         featured: false,
         category: "Software",
-        completedDate: new Date().toISOString().split('T')[0]
+        completedDate: new Date().toISOString().split("T")[0],
       });
     }
     setShowProjectModal(true);
@@ -336,10 +367,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   };
 
   const addTechnology = () => {
-    if (techInput.trim() && !projectForm.technologies.includes(techInput.trim())) {
+    if (
+      techInput.trim() &&
+      !projectForm.technologies.includes(techInput.trim())
+    ) {
       setProjectForm({
         ...projectForm,
-        technologies: [...projectForm.technologies, techInput.trim()]
+        technologies: [...projectForm.technologies, techInput.trim()],
       });
       setTechInput("");
     }
@@ -348,7 +382,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   const removeTechnology = (tech) => {
     setProjectForm({
       ...projectForm,
-      technologies: projectForm.technologies.filter(t => t !== tech)
+      technologies: projectForm.technologies.filter((t) => t !== tech),
     });
   };
 
@@ -359,8 +393,11 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
     setProjectSubmitting(true);
     setProfileError("");
-    const studentMajor = user.major || initialUser?.major || editForm.major || "";
-    const majorTag = studentMajor ? `${PROJECT_MAJOR_PREFIX}${studentMajor}` : null;
+    const studentMajor =
+      user.major || initialUser?.major || editForm.major || "";
+    const majorTag = studentMajor
+      ? `${PROJECT_MAJOR_PREFIX}${studentMajor}`
+      : null;
 
     const projectPayload = {
       title: projectForm.title.trim(),
@@ -394,7 +431,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       });
       const savedProject = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(savedProject.error || "Could not submit project request.");
+        throw new Error(
+          savedProject.error || "Could not submit project request.",
+        );
       }
 
       const requestedProject = {
@@ -414,7 +453,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
       };
 
       const updatedProjects = editingProject
-        ? projects.map((p) => (p.id === editingProject.id ? requestedProject : p))
+        ? projects.map((p) =>
+            p.id === editingProject.id ? requestedProject : p,
+          )
         : [...projects, requestedProject];
 
       setProjects(updatedProjects);
@@ -438,12 +479,14 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
       setProfileError("");
       try {
-        const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, { method: "DELETE" });
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+          method: "DELETE",
+        });
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
           throw new Error(data.error || "Could not delete project request.");
         }
-        const updatedProjects = projects.filter(p => p.id !== projectId);
+        const updatedProjects = projects.filter((p) => p.id !== projectId);
         setProjects(updatedProjects);
         writeStoredProjects(projectStorageKey, updatedProjects);
         setSuccessMessage("Project deleted successfully!");
@@ -465,54 +508,105 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        .prof-root { 
-          font-family: 'DM Sans', sans-serif; 
-          background: linear-gradient(160deg, #f8f8ff, #f0f0fe);
-          min-height: 100vh;
+        .lg-root {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          min-height: 100dvh;
+          position: relative;
+          isolation: isolate;
+          overflow-x: hidden;
+          background: 
+            radial-gradient(ellipse 80% 60% at 10% 10%, rgba(99,102,241,0.18) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 90% 20%, rgba(14,165,233,0.14) 0%, transparent 50%),
+            radial-gradient(ellipse 70% 50% at 50% 90%, rgba(139,92,246,0.12) 0%, transparent 50%),
+            linear-gradient(165deg, #f0f4ff 0%, #eef2ff 40%, #f5f3ff 100%);
+          background-attachment: fixed;
           padding-top: 96px;
           padding-bottom: 64px;
         }
         
-        .prof-heading { 
-          font-family: 'Playfair Display', serif; 
+        .lg-root::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          z-index: -2;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          opacity: 0.6;
+          pointer-events: none;
         }
-        
-        .prof-card { 
-          background: white; 
-          border-radius: 24px; 
-          border: 1px solid #f0f0f8; 
-          box-shadow: 0 2px 20px rgba(0,0,0,0.04); 
-          height: fit-content;
+
+        .lg-glass {
+          background: rgba(255, 255, 255, 0.55);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.65);
+          box-shadow: 
+            0 8px 32px rgba(99, 102, 241, 0.07),
+            0 2px 8px rgba(99, 102, 241, 0.04),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
-        
-        .form-field {
-          width: 100%; 
-          padding: 10px 14px; 
-          border-radius: 12px; 
-          font-size: 14px; 
+
+        .lg-glass-strong {
+          background: rgba(255, 255, 255, 0.72);
+          backdrop-filter: blur(32px) saturate(200%);
+          -webkit-backdrop-filter: blur(32px) saturate(200%);
+          border: 1px solid rgba(255, 255, 255, 0.75);
+          box-shadow: 
+            0 12px 40px rgba(99, 102, 241, 0.1),
+            0 4px 12px rgba(99, 102, 241, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .lg-glass-dark {
+          background: rgba(15, 23, 42, 0.65);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .lg-input {
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1.5px solid rgba(99, 102, 241, 0.15);
+          border-radius: 16px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #1e1b4b;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           outline: none;
-          border: 1.5px solid #e5e7eb; 
-          background: #fafafa; 
-          transition: all 0.15s; 
-          font-family: 'DM Sans', sans-serif;
+          width: 100%;
+          box-shadow: inset 0 2px 4px rgba(99, 102, 241, 0.03);
         }
-        
-        .form-field:focus { 
-          border-color: #a5b4fc; 
-          background: white; 
-          box-shadow: 0 0 0 3px rgba(165,180,252,0.2); 
+
+        .lg-input:hover {
+          background: rgba(255, 255, 255, 0.75);
+          border-color: rgba(99, 102, 241, 0.25);
         }
-        
-        .tab-btn {
-          display: flex; 
-          align-items: center; 
-          gap: 8px; 
-          padding: 8px 18px;
-          border-radius: 12px; 
-          font-size: 14px; 
-          font-weight: 600; 
+
+        .lg-input:focus {
+          background: rgba(255, 255, 255, 0.9);
+          border-color: rgba(99, 102, 241, 0.4);
+          box-shadow: 
+            0 0 0 4px rgba(99, 102, 241, 0.1),
+            inset 0 2px 4px rgba(99, 102, 241, 0.05);
+        }
+
+        .lg-btn-primary {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 16px;
+          padding: 12px 24px;
+          font-size: 14px;
+          font-weight: 600;
           cursor: pointer;
           border: none; 
           background: transparent; 
@@ -521,8 +615,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         
         .tab-btn.active { 
-          background: var(--accent-light); 
-          color: var(--accent-color); 
+          background: #eef2ff; 
+          color: #4f46e5; 
         }
         
         .tab-btn:not(.active) { 
@@ -549,13 +643,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           display: inline-flex; 
           align-items: center; 
           gap: 6px;
-          padding: 5px 14px; 
-          border-radius: 99px; 
-          font-size: 13px; 
+          padding: 6px 14px;
+          border-radius: 99px;
+          font-size: 13px;
           font-weight: 600;
-          background: var(--accent-light); 
-          color: var(--accent-color); 
-          border: 1.5px solid var(--accent-border);
+          background: #eef2ff; 
+          color: #4f46e5; 
+          border: 1.5px solid #c7d2fe;
           transition: all 0.15s;
         }
         
@@ -589,76 +683,99 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-radius: 14px; 
           font-size: 14px; 
           font-weight: 600;
-          background: var(--accent-gradient); 
+          background: linear-gradient(135deg, #6366f1, #8b5cf6); 
           color: white; 
           border: none; 
           cursor: pointer;
-          box-shadow: 0 4px 16px var(--accent-glow); 
+          box-shadow: 0 4px 16px rgba(99,102,241,0.3); 
           transition: all 0.2s; 
           font-family: 'DM Sans', sans-serif;
         }
-        
-        .primary-btn:hover { 
-          opacity: 0.9; 
-          transform: translateY(-1px); 
-        }
-        
-        .ghost-btn {
-          padding: 10px 20px; 
-          border-radius: 14px; 
-          font-size: 14px; 
-          font-weight: 600;
-          background: white; 
-          color: #374151; 
-          border: 1.5px solid #e5e7eb; 
-          cursor: pointer;
-          transition: all 0.15s; 
-          font-family: 'DM Sans', sans-serif;
+
+        .lg-cover-shine::after {
+          content: "";
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(255,255,255,0.15) 50%,
+            transparent 70%
+          );
+          animation: shine 8s infinite;
         }
         
         .ghost-btn:hover { 
-          border-color: var(--accent-border); 
-          color: var(--accent-color); 
+          border-color: #a5b4fc; 
+          color: #4f46e5; 
         }
-        
-        .project-card {
-          background: white;
-          border-radius: 20px;
-          border: 1px solid #f0f0f8;
+
+        .lg-project-card {
+          background: rgba(255, 255, 255, 0.5);
+          backdrop-filter: blur(20px) saturate(160%);
+          -webkit-backdrop-filter: blur(20px) saturate(160%);
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          border-radius: 24px;
           overflow: hidden;
-          transition: all 0.3s;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 
+            0 4px 24px rgba(99, 102, 241, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
-        
-        .project-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 20px 40px rgba(99,102,241,0.12);
+
+        .lg-project-card:hover {
+          transform: translateY(-4px) scale(1.005);
+          background: rgba(255, 255, 255, 0.65);
+          box-shadow: 
+            0 20px 50px rgba(99, 102, 241, 0.12),
+            0 8px 20px rgba(99, 102, 241, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+          border-color: rgba(99, 102, 241, 0.25);
         }
-        
-        .modal-overlay {
+
+        .lg-modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.7);
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           z-index: 1000;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 20px;
+          animation: fadeIn 0.3s ease;
         }
-        
-        .modal-content {
-          background: white;
+
+        .lg-modal {
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(40px) saturate(200%);
+          -webkit-backdrop-filter: blur(40px) saturate(200%);
+          border: 1px solid rgba(255, 255, 255, 0.8);
           border-radius: 32px;
           max-width: 600px;
           width: 100%;
           max-height: 90vh;
           overflow-y: auto;
-          padding: 32px;
-          animation: modalFadeIn 0.3s ease;
+          padding: 36px;
+          box-shadow: 
+            0 24px 80px rgba(99, 102, 241, 0.15),
+            0 8px 24px rgba(0, 0, 0, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.95);
+          animation: modalUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        @keyframes modalFadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes modalUp {
+          from { opacity: 0; transform: translateY(30px) scale(0.96); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
         .tech-tag {
@@ -666,8 +783,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           align-items: center;
           gap: 6px;
           padding: 6px 12px;
-          background: var(--accent-light);
-          color: var(--accent-color);
+          background: #eef2ff;
+          color: #4f46e5;
           border-radius: 20px;
           font-size: 12px;
           font-weight: 600;
@@ -680,7 +797,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background: var(--accent-gradient);
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -691,7 +808,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         
         .avatar-upload-btn:hover {
           transform: scale(1.1);
-          box-shadow: 0 4px 12px var(--accent-glow);
+          box-shadow: 0 4px 12px rgba(99,102,241,0.4);
         }
         
         .avatar-preview {
@@ -707,8 +824,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         .prof-root {
           min-height:100dvh;
           background:
-            radial-gradient(circle at 8% 5%,var(--accent-light),transparent 30rem),
-            radial-gradient(circle at 94% 16%,color-mix(in srgb,var(--accent-secondary) 13%,transparent),transparent 30rem),
+            radial-gradient(circle at 8% 5%,rgba(99,102,241,.18),transparent 30rem),
+            radial-gradient(circle at 94% 16%,rgba(14,165,233,.13),transparent 30rem),
             linear-gradient(145deg,#f8faff 0%,#edf3ff 58%,#faf7ff 100%) !important;
           background-attachment:fixed !important;
         }
@@ -721,8 +838,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         .project-card:hover {
           transform:none;
-          border-color:var(--accent-border) !important;
-          box-shadow:0 30px 76px var(--accent-light),inset 0 1px 0 #fff !important;
+          border-color:rgba(99,102,241,.28) !important;
+          box-shadow:0 30px 76px rgba(79,70,229,.16),inset 0 1px 0 #fff !important;
         }
         .form-field {
           min-height:44px;
@@ -733,8 +850,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         .form-field:focus {
           background:rgba(255,255,255,.94) !important;
-          border-color:var(--accent-color) !important;
-          box-shadow:0 0 0 4px var(--accent-ring),inset 0 1px 0 #fff !important;
+          border-color:#818cf8 !important;
+          box-shadow:0 0 0 4px rgba(99,102,241,.13),inset 0 1px 0 #fff !important;
         }
         .tab-btn {
           min-height:42px;
@@ -742,40 +859,42 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-radius:15px;
         }
         .tab-btn.active {
-          background:var(--accent-light) !important;
-          border-color:var(--accent-border);
-          color:var(--accent-color) !important;
-          box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 8px 22px var(--accent-light);
-        }
-        .tab-btn:not(.active):hover { background:rgba(255,255,255,.58) !important; }
-        .ghost-btn {
-          min-height:44px;
-          background:rgba(255,255,255,.64) !important;
-          border-color:rgba(100,116,160,.18) !important;
-          box-shadow:inset 0 1px 0 rgba(255,255,255,.90);
-        }
-        .primary-btn { min-height:44px; box-shadow:0 10px 26px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22); }
-        .primary-btn:hover { transform:none; box-shadow:0 14px 30px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22); }
-        .skill-chip,.tech-tag {
-          background:var(--accent-light) !important;
-          border-color:var(--accent-border) !important;
-          color:var(--accent-color) !important;
-        }
-        .modal-overlay {
-          background:rgba(15,23,42,.56) !important;
-          padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-        }
-        .success-toast {
-          background:rgba(255,255,255,.82) !important;
-          border-color:rgba(16,185,129,.28) !important;
-          backdrop-filter:blur(22px) saturate(150%);
-          -webkit-backdrop-filter:blur(22px) saturate(150%);
+          background:rgba(99,102,241,.12) !important;
+          border-color:rgba(99,102,241,.14);
+          color:#4338ca !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 8px 22px rgba(79,70,229,.08);
         }
 
-        html.dark-mode .prof-root {
+        .lg-subtext {
+          color: #6366f1;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          font-size: 12px;
+        }
+        .primary-btn { min-height:44px; box-shadow:0 10px 26px rgba(79,70,229,.24),inset 0 1px 0 rgba(255,255,255,.22); }
+        .primary-btn:hover { transform:none; box-shadow:0 14px 30px rgba(79,70,229,.30),inset 0 1px 0 rgba(255,255,255,.22); }
+        .skill-chip,.tech-tag {
+          background:rgba(224,231,255,.72) !important;
+          border-color:rgba(99,102,241,.18) !important;
+          color:#4338ca !important;
+        }
+
+        .lg-select {
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+          background-position: right 12px center;
+          background-repeat: no-repeat;
+          background-size: 20px;
+          padding-right: 40px;
+        }
+
+        /* Dark theme: keep every glass layer and label on the same palette. */
+        html.dark-mode .lg-root {
+          color:#eef2ff;
           background:
-            radial-gradient(circle at 8% 5%,color-mix(in srgb,var(--accent-color) 23%,transparent),transparent 30rem),
-            radial-gradient(circle at 94% 16%,color-mix(in srgb,var(--accent-secondary) 13%,transparent),transparent 30rem),
+            radial-gradient(circle at 8% 5%,rgba(99,102,241,.23),transparent 30rem),
+            radial-gradient(circle at 94% 16%,rgba(14,165,233,.13),transparent 30rem),
             linear-gradient(145deg,#070816 0%,#0c1024 58%,#0d0b1d 100%) !important;
         }
         html.dark-mode .prof-card,html.dark-mode .project-card,html.dark-mode .modal-content {
@@ -783,26 +902,23 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-color:rgba(165,180,252,.17) !important;
           box-shadow:0 30px 76px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.07) !important;
         }
-        html.dark-mode .prof-heading,
-        html.dark-mode .prof-card h2,html.dark-mode .prof-card h3,
-        html.dark-mode .project-card h4,html.dark-mode .modal-content h3 {
-          color:#f4f7ff !important;
+        html.dark-mode .lg-glass-strong { background:rgba(20,24,52,.82); }
+        html.dark-mode .lg-project-card:hover {
+          background:rgba(27,33,66,.88);
+          border-color:rgba(129,140,248,.32);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 22px 54px rgba(0,0,0,.34);
         }
-        html.dark-mode .form-field {
-          background:rgba(7,8,22,.54) !important;
-          border-color:rgba(165,180,252,.20) !important;
-          color:#f4f7ff !important;
-        }
-        html.dark-mode .form-field:focus {
-          background:rgba(12,15,34,.88) !important;
-          border-color:#818cf8 !important;
-          box-shadow:0 0 0 4px rgba(129,140,248,.14) !important;
+        html.dark-mode .lg-heading {
+          background:linear-gradient(135deg,#ffffff 0%,#c7d2fe 55%,#93c5fd 100%);
+          -webkit-background-clip:text;
+          background-clip:text;
+          -webkit-text-fill-color:transparent;
         }
         html.dark-mode .tab-btn { color:#a8b1d6 !important; }
         html.dark-mode .tab-btn.active {
           color:#f4f7ff !important;
-          background:var(--accent-light) !important;
-          border-color:var(--accent-border);
+          background:rgba(99,102,241,.22) !important;
+          border-color:rgba(165,180,252,.18);
           box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
         }
         html.dark-mode .ghost-btn {
@@ -811,140 +927,50 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           color:#d7def7 !important;
         }
         html.dark-mode .skill-chip,html.dark-mode .tech-tag {
-          background:var(--accent-light) !important;
-          border-color:var(--accent-border) !important;
-          color:var(--accent-color) !important;
+          background:rgba(99,102,241,.18) !important;
+          border-color:rgba(165,180,252,.20) !important;
+          color:#c7d2fe !important;
         }
-        html.dark-mode .modal-overlay { background:rgba(3,5,14,.78) !important; }
-        html.dark-mode .success-toast {
-          background:rgba(16,18,42,.88) !important;
-          border-color:rgba(52,211,153,.28) !important;
-        }
-
-        @media (max-width: 1024px) {
-          .prof-root .lg\\:col-span-1 {
-            margin-bottom: 24px;
-          }
-          
-          .prof-root .sticky {
-            position: relative;
-            top: 0;
-          }
-        }
+        html.dark-mode .lg-input:hover { background:rgba(11,15,36,.78); border-color:rgba(165,180,252,.3); }
+        html.dark-mode .lg-input:focus { background:rgba(13,17,40,.92); border-color:#818cf8; }
+        html.dark-mode .lg-input::placeholder { color:#727b9d; }
+        html.dark-mode .lg-btn-ghost { color:#dbe2ff; background:rgba(255,255,255,.07); border-color:rgba(165,180,252,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+        html.dark-mode .lg-btn-ghost:hover { color:#fff; background:rgba(99,102,241,.17); }
+        html.dark-mode .lg-chip { color:#c7d2fe; background:rgba(99,102,241,.18); border-color:rgba(165,180,252,.2); box-shadow:inset 0 1px 0 rgba(255,255,255,.05); }
+        html.dark-mode .lg-modal { background:rgba(17,21,45,.92); border-color:rgba(165,180,252,.17); box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 28px 90px rgba(0,0,0,.55); }
+        html.dark-mode .lg-modal-overlay { background:rgba(2,4,13,.76); }
+        html.dark-mode .lg-toast { background:rgba(17,24,45,.9); border-color:rgba(52,211,153,.3); }
+        html.dark-mode .lg-divider { background:linear-gradient(90deg,transparent,rgba(165,180,252,.2),transparent); }
+        html.dark-mode .lg-root .text-gray-900,
+        html.dark-mode .lg-root .text-gray-800,
+        html.dark-mode .lg-root .text-slate-900 { color:#f4f7ff !important; }
+        html.dark-mode .lg-root .text-gray-700,
+        html.dark-mode .lg-root .text-slate-700 { color:#d6ddf3 !important; }
+        html.dark-mode .lg-root .text-gray-600,
+        html.dark-mode .lg-root .text-gray-500,
+        html.dark-mode .lg-root .text-slate-500 { color:#aab4d1 !important; }
+        html.dark-mode .lg-root .text-gray-400 { color:#8792b5 !important; }
 
         @media (max-width: 768px) {
-          .prof-root {
-            padding-top:max(82px,calc(70px + env(safe-area-inset-top)));
-            padding-bottom:max(28px,env(safe-area-inset-bottom));
+          .lg-root {
+            padding-top: 80px;
+            padding-bottom: 40px;
           }
-          
-          .prof-heading {
-            font-size: 2rem;
+          .lg-modal {
+            margin: 0;
+            border-radius: 28px 28px 0 0;
+            max-height: calc(100dvh - 20px);
+            padding: 28px 20px;
           }
-          
-          .prof-root .flex-col.sm\\:flex-row {
-            flex-direction: column;
-            align-items: flex-start;
+          .lg-modal-overlay {
+            align-items: flex-end;
+            padding: 0;
           }
-          
-          .tab-btn {
-            flex:0 0 auto;
-            padding:8px 13px;
-            font-size: 13px;
-          }
-
-          .prof-root .flex.gap-2.mb-6.flex-wrap {
-            flex-wrap:nowrap !important;
-            overflow-x:auto;
-            scrollbar-width:none;
-            padding:2px 1px 7px;
-          }
-
-          .prof-root .flex.gap-2.mb-6.flex-wrap::-webkit-scrollbar { display:none; }
-          
-          .project-card .md\\:w-48 {
-            width: 100%;
-            height: 200px;
-          }
-          
-          .project-card .md\\:w-48 img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          
-          .project-card .flex-1.p-6 {
-            padding: 16px;
-          }
-          
-          .modal-content {
-            max-height:calc(100dvh - max(16px,env(safe-area-inset-top))) !important;
-            padding:24px 18px max(22px,env(safe-area-inset-bottom));
-            margin:0;
-            border-radius:26px 26px 0 0 !important;
-          }
-
-          .modal-overlay { align-items:flex-end; padding:0; }
-          
-          .grid-cols-1.sm\\:grid-cols-2 {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .prof-root {
-            padding-top: 72px;
-          }
-          
-          .prof-heading {
-            font-size: 1.75rem;
-          }
-          
-          .avatar-upload-btn {
-            width: 32px;
-            height: 32px;
-          }
-          
-          .avatar-upload-btn svg {
-            width: 14px;
-            height: 14px;
-          }
-          
-          .prof-card.p-6 {
-            padding: 16px;
-          }
-          
-          .flex.items-center.gap-3.p-4 {
-            flex-direction: column;
-            text-align: center;
-          }
-          
-          .flex.items-center.gap-3.p-4 button {
-            width: 100%;
-          }
-          
-          .project-card .flex-col.md\\:flex-row {
-            flex-direction: column;
-          }
-          
-          .project-card .flex.gap-4.mt-4 {
-            flex-wrap: wrap;
-          }
-          
-          .project-card .flex.gap-2.mt-4 {
-            flex-wrap: wrap;
-          }
-          
-          .project-card .flex.gap-2.mt-4 button {
-            flex: 1;
-          }
-          
-          .modal-content {
-            padding: 20px;
-          }
-          
-          .modal-content .grid-cols-2 {
-            grid-template-columns: 1fr;
+          .lg-toast {
+            left: 16px;
+            right: 16px;
+            top: auto;
+            bottom: 24px;
           }
         }
       `}</style>
@@ -955,13 +981,15 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         ref={fileInputRef}
         onChange={handleAvatarChange}
         accept="image/*"
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
 
       {showSuccess && (
-        <div className="success-toast" role="status" aria-live="polite">
-          <Check className="h-5 w-5 text-green-500" />
-          <p className="text-sm font-semibold text-green-700">{successMessage}</p>
+        <div className="lg-toast" role="status" aria-live="polite">
+          <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+            <Check className="h-4 w-4 text-emerald-600" />
+          </div>
+          <p className="text-sm font-bold text-emerald-800">{successMessage}</p>
         </div>
       )}
 
@@ -973,34 +1001,38 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
       {/* Avatar Upload Modal */}
       {showAvatarModal && (
-        <div className="modal-overlay" onClick={handleAvatarCancel}>
-          <div className="modal-content max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="lg-modal-overlay" onClick={handleAvatarCancel}>
+          <div
+            className="lg-modal max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Update Profile Picture</h3>
-              
-              <div className="flex justify-center mb-6">
-                <img
-                  src={avatarPreview}
-                  alt="Avatar preview"
-                  className="avatar-preview"
-                />
-              </div>
-
-              <p className="text-sm text-gray-500 mb-6">
-                Preview your new profile picture. Click Save to confirm.
+              <h3 className="lg-heading text-2xl mb-2">Update Photo</h3>
+              <p className="text-sm text-indigo-400 font-medium mb-8">
+                Preview your new profile picture
               </p>
+
+              <div className="flex justify-center mb-8">
+                <div className="lg-avatar-ring">
+                  <img
+                    src={avatarPreview}
+                    alt="Avatar preview"
+                    className="w-36 h-36 rounded-[28px] object-cover ring-4 ring-white/80 shadow-2xl"
+                  />
+                </div>
+              </div>
 
               <div className="flex gap-3">
                 <button
                   onClick={handleAvatarUpload}
-                  className="flex-1 primary-btn flex items-center justify-center gap-2"
+                  className="flex-1 lg-btn-primary flex items-center justify-center gap-2"
                 >
                   <Check className="h-4 w-4" />
-                  Save Avatar
+                  Save Photo
                 </button>
                 <button
                   onClick={handleAvatarCancel}
-                  className="flex-1 ghost-btn"
+                  className="flex-1 lg-btn-ghost"
                 >
                   Cancel
                 </button>
@@ -1008,9 +1040,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
               <button
                 onClick={handleAvatarClick}
-                className="mt-3 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
+                className="mt-4 text-sm font-semibold text-indigo-500 hover:text-indigo-700 transition-colors"
               >
-                Choose different image
+                Choose a different image
               </button>
             </div>
           </div>
@@ -1019,58 +1051,65 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
       {/* Project Modal */}
       {showProjectModal && (
-        <div className="modal-overlay" onClick={() => setShowProjectModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">
-                {editingProject ? "Edit Project Request" : "Request Project Approval"}
-              </h3>
+        <div
+          className="lg-modal-overlay"
+          onClick={() => setShowProjectModal(false)}
+        >
+          <div className="lg-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="lg-heading text-2xl">
+                  {editingProject ? "Edit Project" : "New Project"}
+                </h3>
+                <p className="text-xs text-indigo-400 font-semibold mt-1 uppercase tracking-wider">
+                  {editingProject
+                    ? "Update your request"
+                    : "Submit for approval"}
+                </p>
+              </div>
               <button
                 onClick={() => setShowProjectModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="w-10 h-10 rounded-2xl bg-white/60 hover:bg-white/90 flex items-center justify-center transition-all border border-indigo-100"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-indigo-400" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                  Project Title *
-                </label>
+                <label className="lg-subtext mb-2 block">Project Title *</label>
                 <input
                   type="text"
                   name="title"
                   value={projectForm.title}
                   onChange={handleProjectInput}
-                  className="form-field"
+                  className="lg-input"
                   placeholder="e.g., Arduino Weather Station"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                  Description *
-                </label>
+                <label className="lg-subtext mb-2 block">Description *</label>
                 <textarea
                   name="description"
                   value={projectForm.description}
                   onChange={handleProjectInput}
                   rows={3}
-                  className="form-field resize-none"
+                  className="lg-input resize-none"
                   placeholder="Describe your project..."
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                  Technologies Used
-                </label>
-                <div className="flex gap-2 mb-2 flex-wrap">
-                  {projectForm.technologies.map(tech => (
-                    <span key={tech} className="tech-tag">
+                <label className="lg-subtext mb-2 block">Technologies</label>
+                <div className="flex gap-2 mb-3 flex-wrap">
+                  {projectForm.technologies.map((tech) => (
+                    <span key={tech} className="lg-chip">
                       {tech}
-                      <button onClick={() => removeTechnology(tech)}>
+                      <button
+                        onClick={() => removeTechnology(tech)}
+                        className="hover:text-red-500 transition-colors"
+                      >
                         <X className="h-3 w-3" />
                       </button>
                     </span>
@@ -1081,13 +1120,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                     type="text"
                     value={techInput}
                     onChange={(e) => setTechInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addTechnology()}
-                    className="form-field flex-1"
-                    placeholder="Add technology (e.g., React)"
+                    onKeyPress={(e) => e.key === "Enter" && addTechnology()}
+                    className="lg-input flex-1"
+                    placeholder="Add technology..."
                   />
                   <button
                     onClick={addTechnology}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors"
+                    className="lg-btn-primary px-5"
                   >
                     Add
                   </button>
@@ -1095,7 +1134,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
+                <label className="lg-subtext mb-2 block">
                   Project Image URL
                 </label>
                 <input
@@ -1103,35 +1142,31 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   name="image"
                   value={projectForm.image}
                   onChange={handleProjectInput}
-                  className="form-field"
+                  className="lg-input"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                    GitHub URL
-                  </label>
+                  <label className="lg-subtext mb-2 block">GitHub URL</label>
                   <input
                     type="url"
                     name="github"
                     value={projectForm.github}
                     onChange={handleProjectInput}
-                    className="form-field"
+                    className="lg-input"
                     placeholder="https://github.com/..."
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                    Live Demo URL
-                  </label>
+                  <label className="lg-subtext mb-2 block">Live Demo URL</label>
                   <input
                     type="url"
                     name="live"
                     value={projectForm.live}
                     onChange={handleProjectInput}
-                    className="form-field"
+                    className="lg-input"
                     placeholder="https://..."
                   />
                 </div>
@@ -1139,14 +1174,12 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                    Category
-                  </label>
+                  <label className="lg-subtext mb-2 block">Category</label>
                   <select
                     name="category"
                     value={projectForm.category}
                     onChange={handleProjectInput}
-                    className="form-field"
+                    className="lg-input lg-select"
                   >
                     <option value="Software">Software</option>
                     <option value="Hardware">Hardware</option>
@@ -1157,7 +1190,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">
+                  <label className="lg-subtext mb-2 block">
                     Completed Date
                   </label>
                   <input
@@ -1165,22 +1198,31 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                     name="completedDate"
                     value={projectForm.completedDate}
                     onChange={handleProjectInput}
-                    className="form-field"
+                    className="lg-input"
                   />
                 </div>
               </div>
 
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                Your project will be saved as pending and will not appear on the
-                public Projects page until a teacher approves it first, then an
-                admin gives final approval.
+              <div className="rounded-2xl border border-amber-200/60 bg-amber-50/60 backdrop-blur-sm px-5 py-4 text-sm text-amber-800 font-medium">
+                <span className="flex items-start gap-2">
+                  <span className="text-amber-500 text-lg leading-none">
+                    ⚡
+                  </span>
+                  Your project will be saved as pending and will not appear on
+                  the public Projects page until a teacher approves it first,
+                  then an admin gives final approval.
+                </span>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-3 mt-8">
                 <button
                   onClick={handleSaveProject}
-                  className="flex-1 primary-btn"
-                  disabled={!projectForm.title || !projectForm.description || projectSubmitting}
+                  className="flex-1 lg-btn-primary"
+                  disabled={
+                    !projectForm.title ||
+                    !projectForm.description ||
+                    projectSubmitting
+                  }
                 >
                   {projectSubmitting
                     ? "Submitting..."
@@ -1190,7 +1232,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                 </button>
                 <button
                   onClick={() => setShowProjectModal(false)}
-                  className="flex-1 ghost-btn"
+                  className="flex-1 lg-btn-ghost"
                 >
                   Cancel
                 </button>
@@ -1200,78 +1242,110 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         </div>
       )}
 
-      <div className="prof-root">
+      <div className="lg-root">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
             <div>
-              <p className="text-sm font-semibold text-indigo-500 uppercase tracking-widest mb-1">Account</p>
-              <h1 className="prof-heading text-4xl font-bold text-gray-900">My Profile</h1>
-              <p className="text-gray-500 mt-1">Manage your personal information, avatar, and projects</p>
+              <p className="lg-subtext mb-3">Account Settings</p>
+              <h1 className="lg-heading text-5xl sm:text-6xl">My Profile</h1>
+              <p className="text-indigo-400/80 mt-2 font-medium">
+                Manage your personal information, avatar, and projects
+              </p>
             </div>
             {!isEditing ? (
-              <button onClick={() => setIsEditing(true)} className="primary-btn inline-flex items-center gap-2">
-                <Edit2 className="h-4 w-4" />Edit Profile
+              <button
+                onClick={() => setIsEditing(true)}
+                className="lg-btn-primary inline-flex items-center gap-2 self-start"
+              >
+                <Edit2 className="h-4 w-4" />
+                Edit Profile
               </button>
             ) : (
-              <div className="flex gap-3">
-                <button onClick={handleCancel} className="ghost-btn">Cancel</button>
-                <button onClick={handleSave} disabled={profileSaving} className="primary-btn inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60">
-                  <Save className="h-4 w-4" />{profileSaving ? "Saving..." : "Save Changes"}
+              <div className="flex gap-3 self-start">
+                <button onClick={handleCancel} className="lg-btn-ghost">
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={profileSaving}
+                  className="lg-btn-primary inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Save className="h-4 w-4" />
+                  {profileSaving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             )}
           </div>
 
           {profileLoading && (
-            <div className="mb-5 rounded-2xl bg-white border border-indigo-100 px-4 py-3 text-sm text-indigo-700">
+            <div className="mb-6 rounded-2xl lg-glass px-5 py-4 text-sm text-indigo-700 font-semibold flex items-center gap-3">
+              <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
               Loading your latest profile data...
             </div>
           )}
 
           {profileError && (
-            <div className="mb-5 flex items-center justify-between gap-4 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700" role="alert">
-              <span>{profileError}</span>
-              <button type="button" onClick={() => setProfileError("")} className="rounded-lg p-1 hover:bg-red-100" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
+            <div
+              className="mb-6 flex items-center justify-between gap-4 rounded-2xl bg-red-50/80 backdrop-blur-sm border border-red-200/60 px-5 py-4 text-sm text-red-700 font-semibold"
+              role="alert"
+            >
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                {profileError}
+              </span>
+              <button
+                type="button"
+                onClick={() => setProfileError("")}
+                className="rounded-xl p-2 hover:bg-red-100 transition-colors"
+                aria-label="Dismiss error"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           )}
 
           {/* Tabs */}
-          <div className="flex gap-2 mb-6 flex-wrap">
+          <div className="lg-glass-strong rounded-2xl p-1.5 w-fit mb-8 flex gap-1 flex-wrap">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                  className={`tab-btn ${activeTab === tab.id ? "active" : ""}`}>
-                  <Icon className="h-4 w-4" />{tab.label}
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`lg-tab-pill ${activeTab === tab.id ? "active" : ""}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
                 </button>
               );
             })}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Profile Card */}
             <div className="lg:col-span-1">
-              <div className="prof-card overflow-hidden">
+              <div className="lg-glass-strong rounded-[32px] overflow-hidden sticky top-24">
                 {/* Cover */}
-                <div className="h-24 relative" style={{ background: "var(--accent-gradient)" }}>
+                <div className="h-24 relative" style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)" }}>
                   <div className="absolute inset-0 opacity-20"
                     style={{ backgroundImage: "radial-gradient(circle at 30% 50%, white 1px, transparent 1px), radial-gradient(circle at 70% 50%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
                 </div>
 
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-8">
                   <div className="flex justify-center">
-                    <div className="relative -mt-12">
-                      <img 
-                        src={isEditing ? editForm.avatar : user.avatar} 
-                        alt={user.name}
-                        className="w-24 h-24 rounded-2xl object-cover ring-4 ring-white shadow-xl"
-                      />
+                    <div className="relative -mt-14">
+                      <div className="lg-avatar-ring">
+                        <img
+                          src={isEditing ? editForm.avatar : user.avatar}
+                          alt={user.name}
+                          className="w-28 h-28 rounded-[28px] object-cover ring-[6px] ring-white/90 shadow-2xl"
+                        />
+                      </div>
                       {!isEditing && (
-                        <button 
+                        <button
                           onClick={handleAvatarClick}
-                          className="avatar-upload-btn"
+                          className="lg-avatar-btn"
                           title="Change profile picture"
                         >
                           <Camera className="h-4 w-4 text-white" />
@@ -1281,50 +1355,59 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   </div>
 
                   {isEditing && (
-                    <div className="mt-3 text-center">
+                    <div className="mt-4 text-center">
                       <button
                         onClick={handleAvatarClick}
-                        className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
                       >
                         <Upload className="h-4 w-4" />
                         Change Avatar
                       </button>
-                      <p className="text-xs text-gray-400 mt-1">JPG, PNG or GIF · Max 2MB</p>
+                      <p className="text-xs text-indigo-400/70 mt-1 font-medium">
+                        JPG, PNG or GIF · Max 2MB
+                      </p>
                     </div>
                   )}
 
                   <div className="text-center mt-4 mb-5">
                     <h2 className="prof-heading text-xl font-bold text-gray-900">{user.name}</h2>
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1"
-                      style={{ background: "var(--accent-light)", color: "var(--accent-color)" }}>{user.displayRole}</span>
+                      style={{ background: "#eef2ff", color: "#4f46e5" }}>{user.displayRole}</span>
                     <p className="text-xs text-gray-400 mt-1">
                       Joined {formatDate(user.joinDate)}
                     </p>
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-2 py-4" style={{ borderTop: "1px solid #f3f4f6", borderBottom: "1px solid #f3f4f6" }}>
+                  <div className="grid grid-cols-3 gap-3 py-5 px-2 rounded-2xl bg-white/40 backdrop-blur-sm border border-white/60">
                     {[
-                      { label: "Courses", value: user.coursesEnrolled || 0, color: "var(--accent-color)" },
+                      { label: "Courses", value: user.coursesEnrolled || 0, color: "#6366f1" },
                       { label: "Certificates", value: user.certificates || 0, color: "#10b981" },
                       { label: "Projects", value: projects.length, color: "#f59e0b" },
                     ].map((s) => (
                       <div key={s.label} className="text-center">
-                        <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                        <p className="text-xs text-gray-500">{s.label}</p>
+                        <p className={`text-2xl font-extrabold ${s.color}`}>
+                          {s.value}
+                        </p>
+                        <p className="text-[11px] font-bold text-indigo-400/60 uppercase tracking-wider mt-0.5">
+                          {s.label}
+                        </p>
                       </div>
                     ))}
                   </div>
 
                   {/* Achievements */}
                   {user.achievements?.length > 0 && (
-                    <div className="mt-5">
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Achievements</p>
-                      <div className="flex flex-wrap gap-1.5">
+                    <div className="mt-6">
+                      <p className="lg-subtext mb-3">Achievements</p>
+                      <div className="flex flex-wrap gap-2">
                         {user.achievements.map((ach) => (
-                          <span key={ach} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
-                            style={{ background: "#fffbeb", color: "#92400e", border: "1px solid #fde68a" }}>
-                            ✦ {ach}
+                          <span
+                            key={ach}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50/80 text-amber-700 border border-amber-200/60 backdrop-blur-sm"
+                          >
+                            <Award className="h-3 w-3" />
+                            {ach}
                           </span>
                         ))}
                       </div>
@@ -1335,55 +1418,105 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
             </div>
 
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-5">
+            <div className="lg:col-span-2 space-y-6">
               {activeTab === "profile" && (
                 <>
                   {/* Personal Info */}
-                  <div className="prof-card p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Personal Information</h3>
+                  <div className="lg-glass rounded-[28px] p-7">
+                    <h3 className="lg-heading text-xl mb-6">
+                      Personal Information
+                    </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       {[
-                        { icon: User, label: "Full Name", name: "name", value: user.name },
-                        { icon: Mail, label: "Email", name: "email", value: user.email, type: "email" },
-                        { icon: Phone, label: "Phone", name: "phone", value: user.phone },
-                        { icon: MapPin, label: "Location", name: "location", value: user.location },
-                        { icon: Briefcase, label: "Occupation", name: "occupation", value: user.occupation },
-                        { icon: GraduationCap, label: "Education", name: "education", value: user.education },
+                        {
+                          icon: User,
+                          label: "Full Name",
+                          name: "name",
+                          value: user.name,
+                        },
+                        {
+                          icon: Mail,
+                          label: "Email",
+                          name: "email",
+                          value: user.email,
+                          type: "email",
+                        },
+                        {
+                          icon: Phone,
+                          label: "Phone",
+                          name: "phone",
+                          value: user.phone,
+                        },
+                        {
+                          icon: MapPin,
+                          label: "Location",
+                          name: "location",
+                          value: user.location,
+                        },
+                        {
+                          icon: Briefcase,
+                          label: "Occupation",
+                          name: "occupation",
+                          value: user.occupation,
+                        },
+                        {
+                          icon: GraduationCap,
+                          label: "Education",
+                          name: "education",
+                          value: user.education,
+                        },
                       ].map((field) => {
                         const Icon = field.icon;
                         return (
                           <div key={field.name}>
-                            <label className="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-                              <Icon className="h-3 w-3" />{field.label}
+                            <label className="flex items-center gap-2 text-xs font-bold text-indigo-400/70 uppercase tracking-wider mb-2">
+                              <Icon className="h-3.5 w-3.5" />
+                              {field.label}
                             </label>
                             {isEditing ? (
-                              <input type={field.type || "text"} name={field.name}
+                              <input
+                                type={field.type || "text"}
+                                name={field.name}
                                 value={editForm[field.name] || ""}
                                 onChange={handleInput}
-                                className="form-field" />
+                                className="lg-input"
+                              />
                             ) : (
-                              <p className="text-sm text-gray-800 font-medium">{field.value || "—"}</p>
+                              <p className="text-sm text-slate-800 font-semibold">
+                                {field.value || "—"}
+                              </p>
                             )}
                           </div>
                         );
                       })}
                     </div>
 
-                    <div className="mt-5">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Bio</label>
+                    <div className="mt-6">
+                      <label className="lg-subtext mb-2 block">Bio</label>
                       {isEditing ? (
-                        <textarea name="bio" value={editForm.bio || ""} onChange={handleInput} rows={3}
-                          className="form-field resize-none" />
+                        <textarea
+                          name="bio"
+                          value={editForm.bio || ""}
+                          onChange={handleInput}
+                          rows={3}
+                          className="lg-input resize-none"
+                        />
                       ) : (
-                        <p className="text-sm text-gray-700 leading-relaxed">{user.bio}</p>
+                        <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                          {user.bio || (
+                            <span className="text-slate-400 italic">
+                              No bio added yet.
+                            </span>
+                          )}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   {/* Social Links */}
-                  <div className="prof-card p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Social & Web</h3>
-                    <div className="space-y-3">
+                  <div className="lg-glass rounded-[28px] p-7">
+                    <h3 className="lg-heading text-xl mb-6">Social & Web</h3>
+                    <div className="space-y-4">
                       {[
                         { icon: Globe, label: "Website", name: "website" },
                         { icon: Github, label: "GitHub", name: "github" },
@@ -1392,18 +1525,36 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                       ].map((s) => {
                         const Icon = s.icon;
                         return (
-                          <div key={s.name} className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                              style={{ background: "#f3f4f6" }}>
-                              <Icon className="h-4 w-4 text-gray-500" />
+                          <div
+                            key={s.name}
+                            className="flex items-center gap-4 p-3 rounded-2xl bg-white/30 hover:bg-white/50 transition-colors border border-transparent hover:border-white/60"
+                          >
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-indigo-50/80 text-indigo-600">
+                              <Icon className="h-5 w-5" />
                             </div>
                             {isEditing ? (
-                              <input type="text" name={s.name} value={editForm[s.name] || ""}
-                                onChange={handleInput} placeholder={s.label} className="form-field flex-1" />
+                              <input
+                                type="text"
+                                name={s.name}
+                                value={editForm[s.name] || ""}
+                                onChange={handleInput}
+                                placeholder={s.label}
+                                className="lg-input flex-1"
+                              />
+                            ) : user[s.name] ? (
+                              <a
+                                href={user[s.name]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
+                              >
+                                {user[s.name]}
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
                             ) : (
-                              user[s.name] ? (
-                                <a href={user[s.name]} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-600 hover:underline">{user[s.name]}</a>
-                              ) : <span className="text-sm text-gray-500">—</span>
+                              <span className="text-sm text-slate-400 font-medium">
+                                Not connected
+                              </span>
                             )}
                           </div>
                         );
@@ -1416,57 +1567,70 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
               {activeTab === "projects" && (
                 <>
                   {/* Projects Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900">My Project Requests ({projects.length})</h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="lg-heading text-2xl">My Projects</h3>
+                      <p className="text-sm text-indigo-400/70 font-medium mt-1">
+                        {projects.length} request
+                        {projects.length !== 1 ? "s" : ""} submitted
+                      </p>
+                    </div>
                     <button
                       onClick={() => handleOpenProjectModal()}
-                      className="primary-btn inline-flex items-center gap-2"
+                      className="lg-btn-primary inline-flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
-                      Request Approval
+                      New Request
                     </button>
                   </div>
 
                   {/* Projects Grid */}
                   <div className="grid grid-cols-1 gap-6">
                     {projects.map((project) => (
-                      <div key={project.id} className="project-card">
+                      <div key={project.id} className="lg-project-card">
                         <div className="flex flex-col md:flex-row">
                           {/* Project Image */}
-                          <div className="md:w-48 h-48 md:h-auto">
+                          <div className="md:w-52 h-52 md:h-auto relative overflow-hidden">
                             <img
                               src={project.image || makeAvatar(project.title)}
                               alt={project.title}
                               className="w-full h-full object-cover"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
 
                           {/* Project Details */}
-                          <div className="flex-1 p-6">
-                            <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 p-7">
+                            <div className="flex items-start justify-between mb-3 gap-4">
                               <div>
-                                <h4 className="text-lg font-bold text-gray-900">{project.title}</h4>
-                                <p className="text-sm text-gray-500 mt-1">{project.description}</p>
+                                <h4 className="lg-heading text-lg">
+                                  {project.title}
+                                </h4>
+                                <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                                  {project.description}
+                                </p>
                               </div>
                               <span
-                                className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                className={`lg-status-badge flex-shrink-0 ${
                                   project.is_active
-                                    ? "bg-emerald-100 text-emerald-700"
-                                    : "bg-amber-100 text-amber-700"
+                                    ? "lg-status-approved"
+                                    : project.teacher_approved
+                                      ? "lg-status-waiting"
+                                      : "lg-status-pending"
                                 }`}
                               >
                                 {project.is_active
                                   ? "Approved"
                                   : project.teacher_approved
-                                    ? "Waiting for admin"
-                                    : "Waiting for teacher"}
+                                    ? "Admin Review"
+                                    : "Pending"}
                               </span>
                             </div>
 
                             {/* Technologies */}
-                            <div className="flex flex-wrap gap-2 my-3">
-                              {(project.technologies || []).map(tech => (
-                                <span key={tech} className="skill-chip text-xs">
+                            <div className="flex flex-wrap gap-2 my-4">
+                              {(project.technologies || []).map((tech) => (
+                                <span key={tech} className="lg-chip text-xs">
                                   <Code2 className="h-3 w-3" />
                                   {tech}
                                 </span>
@@ -1474,13 +1638,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                             </div>
 
                             {/* Links */}
-                            <div className="flex gap-4 mt-4 flex-wrap">
+                            <div className="flex gap-5 mt-5 flex-wrap items-center">
                               {project.github && (
                                 <a
                                   href={project.github}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+                                  className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors"
                                 >
                                   <Github className="h-4 w-4" />
                                   GitHub
@@ -1491,28 +1655,29 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                                   href={project.live}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+                                  className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors"
                                 >
                                   <ExternalLink className="h-4 w-4" />
                                   Live Demo
                                 </a>
                               )}
-                              <span className="text-sm text-gray-400">
-                                Completed: {formatDate(project.completedDate)}
+                              <span className="text-sm text-slate-400 font-medium flex items-center gap-1.5">
+                                <Calendar className="h-3.5 w-3.5" />
+                                {formatDate(project.completedDate)}
                               </span>
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                            <div className="flex gap-3 mt-6 pt-5 lg-divider">
                               <button
                                 onClick={() => handleOpenProjectModal(project)}
-                                className="px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                className="px-5 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50/80 rounded-xl transition-all border border-transparent hover:border-indigo-100"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteProject(project.id)}
-                                className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50/80 rounded-xl transition-all border border-transparent hover:border-red-100"
                               >
                                 Delete
                               </button>
@@ -1523,13 +1688,20 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                     ))}
 
                     {projects.length === 0 && (
-                      <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-                        <FolderGit2 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                        <h4 className="text-lg font-semibold text-gray-700 mb-1">No project requests yet</h4>
-                        <p className="text-sm text-gray-500 mb-4">Submit a project for teacher review, then admin approval</p>
+                      <div className="text-center py-16 lg-empty-state">
+                        <div className="w-16 h-16 rounded-3xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
+                          <FolderGit2 className="h-8 w-8 text-indigo-300" />
+                        </div>
+                        <h4 className="lg-heading text-lg mb-2">
+                          No projects yet
+                        </h4>
+                        <p className="text-sm text-slate-500 font-medium mb-6 max-w-sm mx-auto">
+                          Submit a project for teacher review, then admin
+                          approval
+                        </p>
                         <button
                           onClick={() => handleOpenProjectModal()}
-                          className="primary-btn inline-flex items-center gap-2"
+                          className="lg-btn-primary inline-flex items-center gap-2"
                         >
                           <Plus className="h-4 w-4" />
                           Submit Your First Request
@@ -1542,44 +1714,76 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
               {activeTab === "skills" && (
                 <>
-                  <div className="prof-card p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Skills & Expertise</h3>
+                  <div className="lg-glass rounded-[28px] p-7">
+                    <h3 className="lg-heading text-xl mb-6">
+                      Skills & Expertise
+                    </h3>
 
                     {isEditing && (
-                      <div className="flex gap-2 mb-4">
-                        <input type="text" value={newSkill} onChange={(e) => setNewSkill(e.target.value)}
-                          placeholder="Add a skill..." className="form-field flex-1"
-                          onKeyDown={(e) => e.key === "Enter" && addSkill()} />
-                        <button onClick={addSkill} className="primary-btn">Add</button>
+                      <div className="flex gap-3 mb-6">
+                        <input
+                          type="text"
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                          placeholder="Add a skill..."
+                          className="lg-input flex-1"
+                          onKeyDown={(e) => e.key === "Enter" && addSkill()}
+                        />
+                        <button
+                          onClick={addSkill}
+                          className="lg-btn-primary px-6"
+                        >
+                          Add
+                        </button>
                       </div>
                     )}
 
-                    <div className="flex flex-wrap gap-2">
-                      {(isEditing ? editForm.skills || [] : user.skills || []).map((skill) => (
-                        <span key={skill} className="skill-chip">
+                    <div className="flex flex-wrap gap-2.5">
+                      {(isEditing
+                        ? editForm.skills || []
+                        : user.skills || []
+                      ).map((skill) => (
+                        <span key={skill} className="lg-chip text-sm py-2 px-4">
                           {skill}
                           {isEditing && (
-                            <button onClick={() => removeSkill(skill)} className="hover:text-red-400 transition-colors">
-                              <X className="h-3 w-3" />
+                            <button
+                              onClick={() => removeSkill(skill)}
+                              className="hover:text-red-500 transition-colors ml-1"
+                            >
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </span>
                       ))}
+                      {(isEditing ? editForm.skills || [] : user.skills || [])
+                        .length === 0 && (
+                        <p className="text-sm text-slate-400 italic">
+                          No skills added yet.
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  <div className="prof-card p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Languages</h3>
+                  <div className="lg-glass rounded-[28px] p-7">
+                    <h3 className="lg-heading text-xl mb-6">Languages</h3>
                     <div className="space-y-3">
                       {(user.languages || []).map((lang) => (
-                        <div key={lang} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "#fafafa" }}>
-                          <span className="text-sm font-medium text-gray-700">{lang}</span>
-                          <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
-                            style={{ background: "#ecfdf5", color: "#065f46" }}>Active</span>
+                        <div
+                          key={lang}
+                          className="flex items-center justify-between p-4 rounded-2xl bg-white/40 border border-white/60 backdrop-blur-sm"
+                        >
+                          <span className="text-sm font-bold text-slate-700">
+                            {lang}
+                          </span>
+                          <span className="text-xs px-3 py-1.5 rounded-full font-bold bg-emerald-50/80 text-emerald-700 border border-emerald-200/60">
+                            Active
+                          </span>
                         </div>
                       ))}
                       {(user.languages || []).length === 0 && (
-                        <p className="text-sm text-gray-500">No languages saved yet.</p>
+                        <p className="text-sm text-slate-400 italic">
+                          No languages saved yet.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -1587,10 +1791,23 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
               )}
 
               {activeTab === "security" && (
-                <div className="prof-card p-6">
-                  <h3 className="text-base font-bold text-gray-900">Password & security</h3>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">Reset your password using the verified email address associated with this account.</p>
-                  <button type="button" onClick={() => setShowResetPassword(true)} className="primary-btn mt-5">Reset Password</button>
+                <div className="lg-glass rounded-[28px] p-7">
+                  <div className="max-w-lg">
+                    <h3 className="lg-heading text-xl mb-3">
+                      Password & Security
+                    </h3>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                      Reset your password using the verified email address
+                      associated with this account.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowResetPassword(true)}
+                      className="lg-btn-primary mt-6"
+                    >
+                      Reset Password
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

@@ -106,31 +106,11 @@ const SEMESTER_STYLES = [
   { rgb: "217,70,239", text: "text-fuchsia-600", dot: "bg-fuchsia-500" },
 ];
 
-// Stable per-course colors. A title/id hash keeps the palette varied like the
-// earlier card design while preventing colors from changing on every render.
-const COURSE_COLORS = [
-  { from: "#4f46e5", to: "#8b5cf6", rgb: "79,70,229" },
-  { from: "#0891b2", to: "#2563eb", rgb: "8,145,178" },
-  { from: "#059669", to: "#0d9488", rgb: "5,150,105" },
-  { from: "#d97706", to: "#ea580c", rgb: "217,119,6" },
-  { from: "#e11d48", to: "#f43f5e", rgb: "225,29,72" },
-  { from: "#7c3aed", to: "#c026d3", rgb: "124,58,237" },
-  { from: "#0284c7", to: "#06b6d4", rgb: "2,132,199" },
-  { from: "#be185d", to: "#db2777", rgb: "190,24,93" },
-];
-
-const getCourseColor = (lesson) => {
-  const key = String(lesson.id ?? lesson.title ?? "course");
-  let hash = 0;
-  for (let i = 0; i < key.length; i += 1) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
-  return COURSE_COLORS[Math.abs(hash) % COURSE_COLORS.length];
-};
-
 // Video Count Badge Component
 const VideoCountBadge = ({ count }) => {
   if (!count) return null;
   return (
-    <div className="lg-pill absolute top-4 left-16 flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white">
+    <div className="lg-pill absolute top-4 left-16 flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-white">
       <Film className="h-3 w-3" />
       {count} {count === 1 ? "Video" : "Videos"}
     </div>
@@ -218,11 +198,11 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
 
   return (
     <div
-      className="subscription-overlay fixed inset-0 z-[120] flex items-center justify-center p-4"
+      className="lg-modal-overlay fixed inset-0 z-[120] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className="subscription-modal student-liquid-modal lg-modal relative w-full max-w-md overflow-hidden animate-fadeInUp"
+        className="lg-modal relative w-full max-w-md overflow-hidden animate-fadeInUp"
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-title"
@@ -232,24 +212,24 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
         <div className="lg-orb" style={{ top: -60, left: -40, background: "rgba(99,102,241,0.55)" }} />
         <div className="lg-orb" style={{ bottom: -70, right: -50, background: "rgba(217,70,239,0.4)" }} />
 
-        <div className="subscription-heading relative px-8 pt-9 pb-7 text-center">
+        <div className="relative px-8 pt-9 pb-7 text-center">
           <button
             onClick={onClose}
-            className="subscription-close absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+            className="lg-modal-close absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full transition-colors"
             aria-label="Close subscription dialog"
           >
             ✕
           </button>
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl lg-icon-chip">
+          <div className="lg-lock-badge mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl">
             <Lock className="h-5 w-5" />
           </div>
-          <h2 id="subscription-title" className="text-2xl font-bold tracking-tight mb-1">Unlock Full Access</h2>
-          <p className="subscription-muted text-sm">
+          <h2 id="subscription-title" className="lg-modal-title text-2xl font-bold tracking-tight mb-1">Unlock Full Access</h2>
+          <p className="lg-modal-subtitle text-sm font-medium">
             Get unlimited access to all {FREE_VIDEO_LIMIT}+ videos
           </p>
-          <div className="mt-4 inline-flex items-baseline gap-1 lg-pill px-4 py-1.5">
-            <span className="text-2xl font-bold">$9.99</span>
-            <span className="subscription-muted text-sm">/month</span>
+          <div className="mt-4 inline-flex items-baseline gap-1 lg-pill px-5 py-2">
+            <span className="lg-modal-title text-2xl font-extrabold">$9.99</span>
+            <span className="lg-modal-subtitle text-sm font-medium">/month</span>
           </div>
         </div>
 
@@ -257,11 +237,11 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
           <div className="lg-sheet rounded-[26px] p-5 space-y-4">
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide">
+              <label className="lg-form-label block text-xs font-bold mb-1.5 uppercase tracking-wider">
                 Full Name
               </label>
               <div className="relative">
-                <User className="subscription-field-icon absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" />
+                <User className="lg-input-icon absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" />
                 <input
                   type="text"
                   value={formData.fullName}
@@ -270,44 +250,44 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
                   }
                   placeholder="sok chea"
                   className={`lg-input w-full pl-10 pr-3 py-2.5 ${
-                    errors.fullName ? "lg-input-error" : ""
+                    errors.fullName ? "border-rose-400/70" : ""
                   }`}
                 />
               </div>
               {errors.fullName && (
-                <p className="text-rose-300 text-xs mt-1">{errors.fullName}</p>
+                <p className="text-rose-300 text-xs mt-1 font-medium">{errors.fullName}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide">
+              <label className="lg-form-label block text-xs font-bold mb-1.5 uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="subscription-field-icon absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" />
+                <Mail className="lg-input-icon absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="sokchea@example.com"
                   className={`lg-input w-full pl-10 pr-3 py-2.5 ${
-                    errors.email ? "lg-input-error" : ""
+                    errors.email ? "border-rose-400/70" : ""
                   }`}
                 />
               </div>
               {errors.email && (
-                <p className="text-rose-300 text-xs mt-1">{errors.email}</p>
+                <p className="text-rose-300 text-xs mt-1 font-medium">{errors.email}</p>
               )}
             </div>
 
             {/* Card Number */}
             <div>
-              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide">
+              <label className="lg-form-label block text-xs font-bold mb-1.5 uppercase tracking-wider">
                 Card Number
               </label>
               <div className="relative">
-                <CreditCard className="subscription-field-icon absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" />
+                <CreditCard className="lg-input-icon absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" />
                 <input
                   type="text"
                   value={formData.cardNumber}
@@ -320,19 +300,19 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
                   placeholder="1234 5678 9012 3456"
                   maxLength="19"
                   className={`lg-input w-full pl-10 pr-3 py-2.5 ${
-                    errors.cardNumber ? "lg-input-error" : ""
+                    errors.cardNumber ? "border-rose-400/70" : ""
                   }`}
                 />
               </div>
               {errors.cardNumber && (
-                <p className="text-rose-300 text-xs mt-1">{errors.cardNumber}</p>
+                <p className="text-rose-300 text-xs mt-1 font-medium">{errors.cardNumber}</p>
               )}
             </div>
 
             {/* Expiry Date & CVV */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide">
+                <label className="lg-form-label block text-xs font-bold mb-1.5 uppercase tracking-wider">
                   Expiry Date
                 </label>
                 <input
@@ -347,17 +327,17 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
                   placeholder="MM/YY"
                   maxLength="5"
                   className={`lg-input w-full px-3.5 py-2.5 ${
-                    errors.expiryDate ? "lg-input-error" : ""
+                    errors.expiryDate ? "border-rose-400/70" : ""
                   }`}
                 />
                 {errors.expiryDate && (
-                  <p className="text-rose-300 text-xs mt-1">
+                  <p className="text-rose-300 text-xs mt-1 font-medium">
                     {errors.expiryDate}
                   </p>
                 )}
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide">
+                <label className="lg-form-label block text-xs font-bold mb-1.5 uppercase tracking-wider">
                   CVV
                 </label>
                 <input
@@ -372,17 +352,17 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
                   placeholder="123"
                   maxLength="4"
                   className={`lg-input w-full px-3.5 py-2.5 ${
-                    errors.cvv ? "lg-input-error" : ""
+                    errors.cvv ? "border-rose-400/70" : ""
                   }`}
                 />
                 {errors.cvv && (
-                  <p className="text-rose-300 text-xs mt-1">{errors.cvv}</p>
+                  <p className="text-rose-300 text-xs mt-1 font-medium">{errors.cvv}</p>
                 )}
               </div>
             </div>
 
             {/* Secure Badge */}
-            <div className="subscription-muted flex items-center justify-center gap-2 text-xs mt-1">
+            <div className="lg-form-helper flex items-center justify-center gap-2 text-xs font-medium mt-1">
               <Lock className="h-3 w-3" />
               Secure 256-bit SSL encryption
             </div>
@@ -403,7 +383,7 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
               )}
             </button>
 
-            <p className="subscription-footer text-center text-[11px] leading-relaxed">
+            <p className="lg-form-legal text-center text-[11px] leading-relaxed font-medium">
               By subscribing, you agree to our Terms of Service and Privacy
               Policy. You can cancel anytime.
             </p>
@@ -423,7 +403,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
   const hasVideos = lesson.videos && lesson.videos.length > 0;
   const videoCount = hasVideos ? lesson.videos.length : 0;
-  const courseColor = getCourseColor(lesson);
+  const cardGradient = lesson.color || "from-indigo-500 to-purple-600";
 
   const handlePlayVideo = () => {
     if (videoCount > 1) {
@@ -461,13 +441,6 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
     <>
       <div
         className={`lg-card group relative overflow-hidden ${isDark ? "lg-card-dark" : ""}`}
-        style={{
-          "--course-color": courseColor.from,
-          "--course-gradient": `linear-gradient(135deg, ${courseColor.from}, ${courseColor.to})`,
-          "--course-light": `rgba(${courseColor.rgb},0.10)`,
-          "--course-border": `rgba(${courseColor.rgb},0.30)`,
-          "--course-glow": `rgba(${courseColor.rgb},0.32)`,
-        }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -476,16 +449,15 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
         {/* Card Header */}
         <div
-          className="relative h-44 overflow-hidden cursor-pointer"
-          style={{ background: "var(--course-gradient)" }}
+          className={`relative h-44 bg-gradient-to-br ${cardGradient} overflow-hidden cursor-pointer`}
           onClick={handlePlayVideo}
         >
           <div
-            className={`absolute inset-0 bg-black/25 transition-opacity duration-300 ${hovered ? "opacity-40" : "opacity-0"}`}
+            className={`absolute inset-0 bg-black/20 transition-opacity duration-500 ${hovered ? "opacity-50" : "opacity-0"}`}
           />
 
-          <div className="absolute top-4 right-4">
-            <span className="lg-pill px-3 py-1 text-white text-[11px] font-medium">
+          <div className="absolute top-4 right-4 z-10">
+            <span className="lg-pill px-3.5 py-1.5 text-white text-[11px] font-bold">
               {lesson.category}
             </span>
           </div>
@@ -494,11 +466,11 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
             <VideoCountBadge count={videoCount || 1} />
           )}
 
-          <div className="absolute bottom-4 left-4 right-4">
-            <h3 className="text-lg font-bold text-white mb-1 drop-shadow-sm">
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <h3 className="text-lg font-bold text-white mb-1.5 drop-shadow-md tracking-tight">
               {lesson.title}
             </h3>
-            <div className="flex items-center gap-4 text-white/90 text-xs">
+            <div className="flex items-center gap-4 text-white/90 text-xs font-semibold">
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {lesson.credit} credits
@@ -511,34 +483,34 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
           </div>
 
           <div
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
           >
             <div className="lg-play-orb flex items-center justify-center h-16 w-16">
               {videoCount > 1 ? (
-                <Layers className="h-8 w-8 text-white" />
+                <Layers className="h-7 w-7 text-white" />
               ) : (
-                <PlayCircle className="h-8 w-8 text-white" />
+                <PlayCircle className="h-7 w-7 text-white" />
               )}
             </div>
           </div>
         </div>
 
         {/* Card Body */}
-        <div className="p-5">
+        <div className="p-6">
           <div className="flex items-center justify-between mb-3">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
+              className={`px-3 py-1 rounded-full text-xs font-bold ${
                 lesson.level === "Beginner"
-                  ? "bg-emerald-500/15 text-emerald-600"
+                  ? "bg-emerald-500/12 text-emerald-600 border border-emerald-500/20"
                   : lesson.level === "Intermediate"
-                    ? "bg-amber-500/15 text-amber-600"
-                    : "bg-rose-500/15 text-rose-600"
+                    ? "bg-amber-500/12 text-amber-600 border border-amber-500/20"
+                    : "bg-rose-500/12 text-rose-600 border border-rose-500/20"
               }`}
             >
               {lesson.level}
             </span>
             <span
-              className={`flex items-center text-xs ${isDark ? "text-[#9999cc]" : "text-gray-500"}`}
+              className={`flex items-center text-xs font-semibold ${isDark ? "text-indigo-300/70" : "text-gray-400"}`}
             >
               <Users className="h-3.5 w-3.5 mr-1" />
               {lesson.students?.toLocaleString() || "0"}
@@ -546,27 +518,27 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
           </div>
 
           <p
-            className={`text-sm mb-4 line-clamp-2 ${isDark ? "text-[#9999cc]" : "text-gray-600"}`}
+            className={`text-sm mb-4 line-clamp-2 leading-relaxed font-medium ${isDark ? "text-indigo-200/60" : "text-gray-500"}`}
           >
             {lesson.description}
           </p>
 
           {videoCount > 1 && (
-            <div className="mb-3">
-              <div className="text-[11px] font-semibold text-gray-400 flex items-center gap-1 mb-1.5 uppercase tracking-wide">
+            <div className="mb-4">
+              <div className="text-[11px] font-bold text-gray-400 flex items-center gap-1.5 mb-2 uppercase tracking-wider">
                 <ListVideo className="h-3 w-3" /> Playlist
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {lesson.videos.slice(0, 3).map((v, i) => (
                   <span
                     key={i}
-                    className="text-xs px-2 py-1 rounded-full bg-black/[0.04] text-gray-600 border border-black/[0.05]"
+                    className="text-xs px-2.5 py-1 rounded-full bg-black/[0.04] text-gray-600 border border-black/[0.06] font-medium"
                   >
                     {i + 1}. {v.title.substring(0, 12)}…
                   </span>
                 ))}
                 {videoCount > 3 && (
-                  <span className="text-xs bg-black/[0.04] text-gray-600 border border-black/[0.05] px-2 py-1 rounded-full">
+                  <span className="text-xs bg-black/[0.04] text-gray-600 border border-black/[0.06] px-2.5 py-1 rounded-full font-medium">
                     +{videoCount - 3}
                   </span>
                 )}
@@ -576,7 +548,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
           <button
             onClick={handlePlayVideo}
-            className="lg-secondary-button w-full py-2.5 flex items-center justify-center gap-2 text-sm"
+            className="lg-btn-secondary w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold"
           >
             <span>
               {videoCount > 1
@@ -652,40 +624,41 @@ const SemesterSection = ({
     <div className="mb-12">
       <button
         onClick={() => setOpen(!open)}
-        className="semester-header lg-header-card w-full flex items-center justify-between px-6 py-4 mb-6"
+        className="lg-semester-header w-full flex items-center justify-between px-6 py-4 mb-6"
         style={{ "--accent": style.rgb }}
       >
         <div className="flex items-center gap-4">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
             style={{
               background: `linear-gradient(135deg, rgba(${style.rgb},0.9), rgba(${style.rgb},0.55))`,
-              boxShadow: `0 6px 16px rgba(${style.rgb},0.35)`,
+              boxShadow: `0 8px 24px rgba(${style.rgb},0.4)`,
             }}
           >
             <GraduationCap className="h-6 w-6 text-white" />
           </div>
           <div className="text-left">
-            <p className="semester-kicker text-[11px] font-semibold uppercase tracking-wide">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-indigo-400/70">
               {major || "Programme"}
             </p>
-            <h2 className="semester-title text-xl font-bold tracking-tight">
+            <h2 className="text-xl font-extrabold tracking-tight text-slate-800">
               Year {yearNum} — Semester {semNum}
             </h2>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <span
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold"
             style={{
               background: `rgba(${style.rgb},0.12)`,
               color: `rgb(${style.rgb})`,
+              border: `1px solid rgba(${style.rgb},0.2)`,
             }}
           >
             <BookOpen className="h-3 w-3" /> {filtered.length} subjects
           </span>
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-transform duration-300 ${open ? "rotate-180" : ""}`}
             style={{ background: `rgba(${style.rgb},0.12)` }}
           >
             <ChevronDown className="h-5 w-5" style={{ color: `rgb(${style.rgb})` }} />
@@ -709,9 +682,9 @@ const SemesterSection = ({
             <div className="text-center mt-8">
               <button
                 onClick={() => setVisibleCount((v) => v + 3)}
-                className="lg-secondary-button px-7 py-3"
+                className="lg-btn-secondary px-8 py-3 font-bold"
               >
-                Show more <ChevronDown className="h-4 w-4 inline" />
+                Show more <ChevronDown className="h-4 w-4 inline ml-1" />
               </button>
             </div>
           )}
@@ -809,11 +782,12 @@ const LessonsPage = () => {
   // ── Loading State ─────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-indigo-50 via-white to-white">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 relative isolate overflow-hidden">
+        <div className="lg-ambient-bg" />
         <div className="lg-play-orb h-16 w-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 text-white animate-spin" />
         </div>
-        <p className="text-gray-500 font-medium">Loading lessons...</p>
+        <p className="text-slate-500 font-semibold relative z-10">Loading lessons...</p>
       </div>
     );
   }
@@ -821,17 +795,18 @@ const LessonsPage = () => {
   // ── Error State ───────────────────────────────────────────
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-gradient-to-b from-rose-50 via-white to-white">
-        <div className="text-5xl">⚠️</div>
-        <h2 className="text-xl font-bold text-gray-800">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 relative isolate overflow-hidden">
+        <div className="lg-ambient-bg" />
+        <div className="text-5xl relative z-10">⚠️</div>
+        <h2 className="text-xl font-bold text-slate-800 relative z-10">
           Failed to load lessons
         </h2>
-        <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-full border border-red-100">
+        <p className="text-rose-500 text-sm bg-rose-50/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-rose-100 relative z-10 font-medium">
           {error}
         </p>
-        <p className="text-gray-400 text-sm">
+        <p className="text-slate-400 text-sm relative z-10">
           Make sure your backend is running on{" "}
-          <code>{API_BASE}</code>
+          <code className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 font-mono text-xs">{API_BASE}</code>
         </p>
         <button
           onClick={() => {
@@ -842,7 +817,7 @@ const LessonsPage = () => {
               .catch((e) => setError(e.message))
               .finally(() => setLoading(false));
           }}
-          className="lg-cta-button mt-2 px-6 py-2.5"
+          className="lg-cta-button mt-2 px-7 py-3 relative z-10"
         >
           Retry
         </button>
@@ -852,58 +827,83 @@ const LessonsPage = () => {
   // ─────────────────────────────────────────────────────────
 
   return (
-    <div className="student-page student-lessons min-h-screen">
+    <div className="student-page student-lessons min-h-screen relative isolate overflow-x-hidden">
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
         .student-lessons {
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, -apple-system, sans-serif;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
           color: #172033;
-          background: radial-gradient(circle at 15% 0%, rgba(99,102,241,0.10), transparent 34%), #f4f7fc;
         }
-        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
-        .animate-fadeInUp { animation: fadeInUp 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-        .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-        /* ── Liquid glass primitives ───────────────────────── */
-        .lg-card {
-          background: rgba(255,255,255,0.6);
+        @keyframes fadeInUp { 
+          from { opacity:0; transform:translateY(24px) scale(0.97); } 
+          to { opacity:1; transform:translateY(0) scale(1); } 
+        }
+        .animate-fadeInUp { 
+          animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both; 
+        }
+
+        .line-clamp-2 { 
+          display:-webkit-box; 
+          -webkit-line-clamp:2; 
+          -webkit-box-orient:vertical; 
+          overflow:hidden; 
+        }
+
+        /* ── Ambient Background ── */
+        .lg-ambient-bg {
+          position: fixed;
+          inset: 0;
+          z-index: -3;
+          background:
+            radial-gradient(ellipse 80% 60% at 8% 5%, rgba(99,102,241,0.18) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 80% at 92% 15%, rgba(14,165,233,0.12) 0%, transparent 45%),
+            radial-gradient(ellipse 70% 50% at 50% 95%, rgba(139,92,246,0.1) 0%, transparent 50%),
+            linear-gradient(165deg, #f0f4ff 0%, #eef2ff 40%, #f8f5ff 100%);
+          background-attachment: fixed;
+          pointer-events: none;
+        }
+
+        .lg-ambient-bg::after {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          opacity: 0.7;
+          pointer-events: none;
+        }
+
+        /* ── Liquid Glass Primitives ── */
+        .lg-glass {
+          background: rgba(255,255,255,0.55);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           border: 1px solid rgba(255,255,255,0.7);
-          border-radius: 26px;
-          box-shadow: 0 1px 1px rgba(255,255,255,0.8) inset, 0 8px 30px rgba(31,41,55,0.08);
-          transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.85) inset, 0 12px 40px rgba(31,41,55,0.08);
         }
-        .lg-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 1px 1px rgba(255,255,255,0.8) inset, 0 20px 45px rgba(31,41,55,0.14);
-        }
-        .lg-card-dark {
-          background: rgba(26,26,53,0.55);
-          border-color: rgba(255,255,255,0.08);
-          box-shadow: 0 1px 1px rgba(255,255,255,0.05) inset, 0 8px 30px rgba(0,0,0,0.4);
-        }
-        .lg-sheen {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.35) 45%, transparent 60%);
-          transform: translateX(-120%);
-          transition: transform 0.7s ease;
-          z-index: 5;
-        }
-        .lg-sheen-active { transform: translateX(120%); }
 
-        .lg-header-card {
-          background: rgba(255,255,255,0.65);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
+        .lg-glass-strong {
+          background: rgba(255,255,255,0.72);
+          backdrop-filter: blur(32px) saturate(200%);
+          -webkit-backdrop-filter: blur(32px) saturate(200%);
           border: 1px solid rgba(255,255,255,0.8);
-          border-radius: 22px;
-          box-shadow: 0 1px 1px rgba(255,255,255,0.9) inset, 0 6px 24px rgba(31,41,55,0.06);
-          transition: box-shadow 0.3s ease, transform 0.3s ease;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 16px 48px rgba(31,41,55,0.1);
         }
-        .lg-header-card:hover {
-          box-shadow: 0 1px 1px rgba(255,255,255,0.9) inset, 0 10px 28px rgba(var(--accent),0.18);
+
+        .lg-preview-banner {
+          background:linear-gradient(110deg,rgba(255,251,235,.88),rgba(255,255,255,.72));
+          border-color:rgba(245,158,11,.24);
+        }
+        .lg-preview-title { color:#9a4b05; }
+        .lg-preview-copy { color:#b45309; }
+
+        .lg-glass-dark {
+          background: rgba(16,18,42,0.6);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(165,180,252,0.15);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 44px rgba(0,0,0,0.3);
         }
 
         .lg-pill {
@@ -912,30 +912,32 @@ const LessonsPage = () => {
           -webkit-backdrop-filter: blur(12px) saturate(160%);
           border: 1px solid rgba(255,255,255,0.25);
           border-radius: 999px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
 
         .lg-play-orb {
           border-radius: 999px;
-          background: rgba(255,255,255,0.22);
-          backdrop-filter: blur(10px) saturate(180%);
-          -webkit-backdrop-filter: blur(10px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.4);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+          background: rgba(255,255,255,0.2);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1.5px solid rgba(255,255,255,0.4);
+          box-shadow: 0 12px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .lg-secondary-button {
-          background: var(--course-light, var(--accent-light));
-          border: 1px solid var(--course-border, var(--accent-border));
+          background: rgba(99,102,241,0.08);
+          border: 1px solid rgba(99,102,241,0.15);
           border-radius: 16px;
-          color: var(--course-color, var(--accent-color));
+          color: #4338ca;
           font-weight: 600;
           transition: all 0.25s ease;
         }
         .lg-secondary-button:hover {
-          background: var(--course-gradient, var(--accent-gradient));
+          background: linear-gradient(135deg, #6366f1, #a855f7);
           color: #fff;
           border-color: transparent;
-          box-shadow: 0 10px 24px var(--course-glow, var(--accent-glow));
+          box-shadow: 0 10px 24px rgba(99,102,241,0.35);
         }
 
         .lg-cta-button {
@@ -943,244 +945,258 @@ const LessonsPage = () => {
           border-radius: 16px;
           color: #fff;
           font-weight: 700;
-          box-shadow: 0 10px 26px var(--accent-glow), 0 1px 0 rgba(255,255,255,0.3) inset;
+          box-shadow: 0 10px 26px rgba(99,102,241,0.4), 0 1px 0 rgba(255,255,255,0.3) inset;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .lg-cta-button:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 14px 32px rgba(99,102,241,0.5), 0 1px 0 rgba(255,255,255,0.3) inset;
+          box-shadow: 0 14px 36px rgba(99,102,241,0.5), 0 1px 0 rgba(255,255,255,0.3) inset;
         }
 
-        .lg-modal {
-          background: rgba(24,24,42,0.72);
-          backdrop-filter: blur(30px) saturate(200%);
-          -webkit-backdrop-filter: blur(30px) saturate(200%);
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 32px;
-          box-shadow: 0 1px 1px rgba(255,255,255,0.15) inset, 0 30px 70px rgba(0,0,0,0.5);
+        .lg-lesson-card {
+          background: rgba(255,255,255,0.6);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.72);
+          border-radius: 26px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.85) inset, 0 10px 36px rgba(31,41,55,0.08);
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          overflow: hidden;
         }
-        .lg-orb {
+        .lg-lesson-card:hover {
+          background: rgba(255,255,255,0.75);
+          transform: translateY(-6px) scale(1.01);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 28px 60px rgba(31,41,55,0.16);
+          border-color: rgba(99,102,241,0.3);
+        }
+        .lg-lesson-card-dark {
+          background: rgba(18,23,49,0.7);
+          border-color: rgba(165,180,252,0.15);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 44px rgba(0,0,0,0.25);
+        }
+        .lg-lesson-card-dark:hover {
+          background: rgba(22,28,58,0.8);
+          border-color: rgba(165,180,252,0.25);
+        }
+
+        .lg-sheen {
           position: absolute;
-          width: 220px;
-          height: 220px;
-          border-radius: 999px;
-          filter: blur(60px);
-          opacity: 0.7;
+          inset: 0;
           pointer-events: none;
+          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.4) 45%, transparent 60%);
+          transform: translateX(-120%);
+          transition: transform 0.8s ease;
+          z-index: 5;
         }
-        .lg-icon-chip {
-          background: rgba(255,255,255,0.15);
-          border: 1px solid rgba(255,255,255,0.3);
-        }
-        .lg-sheet {
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.1);
-        }
-        .lg-input {
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.14);
-          border-radius: 14px;
-          color: #fff;
-          outline: none;
-          transition: border-color 0.2s ease, background 0.2s ease;
-        }
-        .lg-input::placeholder { color: rgba(255,255,255,0.35); }
-        .lg-input:focus { border-color: rgba(165,180,252,0.6); background: rgba(255,255,255,0.1); }
-        .lg-input-error { border-color: rgba(251,113,133,0.7); }
+        .lg-sheen-active { transform: translateX(120%); }
 
-        /* Subscription sheet: readable iOS-style material in both themes. */
-        .subscription-overlay {
-          background: rgba(8, 12, 24, 0.42);
-          backdrop-filter: blur(3px) saturate(115%);
-          -webkit-backdrop-filter: blur(3px) saturate(115%);
+        .lg-semester-header {
+          background: rgba(255,255,255,0.65);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.8);
+          border-radius: 24px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.9) inset, 0 8px 28px rgba(31,41,55,0.06);
+          transition: all 0.3s ease;
         }
-        .subscription-modal {
-          color: #182238;
-          background: rgba(244, 247, 255, 0.88) !important;
-          border-color: rgba(255, 255, 255, 0.92) !important;
-          box-shadow: 0 32px 90px rgba(22, 34, 76, 0.30), inset 0 1px 0 #fff !important;
-        }
-        .subscription-modal .subscription-heading,
-        .subscription-modal h2,
-        .subscription-modal label { color: #182238 !important; }
-        .subscription-modal .subscription-muted,
-        .subscription-modal .subscription-footer { color: #64748b !important; }
-        .subscription-modal .lg-sheet {
-          background: rgba(255, 255, 255, 0.58);
-          border-color: rgba(255, 255, 255, 0.92);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.95);
-        }
-        .subscription-modal .lg-pill,
-        .subscription-modal .lg-icon-chip,
-        .subscription-modal .subscription-close {
-          color: #4338ca;
-          background: rgba(99, 102, 241, 0.10);
-          border: 1px solid rgba(99, 102, 241, 0.18);
-        }
-        .subscription-modal .subscription-close:hover { background: rgba(99, 102, 241, 0.18); }
-        .subscription-modal .subscription-field-icon { color: #64748b; }
-        .subscription-modal .lg-input {
-          background: rgba(255, 255, 255, 0.86) !important;
-          border-color: rgba(100, 116, 139, 0.28) !important;
-          color: #172033 !important;
-          caret-color: #4f46e5;
-          box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
-        }
-        .subscription-modal .lg-input::placeholder { color: #8995a9 !important; opacity: 1; }
-        .subscription-modal .lg-input:focus {
-          background: rgba(255, 255, 255, 0.98) !important;
-          border-color: #6366f1 !important;
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
-        }
-        .subscription-modal .lg-input-error { border-color: #e11d48 !important; }
-
-        html.dark-mode .subscription-overlay { background: rgba(2, 5, 15, 0.62); }
-        html.dark-mode .subscription-modal {
-          color: #f5f7ff;
-          background: rgba(12, 16, 36, 0.91) !important;
-          border-color: rgba(165, 180, 252, 0.24) !important;
-          box-shadow: 0 36px 100px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.09) !important;
-        }
-        html.dark-mode .subscription-modal .subscription-heading,
-        html.dark-mode .subscription-modal h2,
-        html.dark-mode .subscription-modal label { color: #f5f7ff !important; }
-        html.dark-mode .subscription-modal .subscription-muted { color: #b6c0df !important; }
-        html.dark-mode .subscription-modal .subscription-footer { color: #929dbc !important; }
-        html.dark-mode .subscription-modal .lg-sheet {
-          background: rgba(7, 10, 27, 0.58);
-          border-color: rgba(165, 180, 252, 0.16);
-        }
-        html.dark-mode .subscription-modal .lg-pill,
-        html.dark-mode .subscription-modal .lg-icon-chip,
-        html.dark-mode .subscription-modal .subscription-close {
-          color: #ffffff;
-          background: rgba(165, 180, 252, 0.13);
-          border-color: rgba(199, 210, 254, 0.22);
-        }
-        html.dark-mode .subscription-modal .subscription-field-icon { color: #aeb8d8; }
-        html.dark-mode .subscription-modal .lg-input {
-          background: rgba(5, 8, 24, 0.72) !important;
-          border-color: rgba(165, 180, 252, 0.24) !important;
-          color: #f5f7ff !important;
-          caret-color: #a5b4fc;
-        }
-        html.dark-mode .subscription-modal .lg-input::placeholder { color: #7f8bad !important; }
-        html.dark-mode .subscription-modal .lg-input:focus {
-          background: rgba(10, 14, 36, 0.94) !important;
-          border-color: #818cf8 !important;
-          box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+        .lg-semester-header:hover {
+          box-shadow: 0 1px 1px rgba(255,255,255,0.9) inset, 0 12px 32px rgba(var(--accent),0.2);
+          transform: translateY(-1px);
         }
 
-        @media (max-width: 640px) {
-          .subscription-overlay {
-            align-items: flex-end;
-            padding: max(8px, env(safe-area-inset-top)) 0 0;
-          }
-          .subscription-modal {
-            max-width: none;
-            max-height: calc(100dvh - max(8px, env(safe-area-inset-top)));
-            overflow-y: auto;
-            border-radius: 30px 30px 0 0 !important;
-            padding-bottom: env(safe-area-inset-bottom);
-          }
-          .subscription-modal .subscription-heading { padding: 24px 22px 18px; }
-          .subscription-modal form { padding: 0 12px 12px; }
-          .subscription-modal .lg-sheet { padding: 16px; border-radius: 23px; }
-        }
-
-        .lg-searchbar {
+        .lg-search {
           background: rgba(255,255,255,0.65);
           backdrop-filter: blur(20px) saturate(180%);
           -webkit-backdrop-filter: blur(20px) saturate(180%);
           border: 1px solid rgba(255,255,255,0.8);
           border-radius: 20px;
-          box-shadow: 0 1px 1px rgba(255,255,255,0.9) inset, 0 6px 20px rgba(31,41,55,0.06);
-        }
-
-        .lg-filter-chip {
-          border-radius: 999px;
-          font-weight: 500;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.9) inset, 0 6px 24px rgba(31,41,55,0.06);
           transition: all 0.2s ease;
         }
-        .lg-filter-chip-active {
-          background: var(--accent-gradient);
-          color: #fff;
-          box-shadow: 0 6px 16px var(--accent-glow);
+        .lg-search:focus-within {
+          background: rgba(255,255,255,0.85);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 8px 28px rgba(99,102,241,0.12);
+          border-color: rgba(99,102,241,0.3);
         }
-        .lg-filter-chip-inactive {
-          background: rgba(255,255,255,0.6);
+
+        .lg-chip {
+          border-radius: 999px;
+          font-weight: 600;
+          font-size: 13px;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .lg-chip-active {
+          background: linear-gradient(135deg, #6366f1, #a855f7);
+          color: #fff;
+          box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+          border: 1px solid rgba(255,255,255,0.3);
+        }
+        .lg-chip-inactive {
+          background: rgba(255,255,255,0.55);
           backdrop-filter: blur(12px);
           border: 1px solid rgba(255,255,255,0.7);
-          color: #4b5563;
+          color: #475569;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .lg-filter-chip-inactive:hover {
-          background: rgba(255,255,255,0.85);
+        .lg-chip-inactive:hover {
+          background: rgba(255,255,255,0.8);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.08);
         }
 
-        .student-lessons .semester-kicker { color: #64748b; }
-        .student-lessons .semester-title { color: #172033; }
-        .student-lessons .lesson-search-input { color: #172033; }
-        .student-lessons .lesson-search-input::placeholder { color: #94a3b8; }
-        .student-lessons .lesson-level-select { color: #334155; }
-        .student-lessons .lesson-level-select option { color: #172033; background: #ffffff; }
-        .student-lessons .preview-title { color: #92400e; }
-        .student-lessons .preview-copy { color: #b45309; }
+        .lg-modal-overlay {
+          background: rgba(15,23,42,0.45);
+          backdrop-filter: blur(16px) saturate(120%);
+          -webkit-backdrop-filter: blur(16px) saturate(120%);
+        }
 
+        .lg-modal {
+          background: rgba(248,250,255,0.84);
+          backdrop-filter: blur(40px) saturate(200%);
+          -webkit-backdrop-filter: blur(40px) saturate(200%);
+          border: 1px solid rgba(255,255,255,0.82);
+          border-radius: 32px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 30px 80px rgba(15,23,42,0.28);
+        }
+
+        .lg-orb {
+          position: absolute;
+          width: 220px;
+          height: 220px;
+          border-radius: 999px;
+          filter: blur(70px);
+          opacity: 0.7;
+          pointer-events: none;
+        }
+
+        .lg-sheet {
+          background: rgba(255,255,255,0.55);
+          border: 1px solid rgba(255,255,255,0.88);
+          backdrop-filter: blur(20px);
+        }
+
+        .lg-modal-title { color: #172033; }
+        .lg-modal-subtitle { color: #64748b; }
+        .lg-modal-close { color:#59627a; background:rgba(255,255,255,.62); border:1px solid rgba(100,116,139,.12); }
+        .lg-modal-close:hover { color:#172033; background:rgba(255,255,255,.94); }
+        .lg-lock-badge { color:#4f46e5; background:rgba(99,102,241,.11); border:1px solid rgba(99,102,241,.18); }
+        .lg-form-label { color: #475569; }
+        .lg-input-icon { color: #7c83a3; }
+        .lg-form-helper { color: #64748b; }
+        .lg-form-legal { color: #7c8499; }
+
+        .lg-input {
+          background: rgba(255,255,255,0.88) !important;
+          border: 1.5px solid rgba(100,116,139,0.22);
+          border-radius: 14px;
+          color: #172033 !important;
+          outline: none;
+          transition: all 0.2s ease;
+          font-size: 14px;
+        }
+        .lg-filter-chip-active {
+          background: linear-gradient(135deg, #6366f1, #a855f7);
+          color: #fff;
+          box-shadow: 0 6px 16px rgba(99,102,241,0.35);
+        }
+
+        html.dark-mode .lg-modal {
+          background: rgba(24,24,42,0.88);
+          border-color: rgba(255,255,255,0.18);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.12) inset, 0 30px 80px rgba(0,0,0,0.5);
+        }
+        html.dark-mode .lg-sheet { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+        html.dark-mode .lg-modal-title { color: #fff; }
+        html.dark-mode .lg-modal-subtitle { color: #b8bfd3; }
+        html.dark-mode .lg-modal-close { color:#d8dceb; background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.1); }
+        html.dark-mode .lg-modal-close:hover { color:#fff; background:rgba(255,255,255,.18); }
+        html.dark-mode .lg-lock-badge { color:#fff; background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.22); }
+        html.dark-mode .lg-form-label { color: #c8ccda; }
+        html.dark-mode .lg-input-icon { color: #9da6c4; }
+        html.dark-mode .lg-form-helper { color: #9ca3b8; }
+        html.dark-mode .lg-form-legal { color: #858ba0; }
+        html.dark-mode .lg-input { background: rgba(255,255,255,0.09) !important; border-color: rgba(255,255,255,0.17); color: #fff !important; }
+        html.dark-mode .lg-input::placeholder { color: #8f96aa; }
+        html.dark-mode .lg-input:focus { background: rgba(255,255,255,0.13) !important; }
+
+        .lg-scroll-progress {
+          background: linear-gradient(90deg, #6366f1, #a855f7, #f43f5e);
+          box-shadow: 0 2px 12px rgba(99,102,241,0.4);
+        }
+
+        .lg-hero-overlay {
+          background: linear-gradient(180deg, rgba(10,10,25,0.3) 0%, rgba(10,10,25,0.7) 100%);
+        }
+
+        .lg-hero-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          pointer-events: none;
+          animation: orbFloat 10s ease-in-out infinite alternate;
+        }
+        @keyframes orbFloat {
+          from { transform: translate(0, 0) scale(1); }
+          to   { transform: translate(30px, 20px) scale(1.1); }
+        }
+
+        /* Dark mode overrides */
         html.dark-mode .student-lessons {
           color: #f4f7ff;
-          background: radial-gradient(circle at 15% 0%, rgba(99,102,241,0.16), transparent 35%), #080b1b;
         }
-        html.dark-mode .student-lessons .lg-card {
-          background: rgba(18,23,49,0.78);
-          border-color: rgba(165,180,252,0.17);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 44px rgba(0,0,0,0.30);
+        html.dark-mode .lg-ambient-bg {
+          background:
+            radial-gradient(ellipse 80% 60% at 10% 10%, rgba(99,102,241,0.15) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 80% at 90% 20%, rgba(14,165,233,0.08) 0%, transparent 45%),
+            linear-gradient(145deg, #070816 0%, #0c1024 58%, #0d0b1d 100%);
         }
-        html.dark-mode .student-lessons .lg-header-card,
-        html.dark-mode .student-lessons .lg-searchbar {
-          background: rgba(18,23,49,0.78);
-          border-color: rgba(165,180,252,0.20);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 38px rgba(0,0,0,0.28);
-        }
-        html.dark-mode .student-lessons .semester-kicker { color: #9aa7cc; }
-        html.dark-mode .student-lessons .semester-title { color: #f5f7ff; }
-        html.dark-mode .student-lessons .lesson-search-input { color: #f5f7ff; }
-        html.dark-mode .student-lessons .lesson-search-input::placeholder { color: #8490b5; }
-        html.dark-mode .student-lessons .lesson-level-select { color: #e7ebff; }
-        html.dark-mode .student-lessons .lesson-level-select option { color: #f5f7ff; background: #121731; }
-        html.dark-mode .student-lessons .lg-filter-chip-inactive {
-          color: #cbd3ef;
-          background: rgba(25,31,62,0.78);
+        html.dark-mode .lg-glass,
+        html.dark-mode .lg-search,
+        html.dark-mode .lg-semester-header {
+          background: rgba(18,23,49,0.75);
           border-color: rgba(165,180,252,0.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 38px rgba(0,0,0,0.25);
         }
-        html.dark-mode .student-lessons .lg-filter-chip-inactive:hover {
-          color: #ffffff;
-          background: rgba(99,102,241,0.25);
+        html.dark-mode .lg-preview-banner {
+          background:linear-gradient(110deg,rgba(69,39,12,.72),rgba(25,27,54,.82));
+          border-color:rgba(251,191,36,.28);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 16px 46px rgba(0,0,0,.26);
         }
-        html.dark-mode .student-lessons .preview-banner {
-          background: rgba(51,36,18,0.74);
-          border-color: rgba(251,191,36,0.28);
+        html.dark-mode .lg-preview-title { color:#fcd34d; }
+        html.dark-mode .lg-preview-copy { color:#fbbf7a; }
+        html.dark-mode .lg-chip-inactive {
+          background: rgba(25,31,62,0.7);
+          border-color: rgba(165,180,252,0.15);
+          color: #cbd3ef;
         }
-        html.dark-mode .student-lessons .preview-title { color: #fcd34d; }
-        html.dark-mode .student-lessons .preview-copy { color: #fbbf24; }
+        html.dark-mode .lg-chip-inactive:hover {
+          background: rgba(99,102,241,0.2);
+          color: #fff;
+        }
 
         @media (max-width: 640px) {
-          .student-lessons .lessons-content { padding: 28px 12px 40px; }
-          .student-lessons .preview-banner { align-items: flex-start; gap: 14px; border-radius: 22px; }
-          .student-lessons .preview-banner button { flex: 0 0 auto; padding-left: 14px; padding-right: 14px; }
-          .student-lessons .lg-searchbar { border-radius: 18px; }
-          .student-lessons .lg-searchbar > button { padding-left: 16px; padding-right: 16px; }
-          .student-lessons .filters-row { margin-bottom: 32px; }
-          .student-lessons .level-filter { width: 100%; justify-content: space-between; padding: 10px 14px; }
-          .student-lessons .semester-header { padding: 13px 14px; border-radius: 22px; }
-          .student-lessons .semester-header > div:first-child { gap: 11px; min-width: 0; }
-          .student-lessons .semester-header h2 { font-size: 1rem; white-space: nowrap; }
-          .student-lessons .semester-header > div:first-child > div:first-child { width: 42px; height: 42px; flex: 0 0 42px; }
+          .lg-modal-overlay { align-items: flex-end; padding: 0; }
+          .lg-modal {
+            max-width: none;
+            max-height: calc(100dvh - 20px);
+            overflow-y: auto;
+            border-radius: 28px 28px 0 0 !important;
+            padding-bottom: env(safe-area-inset-bottom);
+          }
+          .lg-search { border-radius: 18px; }
+          .lg-search > button { border-radius: 14px; margin: 4px; }
+          .lg-semester-header { padding: 14px 16px; }
+          .lg-semester-header h2 { font-size: 1rem; white-space: nowrap; }
         }
       `}</style>
 
+      {/* Ambient Background */}
+      <div className="lg-ambient-bg" />
+
       {/* Scroll Progress */}
       <div
-        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-rose-400 z-50 transition-all duration-150"
+        className="lg-scroll-progress fixed top-0 left-0 h-1 z-50 transition-all duration-150"
         style={{ width: `${scrollProgress}%` }}
       />
 
@@ -1188,43 +1204,42 @@ const LessonsPage = () => {
       <ScrollToTopButton visible={scrollProgress > 20} />
 
       {/* Hero Section */}
-      <div className="student-hero relative w-full h-[500px] overflow-hidden">
+      <div className="student-hero relative w-full h-[520px] overflow-hidden">
         <img
           src={lessonImage}
           alt="Banner"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out"
           style={{
             transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.05)`,
           }}
         />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(10,10,25,0.35) 0%, rgba(10,10,25,0.65) 100%)",
-          }}
-        />
-        <div className="absolute inset-0 flex items-center">
+        <div className="absolute inset-0 lg-hero-overlay z-[1]" />
+        <div className="absolute inset-0 z-[1] opacity-40 pointer-events-none">
+          <div className="lg-hero-orb top-16 left-16 w-80 h-80 bg-cyan-400/20" style={{ animationDelay: "0s" }} />
+          <div className="lg-hero-orb bottom-16 right-16 w-[28rem] h-[28rem] bg-indigo-500/20" style={{ animationDelay: "3s" }} />
+          <div className="lg-hero-orb top-1/2 left-1/2 w-96 h-96 bg-violet-400/10 -translate-x-1/2 -translate-y-1/2" style={{ animationDelay: "6s" }} />
+        </div>
+        <div className="absolute inset-0 flex items-center z-10">
           <div className="max-w-7xl mx-auto px-5 text-white">
-            <div className="lg-pill inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium mb-4 text-white/90">
+            <div className="lg-pill inline-flex items-center gap-2 px-4 py-2 text-xs font-bold mb-5 text-white/90 uppercase tracking-[0.12em]">
               <GraduationCap className="h-3.5 w-3.5" /> Elearning
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight leading-[1.05]">
               Expand Your Knowledge
             </h1>
-            <p className="text-lg max-w-xl text-white/85">
+            <p className="text-lg max-w-xl text-white/75 font-medium leading-relaxed">
               Video lessons organised by year and semester. First{" "}
               {FREE_VIDEO_LIMIT} videos free.
             </p>
             {!isSubscribed ? (
               <button
                 onClick={() => setShowSubscriptionModal(true)}
-                className="lg-cta-button mt-6 px-6 py-3 flex items-center gap-2"
+                className="lg-btn-primary mt-7 px-7 py-3.5 flex items-center gap-2 text-sm"
               >
                 <span>🔓</span> Unlock All — $9.99/mo
               </button>
             ) : (
-              <div className="lg-pill mt-6 inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white">
+              <div className="lg-pill mt-7 inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white">
                 <span>✓</span> Full lesson access
               </div>
             )}
@@ -1233,20 +1248,19 @@ const LessonsPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="lessons-content max-w-7xl mx-auto px-5 py-12">
+      <div className="max-w-7xl mx-auto px-5 py-14 sm:py-20 relative z-10">
         {/* Free Preview Banner */}
         {!isSubscribed && (
-          <div className="preview-banner lg-header-card mb-8 p-4 flex justify-between items-center" style={{ "--accent": "245,158,11" }}>
+          <div className="lg-glass-strong lg-preview-banner mb-10 p-5 flex justify-between items-center rounded-3xl" style={{ borderLeft: "4px solid rgb(245,158,11)" }}>
             <div>
-              <p className="preview-title font-semibold">Free Preview Mode</p>
-              <p className="preview-copy text-sm">
-                Watch first {FREE_VIDEO_LIMIT} videos free. Subscribe to unlock
-                all.
+              <p className="lg-preview-title font-bold text-sm mb-0.5">Free Preview Mode</p>
+              <p className="lg-preview-copy text-sm font-medium">
+                Watch first {FREE_VIDEO_LIMIT} videos free. Subscribe to unlock all.
               </p>
             </div>
             <button
               onClick={() => setShowSubscriptionModal(true)}
-              className="lg-cta-button px-5 py-2.5 text-sm"
+              className="lg-cta-button px-6 py-2.5 text-sm flex-shrink-0"
               style={{ background: "linear-gradient(135deg,#f59e0b,#ea580c)", boxShadow: "0 10px 26px rgba(245,158,11,0.35)" }}
             >
               Unlock All →
@@ -1255,32 +1269,32 @@ const LessonsPage = () => {
         )}
 
         {/* Search Bar */}
-        <div className="mb-6">
-          <div className="lg-searchbar flex overflow-hidden">
-            <div className="flex-1 flex items-center px-4">
-              <Search className="h-5 w-5 text-gray-400" />
+        <div className="mb-8">
+          <div className="lg-search flex overflow-hidden">
+            <div className="flex-1 flex items-center px-5">
+              <Search className="h-5 w-5 text-indigo-400/60" />
               <input
                 type="text"
                 placeholder="Search lessons..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="lesson-search-input flex-1 min-w-0 bg-transparent px-4 py-3.5 focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent px-4 py-4 text-slate-800 placeholder:text-slate-400 focus:outline-none font-medium"
               />
             </div>
-            <button className="lg-cta-button rounded-l-none px-7 my-1 mr-1">
+            <button className="lg-btn-primary rounded-l-none px-8 my-1.5 mr-1.5 text-sm">
               Search
             </button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="filters-row mb-12 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-14 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
             {visibleCategories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 text-sm lg-filter-chip ${selectedCategory === cat ? "lg-filter-chip-active" : "lg-filter-chip-inactive"}`}
+                className={`px-5 py-2.5 lg-chip ${selectedCategory === cat ? "lg-chip-active" : "lg-chip-inactive"}`}
               >
                 {cat}
               </button>
@@ -1288,12 +1302,12 @@ const LessonsPage = () => {
           </div>
 
           {/* Level Filter */}
-          <div className="level-filter lg-filter-chip-inactive flex items-center gap-2 px-3 py-1.5">
-            <Filter className="h-4 w-4 text-gray-400" />
+          <div className="lg-chip-inactive flex items-center gap-2 px-4 py-2.5">
+            <Filter className="h-4 w-4 text-indigo-400/60" />
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className="lesson-level-select text-sm bg-transparent focus:outline-none"
+              className="text-sm bg-transparent focus:outline-none font-semibold text-slate-600 cursor-pointer"
             >
               {levels.map((lv) => (
                 <option key={lv}>{lv}</option>

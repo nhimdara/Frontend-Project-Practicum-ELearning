@@ -6,6 +6,7 @@ import useAppTheme from "./app/useAppTheme";
 import ScrollToTop from "./components/assets/ScrollToTop";
 import FontStyle from "./components/layout/ui/FontStyle";
 import GlobalStyles from "./components/layout/ui/GlobalStyles";
+import { LanguageProvider } from "./i18n/LanguageContext";
 
 const AppContent = () => {
   useAppTheme();
@@ -19,7 +20,9 @@ const App = () => (
     <FontStyle />
     <GlobalStyles />
     <ScrollToTop />
-    <AppContent />
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   </BrowserRouter>
 );
 

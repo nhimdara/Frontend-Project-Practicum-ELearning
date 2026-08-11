@@ -8,14 +8,46 @@ import {
   SunMedium, Laptop
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
-import {
-  applyAllSettings,
-  saveSettings,
-  loadStoredSettings,
-  ACCENT_PRESETS,
-  FONT_SIZE_MAP,
-  FONT_FAMILY_MAP
-} from "../../../app/useAppTheme";
+
+/* ─────────────────────────────────────────────────
+   APPLY FUNCTIONS — these write to <html> immediately
+   ───────────────────────────────────────────────── */
+const applyTheme = (theme) => {
+  const isDark = theme === "dark" ||
+    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.classList.toggle("dark-mode", isDark);
+};
+
+const applyFontSize = (size) => {
+  const map = { small: "13px", medium: "15px", large: "17px", "x-large": "19px" };
+  document.documentElement.style.setProperty("--app-font-size", map[size] || "15px");
+};
+
+const applyFontFamily = (font) => {
+  document.documentElement.style.setProperty("--app-font-family", `'${font}', sans-serif`);
+};
+
+const applyFlags = (s) => {
+  const r = document.documentElement;
+  r.classList.toggle("reduce-animations", !!(s.reduceAnimations || s.reducedMotion));
+  r.classList.toggle("high-contrast",     !!(s.highContrast || s.highContrastMode));
+  r.classList.toggle("compact-view",      !!s.compactView);
+  r.classList.toggle("liquid-glass-disabled", s.liquidGlass === false);
+};
+
+const STORAGE_KEY = "learnflow_settings";
+
+const save = (s) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    // Browser storage can be unavailable in private/restricted contexts.
+  }
+};
+
+const loadSaved = () => {
+  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+};
 
 /* ─────────────────────────────────────────────────
    SUB-COMPONENTS
@@ -70,6 +102,7 @@ const Field = ({ label, children }) => (
    MAIN COMPONENT
    ───────────────────────────────────────────────── */
 const Settings = ({ user, onLogout, onUserUpdate }) => {
+  const { setLanguage: setAppLanguage } = useLanguage();
   const photoInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -197,6 +230,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
   /* ── change handler — applies immediately + saves ── */
   const handleChange = (key, value) => {
+    if (key === "language") setAppLanguage(value);
     setSettings(prev => {
       const next = { ...prev, [key]: value };
       saveSettings(next);
@@ -902,10 +936,6 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                         <select className="sett-select" value={settings.language} onChange={e => handleChange("language", e.target.value)}>
                           <option value="english">English (US)</option>
                           <option value="khmer">ភាសាខ្មែរ (Khmer)</option>
-                          <option value="spanish">Español</option>
-                          <option value="french">Français</option>
-                          <option value="chinese">中文</option>
-                          <option value="japanese">日本語</option>
                         </select>
                       </Field>
                       <Field label="Timezone">
