@@ -1159,6 +1159,34 @@ html.dark-mode .teacher-dashboard-root .sidebar nav button[style*="rgba(99,102,2
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
+/* Explicit active state; avoids relying on serialized inline style values. */
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active,
+html.dark-mode .teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active,
+.teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active {
+  background: #26356b !important;
+  color: #ffffff !important;
+  border-left-color: #818cf8 !important;
+  box-shadow:
+    inset 3px 0 0 #818cf8,
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active:hover,
+html.dark-mode .teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active:hover,
+.teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active:hover {
+  background: #30417e !important;
+  color: #ffffff !important;
+}
+
+.teacher-dashboard-root .teacher-nav-item svg {
+  color: currentColor;
+  opacity: 0.9;
+}
+
+.teacher-dashboard-root .teacher-nav-item.is-active svg {
+  opacity: 1;
+}
+
 html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"],
 html.dark-mode .teacher-dashboard-root .sidebar button[style*="linear-gradient"],
 .teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
@@ -1287,4 +1315,94 @@ html.dark-mode .teacher-dashboard-root .sidebar button[style*="linear-gradient"]
 .teacher-dashboard-root.liquid-glass-disabled .glass-card::before {
   animation: none !important;
   opacity: 0 !important;
+}
+
+/* Classic UI: used when Liquid Glass is disabled. */
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-main {
+  background: #f5f7fb !important;
+}
+
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-main {
+  background: #070b17 !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-filter-bar,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .glass-card,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-content-section > div:first-child {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-filter-bar,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .glass-card,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-content-section > div:first-child {
+  background: #111827 !important;
+  border-color: #263247 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24) !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div::after,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div::after,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div::after,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card::after,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-filter-bar::after,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-content-section > div:first-child::before,
+.teacher-dashboard-root.liquid-glass-disabled .sidebar::after {
+  display: none !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card,
+.teacher-dashboard-root.liquid-glass-disabled .glass-card {
+  animation: none !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div:hover,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div:hover,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div:hover,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card:hover,
+.teacher-dashboard-root.liquid-glass-disabled .glass-card:hover {
+  transform: none !important;
+  animation: none !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-main input,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-main select,
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .teacher-main textarea {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-main input,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-main select,
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .teacher-main textarea {
+  background: #0b1220 !important;
+  border-color: #334155 !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .video-form-modal,
+.teacher-dashboard-root.liquid-glass-disabled .video-form-access-panel,
+.teacher-dashboard-root.liquid-glass-disabled .video-form-preview-status {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root.liquid-glass-disabled .video-form-modal {
+  background: #ffffff !important;
+}
+
+html.dark-mode .teacher-dashboard-root.liquid-glass-disabled .video-form-modal {
+  background: #111827 !important;
 }

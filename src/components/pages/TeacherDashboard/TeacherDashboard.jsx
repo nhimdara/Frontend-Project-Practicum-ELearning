@@ -721,6 +721,8 @@ const TeacherDashboard = ({ user, onLogout }) => {
             {navItems.map(({ id, icon: Icon, label }) => (
               <button
                 key={id}
+                className={`teacher-nav-item ${activeTab === id ? "is-active" : ""}`}
+                aria-current={activeTab === id ? "page" : undefined}
                 onClick={() => {
                   setActiveTab(id);
                   setMobileMenuOpen(false);
