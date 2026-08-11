@@ -82,14 +82,41 @@
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .teacher-dashboard-root {
   max-width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0 !important;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .teacher-main {
   scroll-behavior: smooth;
+  display: block;
+  align-self: stretch;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0 !important;
   min-width: 0;
   overflow-x: hidden !important;
+  overflow-y: auto !important;
   position: relative;
+}
+
+/* Anchor the application content to the top of the scroll panel. This also
+   isolates it from global page-layout rules used by the public site. */
+.teacher-main-content {
+  position: absolute !important;
+  inset: 0 0 auto 0 !important;
+  width: 100%;
+  min-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+.sidebar nav {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .teacher-content-section,
@@ -101,12 +128,38 @@
 }
 
 .teacher-content-section {
-  padding: 14px 24px 48px !important;
+  padding: 8px 24px 40px !important;
   animation: slideUp 0.32s cubic-bezier(0.22,1,0.36,1);
 }
 
 .teacher-report-toolbar {
-  padding: 20px 24px 0 !important;
+  min-height: 64px;
+  padding: 12px 24px 6px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.teacher-page-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.teacher-page-heading span {
+  color: var(--teacher-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.teacher-page-heading strong {
+  color: var(--teacher-text);
+  font-size: 18px;
+  letter-spacing: -0.02em;
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -260,13 +313,13 @@
 }
 
 .teacher-stats-grid > div {
-  min-height: 142px;
+  min-height: 124px;
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-radius: 20px !important;
-  padding: 20px !important;
+  border-radius: 18px !important;
+  padding: 18px !important;
 }
 
 .teacher-stat-value {
@@ -334,8 +387,8 @@
 .teacher-content-section > div:first-child {
   position: relative;
   overflow: hidden;
-  padding: 28px 30px !important;
-  border-radius: 24px;
+  padding: 24px 26px !important;
+  border-radius: 20px;
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   animation: slideUp 0.32s cubic-bezier(0.22,1,0.36,1);
@@ -849,10 +902,7 @@ html.dark-mode .mobile-menu-button.is-open {
     padding-left: 16px !important;
     padding-right: 16px !important;
   }
-  .teacher-report-toolbar button {
-    width: 100%;
-    justify-content: center;
-  }
+  .teacher-page-heading span { display: none; }
 }
 
 @media (min-width: 769px) and (max-width: 1280px) {
@@ -903,4 +953,338 @@ html.dark-mode .mobile-menu-button.is-open {
   .teacher-video-grid > div:hover,
   .teacher-lessons-grid > div:hover,
   .teacher-settings-card:hover { animation: none !important; }
+}
+
+/* Unified teacher workspace palette -------------------------------------- */
+.teacher-dashboard-root {
+  --teacher-bg: #f4f7fc;
+  --teacher-bg-deep: #eaf0fb;
+  --teacher-sidebar: #0f1b38;
+  --teacher-surface: rgba(255, 255, 255, 0.86);
+  --teacher-surface-strong: #ffffff;
+  --teacher-border: rgba(148, 163, 184, 0.24);
+  --teacher-text: #172033;
+  --teacher-muted: #68758d;
+  --teacher-accent: #6366f1;
+  --teacher-accent-strong: #4f46e5;
+  --teacher-accent-soft: rgba(99, 102, 241, 0.11);
+  --teacher-cyan: #0891b2;
+}
+
+html.dark-mode .teacher-dashboard-root {
+  --teacher-bg: #070b17;
+  --teacher-bg-deep: #0b1122;
+  --teacher-sidebar: #080d1d;
+  --teacher-surface: rgba(15, 23, 42, 0.82);
+  --teacher-surface-strong: #111a2f;
+  --teacher-border: rgba(148, 163, 184, 0.17);
+  --teacher-text: #f1f5f9;
+  --teacher-muted: #9aa8bd;
+  --teacher-accent: #818cf8;
+  --teacher-accent-strong: #6366f1;
+  --teacher-accent-soft: rgba(129, 140, 248, 0.14);
+  --teacher-cyan: #22d3ee;
+}
+
+.teacher-dashboard-root .teacher-main,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-main,
+html.dark-mode .teacher-dashboard-root .teacher-main {
+  background:
+    radial-gradient(circle at 14% 4%, color-mix(in srgb, var(--teacher-accent) 16%, transparent), transparent 28rem),
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--teacher-cyan) 10%, transparent), transparent 26rem),
+    linear-gradient(145deg, var(--teacher-bg), var(--teacher-bg-deep)) !important;
+  color: var(--teacher-text) !important;
+}
+
+.teacher-dashboard-root .sidebar,
+html:not(.dark-mode) .teacher-dashboard-root .sidebar,
+html.dark-mode .teacher-dashboard-root .sidebar {
+  background: linear-gradient(180deg, var(--teacher-sidebar), #15112f) !important;
+  border-right: 1px solid rgba(129, 140, 248, 0.24) !important;
+  box-shadow: 10px 0 30px rgba(3, 7, 18, 0.2) !important;
+}
+
+.teacher-dashboard-root .sidebar p {
+  color: #f8fafc !important;
+}
+
+.teacher-dashboard-root .sidebar button {
+  color: #a9b5cc !important;
+}
+
+.teacher-dashboard-root .sidebar button:hover {
+  background: rgba(129, 140, 248, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.teacher-dashboard-root .sidebar button[style*="rgba(99,102,241,0.15)"] {
+  background: rgba(129, 140, 248, 0.18) !important;
+  color: #ffffff !important;
+  box-shadow: inset 3px 0 0 #818cf8;
+}
+
+.teacher-dashboard-root .teacher-stats-grid > div,
+.teacher-dashboard-root .teacher-video-grid > div,
+.teacher-dashboard-root .teacher-lessons-grid > div,
+.teacher-dashboard-root .teacher-settings-card,
+.teacher-dashboard-root .teacher-filter-bar,
+.teacher-dashboard-root .glass-card,
+html:not(.dark-mode) .teacher-dashboard-root .teacher-content-section > div:first-child,
+html.dark-mode .teacher-dashboard-root .teacher-content-section > div:first-child {
+  background: var(--teacher-surface) !important;
+  border-color: var(--teacher-border) !important;
+  color: var(--teacher-text) !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.teacher-dashboard-root .teacher-main h1,
+.teacher-dashboard-root .teacher-main h2,
+.teacher-dashboard-root .teacher-main h3,
+.teacher-dashboard-root .teacher-main strong {
+  color: var(--teacher-text) !important;
+}
+
+.teacher-dashboard-root .teacher-main input,
+.teacher-dashboard-root .teacher-main select,
+.teacher-dashboard-root .teacher-main textarea {
+  background: var(--teacher-surface-strong) !important;
+  border-color: var(--teacher-border) !important;
+  color: var(--teacher-text) !important;
+}
+
+.teacher-dashboard-root .teacher-main input::placeholder,
+.teacher-dashboard-root .teacher-main textarea::placeholder {
+  color: var(--teacher-muted) !important;
+}
+
+.teacher-report-button,
+.teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
+  background: linear-gradient(135deg, var(--teacher-accent-strong), #7c3aed) !important;
+  color: #ffffff !important;
+}
+
+.teacher-access-badge.is-free {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+  color: #34d399 !important;
+}
+
+.teacher-access-badge.is-paid {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+  color: #fbbf24 !important;
+}
+
+.teacher-card-action {
+  background: var(--teacher-accent-soft) !important;
+  border-color: var(--teacher-border) !important;
+}
+
+.teacher-card-action.is-link { color: var(--teacher-muted) !important; }
+.teacher-card-action.is-edit { color: var(--teacher-accent) !important; }
+.teacher-card-action.is-delete { color: #f87171 !important; }
+
+.teacher-delete-overlay {
+  background: rgba(2, 6, 23, 0.72) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.teacher-delete-dialog {
+  background: var(--teacher-surface-strong) !important;
+  border: 1px solid var(--teacher-border);
+  color: var(--teacher-text) !important;
+  box-shadow: 0 28px 80px rgba(2, 6, 23, 0.38) !important;
+}
+
+.teacher-delete-dialog p { color: var(--teacher-muted) !important; }
+.teacher-delete-dialog p:first-of-type { color: var(--teacher-text) !important; }
+.teacher-delete-icon { background: rgba(248, 113, 113, 0.14) !important; }
+
+/* Clean sidebar colors. Keep this final so legacy light/dark overrides cannot
+   reduce navigation contrast. */
+html:not(.dark-mode) .teacher-dashboard-root .sidebar,
+html.dark-mode .teacher-dashboard-root .sidebar,
+.teacher-dashboard-root .sidebar {
+  background: #0f172f !important;
+  border-right: 1px solid #253253 !important;
+  color: #e8edf7 !important;
+  box-shadow: 8px 0 28px rgba(2, 6, 23, 0.22) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar p,
+html.dark-mode .teacher-dashboard-root .sidebar p,
+.teacher-dashboard-root .sidebar p {
+  color: #e8edf7 !important;
+  opacity: 1 !important;
+}
+
+.teacher-dashboard-root .sidebar p[style*="text-transform"] {
+  color: #8f9db7 !important;
+}
+
+.teacher-dashboard-root .sidebar p[style*="color: rgb(100, 116, 139)"],
+.teacher-dashboard-root .sidebar p[style*="color: #64748b"] {
+  color: #8f9db7 !important;
+}
+
+.teacher-dashboard-root .sidebar div[style*="background: rgba(99, 102, 241, 0.15)"] {
+  background: #1b2850 !important;
+  color: #c7d2fe !important;
+  border: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav button,
+html.dark-mode .teacher-dashboard-root .sidebar nav button,
+.teacher-dashboard-root .sidebar nav button {
+  background: transparent !important;
+  color: #a8b3c8 !important;
+  opacity: 1 !important;
+  border-left-color: transparent !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav button:hover,
+html.dark-mode .teacher-dashboard-root .sidebar nav button:hover,
+.teacher-dashboard-root .sidebar nav button:hover {
+  background: #182442 !important;
+  color: #f8fafc !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav button[style*="rgba(99,102,241,0.15)"],
+html.dark-mode .teacher-dashboard-root .sidebar nav button[style*="rgba(99,102,241,0.15)"],
+.teacher-dashboard-root .sidebar nav button[style*="rgba(99,102,241,0.15)"] {
+  background: #26356b !important;
+  color: #ffffff !important;
+  border-left-color: #818cf8 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"],
+html.dark-mode .teacher-dashboard-root .sidebar button[style*="linear-gradient"],
+.teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
+  background: linear-gradient(135deg, #6366f1, #7c3aed) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.24) !important;
+}
+
+.teacher-dashboard-root .sidebar button[title="Logout"] {
+  color: #94a3b8 !important;
+}
+
+.teacher-dashboard-root .sidebar button[title="Logout"]:hover {
+  background: rgba(248, 113, 113, 0.12) !important;
+  color: #fca5a5 !important;
+}
+
+.teacher-glass-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid var(--teacher-border);
+  border-radius: 14px;
+  background: var(--teacher-accent-soft);
+}
+
+.teacher-glass-setting-copy {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.teacher-glass-setting-copy > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.teacher-glass-setting-copy strong {
+  color: var(--teacher-text);
+  font-size: 13px;
+}
+
+.teacher-glass-setting-copy span {
+  color: var(--teacher-muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.teacher-glass-setting-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--teacher-surface-strong);
+  color: var(--teacher-accent);
+}
+
+.teacher-switch {
+  position: relative;
+  width: 46px;
+  min-width: 46px;
+  height: 26px;
+  padding: 3px !important;
+  border: 1px solid var(--teacher-border) !important;
+  border-radius: 999px !important;
+  background: #64748b !important;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.teacher-switch span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 6, 23, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.teacher-switch.is-on {
+  background: var(--teacher-accent-strong) !important;
+  border-color: var(--teacher-accent) !important;
+}
+
+.teacher-switch.is-on span { transform: translateX(20px); }
+
+/* Performance-friendly solid mode when Liquid Glass is disabled. */
+.teacher-dashboard-root.liquid-glass-disabled *,
+.teacher-dashboard-root.liquid-glass-disabled *::before,
+.teacher-dashboard-root.liquid-glass-disabled *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .teacher-main::before,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-main::after,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-blob-3,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-content-section > div:first-child::after {
+  display: none !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-filter-bar,
+.teacher-dashboard-root.liquid-glass-disabled .glass-card,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-content-section > div:first-child {
+  background: var(--teacher-surface-strong) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+.teacher-dashboard-root.liquid-glass-disabled .teacher-stats-grid > div::before,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-video-grid > div::before,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-lessons-grid > div::before,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-settings-card::before,
+.teacher-dashboard-root.liquid-glass-disabled .teacher-filter-bar::before,
+.teacher-dashboard-root.liquid-glass-disabled .glass-card::before {
+  animation: none !important;
+  opacity: 0 !important;
 }

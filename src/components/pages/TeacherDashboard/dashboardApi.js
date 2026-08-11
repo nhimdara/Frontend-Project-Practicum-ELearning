@@ -51,9 +51,13 @@ export const updateVideo = async (id, videoData) => {
   return data;
 };
 
-export const deleteVideo = async (id) => {
+export const deleteVideo = async (id, teacherId) => {
   const response = await fetch(`${API_BASE}/videos/${id}`, {
     method: "DELETE",
+    headers: {
+      "x-user-id": String(teacherId || ""),
+      "x-user-role": "teacher",
+    },
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "Failed to delete video");

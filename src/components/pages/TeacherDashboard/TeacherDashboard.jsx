@@ -23,8 +23,10 @@ import {
   applyStoredTheme,
   dedupeVideosByLessonSlot,
   getProjectMajor,
+  getStoredLiquidGlass,
   getStoredTheme,
   normalizeProjectTags,
+  storeLiquidGlass,
 } from "./dashboardUtils";
 
 import {
@@ -79,6 +81,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [themeMode, setThemeMode] = useState(getStoredTheme);
+  const [liquidGlass, setLiquidGlass] = useState(getStoredLiquidGlass);
   const [examReportData, setExamReportData] = useState({
     major: "",
     questions: [],
@@ -109,6 +112,15 @@ const TeacherDashboard = ({ user, onLogout }) => {
     showToast(`${theme === "dark" ? "Dark" : "Light"} mode enabled.`);
   };
 
+  const handleLiquidGlassChange = () => {
+    setLiquidGlass((enabled) => {
+      const nextValue = !enabled;
+      storeLiquidGlass(nextValue);
+      showToast(`Liquid Glass ${nextValue ? "enabled" : "disabled"}.`);
+      return nextValue;
+    });
+  };
+
   // Load initial data - filter lessons by teacher's major
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -118,17 +130,19 @@ const TeacherDashboard = ({ user, onLogout }) => {
         fetchLessonsFromAPI(),
         fetchProjectsFromAPI(),
       ]);
-      setVideos(dedupeVideosByLessonSlot(videosData));
+      setVideos(
+        dedupeVideosByLessonSlot(Array.isArray(videosData) ? videosData : []),
+      );
       setProjects(Array.isArray(projectsData) ? projectsData : []);
 
       // Filter lessons by teacher's selected major
       if (teacherMajor) {
-        const filteredLessons = lessonsData.filter(
-          (lesson) => lesson.major === teacherMajor,
-        );
+        const filteredLessons = (
+          Array.isArray(lessonsData) ? lessonsData : []
+        ).filter((lesson) => lesson.major === teacherMajor);
         setLessons(filteredLessons);
       } else {
-        setLessons(lessonsData);
+        setLessons(Array.isArray(lessonsData) ? lessonsData : []);
       }
     } catch (err) {
       console.error("Failed to load data:", err);
@@ -216,8 +230,8 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   const stats = {
     totalVideos: teacherVideos.length,
-    freeVideos: teacherVideos.filter((v) => v.is_free).length,
-    paidVideos: teacherVideos.filter((v) => !v.is_free).length,
+    freeVideos: teacherVideos.filter((v) => Number(v.is_free) === 1).length,
+    paidVideos: teacherVideos.filter((v) => Number(v.is_free) !== 1).length,
     lessonsWithVideo: [...new Set(teacherVideos.map((v) => v.lesson_id))]
       .length,
     totalMinutes: teacherVideos.reduce((sum, video) => {
@@ -232,8 +246,12 @@ const TeacherDashboard = ({ user, onLogout }) => {
       filterLesson === "all" || String(v.lesson_id) === String(filterLesson);
     const matchSearch =
       !searchQuery ||
-      v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (v.description || "").toLowerCase().includes(searchQuery.toLowerCase());
+      String(v.title || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      String(v.description || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
     return matchLesson && matchSearch;
   });
 
@@ -297,7 +315,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const handleDelete = useCallback(
     async (videoId) => {
       try {
-        await deleteVideoAPI(videoId);
+        await deleteVideoAPI(videoId, user?.id);
         await loadData();
         showToast("Video deleted.", "error");
       } catch (err) {
@@ -306,7 +324,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
         setDeleteConfirm(null);
       }
     },
-    [loadData],
+    [loadData, user?.id],
   );
 
   const openAdd = (lessonId = null) => {
@@ -528,6 +546,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
     { id: "exam", icon: CheckCircle, label: "Exam Questions" },
     { id: "settings", icon: Settings, label: "Settings" },
   ];
+  const activeNavItem = navItems.find((item) => item.id === activeTab);
 
   const sidebarStyle = {
     width: 260,
@@ -543,9 +562,11 @@ const TeacherDashboard = ({ user, onLogout }) => {
 
   const mainStyle = {
     flex: 1,
-    minHeight: "100vh",
+    minHeight: 0,
+    height: "100dvh",
     fontFamily: "'DM Sans', sans-serif",
-    overflow: "auto",
+    overflowY: "auto",
+    overflowX: "hidden",
     width: "100%",
   };
 
@@ -611,7 +632,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
       />
 
       <div
-        className="teacher-dashboard-root"
+        className={`teacher-dashboard-root ${liquidGlass ? "liquid-glass-enabled" : "liquid-glass-disabled"}`}
         style={{ display: "flex", minHeight: "100vh", position: "relative" }}
       >
         {/* SIDEBAR */}
@@ -842,14 +863,12 @@ const TeacherDashboard = ({ user, onLogout }) => {
         {/* MAIN CONTENT */}
         <main style={mainStyle} className="teacher-main">
           <div className="teacher-blob-3" aria-hidden="true" />
-          <div
-            className="teacher-report-toolbar"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              padding: "16px 20px 0",
-            }}
-          >
+          <div className="teacher-main-content">
+            <div className="teacher-report-toolbar">
+              <div className="teacher-page-heading">
+                <span>Teacher workspace</span>
+                <strong>{activeNavItem?.label || "Dashboard"}</strong>
+              </div>
             {activeTeacherReport && (
               <button
                 className="teacher-report-button"
@@ -875,7 +894,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
                 <span>Generate Report</span>
               </button>
             )}
-          </div>
+            </div>
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <div className="teacher-content-section" style={{ padding: "24px 20px" }}>
@@ -2064,6 +2083,28 @@ const TeacherDashboard = ({ user, onLogout }) => {
                     </div>
                   </div>
 
+                  <div className="teacher-glass-setting">
+                    <div className="teacher-glass-setting-copy">
+                      <div className="teacher-glass-setting-icon">
+                        <Layers size={17} />
+                      </div>
+                      <div>
+                        <strong>Liquid Glass</strong>
+                        <span>Blur, transparency and animated highlights</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={liquidGlass}
+                      aria-label="Toggle Liquid Glass effects"
+                      className={`teacher-switch ${liquidGlass ? "is-on" : ""}`}
+                      onClick={handleLiquidGlassChange}
+                    >
+                      <span />
+                    </button>
+                  </div>
+
                   <div style={{ display: "grid", gap: 10 }}>
                     <button
                       type="button"
@@ -2116,6 +2157,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
               </div>
             </div>
           )}
+          </div>
         </main>
 
         {/* VIDEO FORM MODAL */}
@@ -2136,6 +2178,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
         {/* DELETE CONFIRM */}
         {deleteConfirm && (
           <div
+            className="teacher-delete-overlay"
             style={{
               position: "fixed",
               inset: 0,
@@ -2151,6 +2194,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
             }}
           >
             <div
+              className="teacher-delete-dialog"
               style={{
                 background: "#fff",
                 borderRadius: "16px",
@@ -2163,6 +2207,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
               }}
             >
               <div
+                className="teacher-delete-icon"
                 style={{
                   width: 52,
                   height: 52,

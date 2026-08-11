@@ -13,6 +13,7 @@ import { extractYouTubeId, getYouTubeThumbnail } from "../dashboardUtils";
 const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
   const ytId = extractYouTubeId(video.link);
   const thumb = ytId ? getYouTubeThumbnail(ytId) : null;
+  const isFree = Number(video.is_free) === 1;
 
   return (
     <div
@@ -57,6 +58,7 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
           </div>
         )}
         <div
+          className={`teacher-access-badge ${isFree ? "is-free" : "is-paid"}`}
           style={{
             position: "absolute",
             top: "50%",
@@ -78,9 +80,9 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
             position: "absolute",
             top: 8,
             right: 8,
-            background: video.is_free ? "#ecfdf5" : "#fef3c7",
-            color: video.is_free ? "#065f46" : "#92400e",
-            border: `1px solid ${video.is_free ? "#a7f3d0" : "#fde68a"}`,
+            background: isFree ? "#ecfdf5" : "#fef3c7",
+            color: isFree ? "#065f46" : "#92400e",
+            border: `1px solid ${isFree ? "#a7f3d0" : "#fde68a"}`,
             borderRadius: "6px",
             fontSize: "11px",
             fontWeight: 600,
@@ -88,7 +90,7 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
             letterSpacing: "0.02em",
           }}
         >
-          {video.is_free ? "FREE" : "PAID"}
+          {isFree ? "FREE" : "PAID"}
         </div>
         <div
           style={{
@@ -176,6 +178,7 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
           </span>
           <div style={{ display: "flex", gap: 6 }}>
             <button
+              className="teacher-card-action is-link"
               onClick={() => window.open(video.link, "_blank")}
               title="Open on YouTube"
               style={{
@@ -201,6 +204,7 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
               <ExternalLink size={13} />
             </button>
             <button
+              className="teacher-card-action is-edit"
               onClick={() => onEdit(video)}
               title="Edit"
               style={{
@@ -224,6 +228,7 @@ const VideoCard = ({ video, lesson, onEdit, onDelete }) => {
               <Edit3 size={13} />
             </button>
             <button
+              className="teacher-card-action is-delete"
               onClick={() => onDelete(video.id)}
               title="Delete"
               style={{

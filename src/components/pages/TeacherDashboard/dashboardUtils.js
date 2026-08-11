@@ -29,6 +29,33 @@ export const getStoredTheme = () => {
   }
 };
 
+export const getStoredLiquidGlass = () => {
+  try {
+    return JSON.parse(
+      localStorage.getItem("learnflow_settings") || "{}",
+    ).liquidGlass !== false;
+  } catch {
+    return true;
+  }
+};
+
+export const storeLiquidGlass = (enabled) => {
+  try {
+    const settings = JSON.parse(
+      localStorage.getItem("learnflow_settings") || "{}",
+    );
+    localStorage.setItem(
+      "learnflow_settings",
+      JSON.stringify({ ...settings, liquidGlass: enabled }),
+    );
+  } catch {
+    localStorage.setItem(
+      "learnflow_settings",
+      JSON.stringify({ liquidGlass: enabled }),
+    );
+  }
+};
+
 export const applyStoredTheme = (theme) => {
   const isDark =
     theme === "dark" ||
