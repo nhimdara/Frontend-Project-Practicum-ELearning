@@ -4,7 +4,7 @@ import Toast from "./components/Toast";
 import VideoCard from "./components/VideoCard";
 import VideoFormModal from "./components/VideoFormModal";
 // TeacherDashboard.jsx — Complete with major filtering
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { API_BASE_URL } from "../../../config/api";
 import ExamQuestionForm from "../ExamQuestionForm";
 import logo from "../../assets/image/logo.png";
@@ -86,6 +86,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
     major: "",
     questions: [],
   });
+  const mainPanelRef = useRef(null);
 
   // ========== CASCADING DROPDOWN STATES ==========
   const [_years, setYears] = useState([]);
@@ -122,8 +123,8 @@ const TeacherDashboard = ({ user, onLogout }) => {
   };
 
   // Load initial data - filter lessons by teacher's major
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async ({ showLoader = true } = {}) => {
+    if (showLoader) setLoading(true);
     try {
       const [videosData, lessonsData, projectsData] = await Promise.all([
         fetchVideosFromAPI(),
@@ -148,7 +149,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
       console.error("Failed to load data:", err);
       showToast(err.message, "error");
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   }, [teacherMajor]);
 
@@ -293,6 +294,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
   // Save handler
   const handleSave = useCallback(
     async (formData) => {
+      const savedScrollTop = mainPanelRef.current?.scrollTop || 0;
       try {
         if (formData.id) {
           await updateVideoAPI(formData.id, formData);
@@ -301,7 +303,14 @@ const TeacherDashboard = ({ user, onLogout }) => {
           await createVideoAPI(formData);
           showToast("Video added successfully!");
         }
-        await loadData();
+        await loadData({ showLoader: false });
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (mainPanelRef.current) {
+              mainPanelRef.current.scrollTop = savedScrollTop;
+            }
+          });
+        });
         setEditingVideo(null);
       } catch (err) {
         showToast(err.message, "error");
@@ -316,7 +325,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
     async (videoId) => {
       try {
         await deleteVideoAPI(videoId, user?.id);
-        await loadData();
+        await loadData({ showLoader: false });
         showToast("Video deleted.", "error");
       } catch (err) {
         showToast(err.message, "error");
@@ -863,7 +872,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
         />
 
         {/* MAIN CONTENT */}
-        <main style={mainStyle} className="teacher-main">
+        <main ref={mainPanelRef} style={mainStyle} className="teacher-main">
           <div className="teacher-blob-3" aria-hidden="true" />
           <div className="teacher-main-content">
             <div className="teacher-report-toolbar">
