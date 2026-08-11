@@ -471,6 +471,23 @@ html.dark-mode footer {
 .student-site-footer .footer-glass-highlight { background-image: linear-gradient(to right, transparent, rgba(255,255,255,.98), transparent); }
 .student-site-footer .footer-glass-glow { background: rgba(255,255,255,.66); }
 .student-site-footer .footer-ambient { opacity: .62; }
+.student-site-footer .footer-accent-gradient {
+  color: var(--accent-color, #4f46e5) !important;
+  background: var(--accent-gradient, linear-gradient(135deg,#4f46e5,#7c3aed));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.student-site-footer .footer-accent-line { background: var(--accent-gradient, linear-gradient(90deg,#4f46e5,#7c3aed)); }
+.student-site-footer .footer-accent-icon { color: var(--accent-color, #4f46e5) !important; }
+.student-site-footer .footer-contact-icon-wrap {
+  background: var(--accent-light, rgba(99,102,241,.10)) !important;
+  border-color: var(--accent-border, rgba(99,102,241,.22)) !important;
+}
+.student-site-footer .footer-contact-icon { color: var(--accent-color, #4f46e5) !important; }
+.student-site-footer .footer-link-dot { background: var(--accent-color, #4f46e5) !important; }
+.student-site-footer .footer-copy { color: #34415b !important; }
+.student-site-footer .footer-muted { color: #64748b !important; }
 .student-site-footer p,
 .student-site-footer a,
 .student-site-footer .text-indigo-100,
@@ -507,6 +524,8 @@ html.dark-mode .student-site-footer .footer-glass-panel {
 }
 html.dark-mode .student-site-footer .footer-glass-highlight { background-image: linear-gradient(to right, transparent, rgba(255,255,255,.35), transparent); }
 html.dark-mode .student-site-footer .footer-glass-glow { background: rgba(129,140,248,.12); }
+html.dark-mode .student-site-footer .footer-copy { color:#dbe4ff !important; }
+html.dark-mode .student-site-footer .footer-muted { color:#9eaccb !important; }
 html.dark-mode .student-site-footer p,
 html.dark-mode .student-site-footer a,
 html.dark-mode .student-site-footer .text-indigo-100,
@@ -1835,6 +1854,58 @@ html.reduce-animations *::after {
   transition-duration: 0.001ms !important;
   transition-delay: 0ms !important;
   scroll-behavior: auto !important;
+}
+
+/* Route every student-facing brand utility through the selected accent.
+   Semantic warning, success and danger utilities remain unchanged. */
+html[data-accent] :is(
+  .text-indigo-200,.text-indigo-300,.text-indigo-400,.text-indigo-500,.text-indigo-600,.text-indigo-700,.text-indigo-800,
+  .text-violet-300,.text-violet-400,.text-violet-500,.text-violet-600,.text-violet-700,
+  .text-purple-300,.text-purple-400,.text-purple-500,.text-purple-600,.text-purple-700,
+  .text-blue-300,.text-blue-400,.text-blue-500,.text-blue-600,.text-blue-700,
+  .text-cyan-200,.text-cyan-300,.text-cyan-400,.text-cyan-500,.text-cyan-600,.text-cyan-700
+) { color:var(--accent-color) !important; }
+
+html[data-accent] :is(
+  .bg-indigo-400,.bg-indigo-500,.bg-indigo-600,.bg-indigo-700,
+  .bg-violet-400,.bg-violet-500,.bg-violet-600,
+  .bg-purple-400,.bg-purple-500,.bg-purple-600,
+  .bg-blue-400,.bg-blue-500,.bg-blue-600,
+  .bg-cyan-300,.bg-cyan-400,.bg-cyan-500,.bg-cyan-600
+) { background-color:var(--accent-color) !important; }
+
+html[data-accent] :is(
+  .bg-indigo-50,.bg-indigo-100,.bg-violet-50,.bg-violet-100,.bg-purple-50,.bg-purple-100,
+  .bg-blue-50,.bg-blue-100,.bg-cyan-50,.bg-cyan-100
+) { background-color:var(--accent-light) !important; }
+
+html[data-accent] :is(
+  .border-indigo-100,.border-indigo-200,.border-indigo-300,.border-indigo-400,.border-indigo-500,.border-indigo-600,
+  .border-violet-200,.border-violet-300,.border-violet-400,.border-purple-200,.border-purple-400,
+  .border-blue-200,.border-blue-400,.border-cyan-200,.border-cyan-400
+) { border-color:var(--accent-border) !important; }
+
+html[data-accent] :is(
+  .ring-indigo-200,.ring-indigo-300,.ring-indigo-400,.ring-indigo-500,
+  .ring-violet-300,.ring-violet-400,.ring-blue-300,.ring-cyan-300,.ring-cyan-400
+) { --tw-ring-color:var(--accent-ring) !important; }
+
+html[data-accent] :is(.bg-gradient-to-r,.bg-gradient-to-br,.bg-gradient-to-bl):not(.course-card-gradient):is(
+  .from-indigo-300,.from-indigo-400,.from-indigo-500,.from-indigo-600,.from-indigo-700,
+  .from-violet-300,.from-violet-400,.from-violet-500,.from-violet-600,.from-violet-700,
+  .from-purple-300,.from-purple-400,.from-purple-500,.from-purple-600,
+  .from-blue-300,.from-blue-400,.from-blue-500,.from-blue-600,
+  .from-cyan-200,.from-cyan-300,.from-cyan-400,.from-cyan-500,.from-cyan-600
+) { background-image:var(--accent-gradient) !important; }
+
+html[data-accent] :is([class~="hover:text-indigo-600"],[class~="hover:text-indigo-700"],[class~="hover:text-violet-600"],[class~="hover:text-cyan-600"]):hover {
+  color:var(--accent-secondary) !important;
+}
+html[data-accent] :is([class~="hover:bg-indigo-600"],[class~="hover:bg-indigo-700"],[class~="hover:bg-violet-600"],[class~="hover:bg-cyan-600"]):hover {
+  background-color:var(--accent-secondary) !important;
+}
+html[data-accent] :is([class~="shadow-indigo-500/30"],[class~="shadow-indigo-500/40"],[class~="shadow-violet-500/30"],[class~="shadow-cyan-500/30"]) {
+  --tw-shadow-color:var(--accent-glow) !important;
 }
 
 /* === HIGH CONTRAST === */

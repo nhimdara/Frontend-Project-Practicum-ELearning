@@ -106,6 +106,25 @@ const SEMESTER_STYLES = [
   { rgb: "217,70,239", text: "text-fuchsia-600", dot: "bg-fuchsia-500" },
 ];
 
+// Stable varied course colors. Inline gradients avoid Tailwind dropping
+// dynamic API class names such as "from-sky-500 to-blue-600" at build time.
+const COURSE_GRADIENTS = [
+  "linear-gradient(135deg,#6366f1 0%,#9333ea 100%)",
+  "linear-gradient(135deg,#06b6d4 0%,#2563eb 100%)",
+  "linear-gradient(135deg,#10b981 0%,#059669 100%)",
+  "linear-gradient(135deg,#fb7185 0%,#e11d48 100%)",
+  "linear-gradient(135deg,#fb923c 0%,#f97316 100%)",
+  "linear-gradient(135deg,#8b5cf6 0%,#d946ef 100%)",
+  "linear-gradient(135deg,#0ea5e9 0%,#4f46e5 100%)",
+  "linear-gradient(135deg,#f59e0b 0%,#ea580c 100%)",
+];
+
+const getCourseGradient = (lesson) => {
+  const key = String(lesson.id ?? lesson.title ?? "course");
+  const hash = [...key].reduce((total, char) => ((total * 31) + char.charCodeAt(0)) >>> 0, 0);
+  return COURSE_GRADIENTS[hash % COURSE_GRADIENTS.length];
+};
+
 // Video Count Badge Component
 const VideoCountBadge = ({ count }) => {
   if (!count) return null;
@@ -403,7 +422,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
   const hasVideos = lesson.videos && lesson.videos.length > 0;
   const videoCount = hasVideos ? lesson.videos.length : 0;
-  const cardGradient = lesson.color || "from-indigo-500 to-purple-600";
+  const cardGradient = getCourseGradient(lesson);
 
   const handlePlayVideo = () => {
     if (videoCount > 1) {
@@ -440,7 +459,8 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
   return (
     <>
       <div
-        className={`lg-card group relative overflow-hidden ${isDark ? "lg-card-dark" : ""}`}
+        className={`lg-card lg-lesson-card group relative overflow-hidden ${isDark ? "lg-card-dark lg-lesson-card-dark" : ""}`}
+        style={{ "--course-gradient": cardGradient }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -449,7 +469,8 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
         {/* Card Header */}
         <div
-          className={`relative h-44 bg-gradient-to-br ${cardGradient} overflow-hidden cursor-pointer`}
+          className="course-card-gradient relative h-44 overflow-hidden cursor-pointer"
+          style={{ background: cardGradient }}
           onClick={handlePlayVideo}
         >
           <div
@@ -548,7 +569,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
           <button
             onClick={handlePlayVideo}
-            className="lg-btn-secondary w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold"
+            className="lg-btn-secondary lg-secondary-button w-full py-2.5 flex items-center justify-center gap-2 text-sm font-bold"
           >
             <span>
               {videoCount > 1
@@ -926,18 +947,18 @@ const LessonsPage = () => {
         }
 
         .lg-secondary-button {
-          background: rgba(99,102,241,0.08);
-          border: 1px solid rgba(99,102,241,0.15);
+          background: var(--accent-light);
+          border: 1px solid var(--accent-border);
           border-radius: 16px;
-          color: #4338ca;
+          color: var(--accent-color);
           font-weight: 600;
           transition: all 0.25s ease;
         }
         .lg-secondary-button:hover {
-          background: linear-gradient(135deg, #6366f1, #a855f7);
+          background: var(--accent-gradient);
           color: #fff;
           border-color: transparent;
-          box-shadow: 0 10px 24px rgba(99,102,241,0.35);
+          box-shadow: 0 10px 24px var(--accent-glow);
         }
 
         .lg-cta-button {
@@ -968,7 +989,7 @@ const LessonsPage = () => {
           background: rgba(255,255,255,0.75);
           transform: translateY(-6px) scale(1.01);
           box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 28px 60px rgba(31,41,55,0.16);
-          border-color: rgba(99,102,241,0.3);
+          border-color: var(--accent-border);
         }
         .lg-lesson-card-dark {
           background: rgba(18,23,49,0.7);
@@ -1016,9 +1037,21 @@ const LessonsPage = () => {
         }
         .lg-search:focus-within {
           background: rgba(255,255,255,0.85);
-          box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 8px 28px rgba(99,102,241,0.12);
-          border-color: rgba(99,102,241,0.3);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.95) inset, 0 8px 28px var(--accent-glow);
+          border-color: var(--accent-border);
         }
+
+        .lg-btn-primary {
+          color:#fff;
+          background:var(--accent-gradient);
+          border:1px solid var(--accent-border);
+          border-radius:16px;
+          font-weight:700;
+          box-shadow:0 8px 20px var(--accent-glow);
+          transition:filter .2s ease,transform .2s ease;
+        }
+        .lg-btn-primary:hover { filter:brightness(.95); transform:translateY(-1px); }
+        .lesson-accent-icon { color:var(--accent-color) !important; opacity:.72; }
 
         .lg-chip {
           border-radius: 999px;
@@ -1027,9 +1060,9 @@ const LessonsPage = () => {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .lg-chip-active {
-          background: linear-gradient(135deg, #6366f1, #a855f7);
+          background: var(--accent-gradient);
           color: #fff;
-          box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+          box-shadow: 0 6px 20px var(--accent-glow);
           border: 1px solid rgba(255,255,255,0.3);
         }
         .lg-chip-inactive {
@@ -1080,7 +1113,7 @@ const LessonsPage = () => {
         .lg-modal-subtitle { color: #64748b; }
         .lg-modal-close { color:#59627a; background:rgba(255,255,255,.62); border:1px solid rgba(100,116,139,.12); }
         .lg-modal-close:hover { color:#172033; background:rgba(255,255,255,.94); }
-        .lg-lock-badge { color:#4f46e5; background:rgba(99,102,241,.11); border:1px solid rgba(99,102,241,.18); }
+        .lg-lock-badge { color:var(--accent-color); background:var(--accent-light); border:1px solid var(--accent-border); }
         .lg-form-label { color: #475569; }
         .lg-input-icon { color: #7c83a3; }
         .lg-form-helper { color: #64748b; }
@@ -1096,9 +1129,9 @@ const LessonsPage = () => {
           font-size: 14px;
         }
         .lg-filter-chip-active {
-          background: linear-gradient(135deg, #6366f1, #a855f7);
+          background: var(--accent-gradient);
           color: #fff;
-          box-shadow: 0 6px 16px rgba(99,102,241,0.35);
+          box-shadow: 0 6px 16px var(--accent-glow);
         }
 
         html.dark-mode .lg-modal {
@@ -1121,13 +1154,25 @@ const LessonsPage = () => {
         html.dark-mode .lg-input:focus { background: rgba(255,255,255,0.13) !important; }
 
         .lg-scroll-progress {
-          background: linear-gradient(90deg, #6366f1, #a855f7, #f43f5e);
-          box-shadow: 0 2px 12px rgba(99,102,241,0.4);
+          background: var(--accent-gradient);
+          box-shadow: 0 2px 12px var(--accent-glow);
         }
 
         .lg-hero-overlay {
           background: linear-gradient(180deg, rgba(10,10,25,0.3) 0%, rgba(10,10,25,0.7) 100%);
         }
+        .lesson-hero-title { text-shadow:0 3px 18px rgba(0,0,0,.38); }
+        .lesson-hero-accent {
+          display:inline-block;
+          color:var(--accent-color);
+          background:var(--accent-gradient);
+          -webkit-background-clip:text;
+          background-clip:text;
+          -webkit-text-fill-color:transparent;
+          text-shadow:none;
+          filter:drop-shadow(0 3px 12px rgba(0,0,0,.28));
+        }
+        .lesson-hero-copy { color:rgba(255,255,255,.92); text-shadow:0 2px 10px rgba(0,0,0,.55); }
 
         .lg-hero-orb {
           position: absolute;
@@ -1224,10 +1269,10 @@ const LessonsPage = () => {
             <div className="lg-pill inline-flex items-center gap-2 px-4 py-2 text-xs font-bold mb-5 text-white/90 uppercase tracking-[0.12em]">
               <GraduationCap className="h-3.5 w-3.5" /> Elearning
             </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight leading-[1.05]">
-              Expand Your Knowledge
+            <h1 className="lesson-hero-title text-5xl md:text-6xl font-extrabold mb-4 tracking-tight leading-[1.05]">
+              Expand Your <span className="lesson-hero-accent">Knowledge</span>
             </h1>
-            <p className="text-lg max-w-xl text-white/75 font-medium leading-relaxed">
+            <p className="lesson-hero-copy text-lg max-w-xl font-medium leading-relaxed">
               Video lessons organised by year and semester. First{" "}
               {FREE_VIDEO_LIMIT} videos free.
             </p>
@@ -1272,7 +1317,7 @@ const LessonsPage = () => {
         <div className="mb-8">
           <div className="lg-search flex overflow-hidden">
             <div className="flex-1 flex items-center px-5">
-              <Search className="h-5 w-5 text-indigo-400/60" />
+              <Search className="lesson-accent-icon h-5 w-5" />
               <input
                 type="text"
                 placeholder="Search lessons..."
@@ -1303,7 +1348,7 @@ const LessonsPage = () => {
 
           {/* Level Filter */}
           <div className="lg-chip-inactive flex items-center gap-2 px-4 py-2.5">
-            <Filter className="h-4 w-4 text-indigo-400/60" />
+            <Filter className="lesson-accent-icon h-4 w-4" />
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}

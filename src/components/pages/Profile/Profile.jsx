@@ -598,7 +598,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
 
         .lg-btn-primary {
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
+          background: var(--accent-gradient, linear-gradient(135deg, #6366f1, #8b5cf6));
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           color: white;
@@ -608,10 +608,37 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          border: none; 
-          background: transparent; 
-          transition: all 0.15s; 
+          box-shadow: 0 10px 24px var(--accent-glow, rgba(99,102,241,.28));
+          transition: transform 0.15s, box-shadow 0.15s;
           font-family: 'DM Sans', sans-serif;
+        }
+        .lg-btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 14px 30px var(--accent-glow, rgba(99,102,241,.34));
+        }
+        .lg-tab-pill {
+          min-height: 40px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 9px 14px;
+          border: 1px solid transparent;
+          border-radius: 12px;
+          color: #566176;
+          font-size: 14px;
+          font-weight: 600;
+          transition: color .2s, background .2s, border-color .2s, box-shadow .2s;
+        }
+        .lg-tab-pill:hover {
+          color: var(--accent-color, #4f46e5);
+          background: var(--accent-light, rgba(99,102,241,.10));
+        }
+        .lg-tab-pill.active {
+          color: var(--accent-color, #4f46e5);
+          background: var(--accent-light, rgba(99,102,241,.12));
+          border-color: var(--accent-border, rgba(99,102,241,.22));
+          box-shadow: 0 6px 16px var(--accent-glow, rgba(99,102,241,.12));
         }
         
         .tab-btn.active { 
@@ -920,6 +947,13 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           background:rgba(99,102,241,.22) !important;
           border-color:rgba(165,180,252,.18);
           box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+        }
+        html.dark-mode .lg-tab-pill { color:#aab4d1; }
+        html.dark-mode .lg-tab-pill:hover,
+        html.dark-mode .lg-tab-pill.active {
+          color:#ffffff;
+          background:var(--accent-light, rgba(99,102,241,.20));
+          border-color:var(--accent-border, rgba(165,180,252,.20));
         }
         html.dark-mode .ghost-btn {
           background:rgba(7,8,22,.48) !important;
@@ -1249,7 +1283,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
             <div>
               <p className="lg-subtext mb-3">Account Settings</p>
               <h1 className="lg-heading text-5xl sm:text-6xl">My Profile</h1>
-              <p className="text-indigo-400/80 mt-2 font-medium">
+              <p className="mt-2 font-medium" style={{ color: "var(--accent-color)" }}>
                 Manage your personal information, avatar, and projects
               </p>
             </div>
@@ -1327,7 +1361,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
             <div className="lg:col-span-1">
               <div className="lg-glass-strong rounded-[32px] overflow-hidden sticky top-24">
                 {/* Cover */}
-                <div className="h-24 relative" style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)" }}>
+                <div className="h-24 relative" style={{ background: "var(--accent-gradient, linear-gradient(135deg, #6366f1, #8b5cf6))" }}>
                   <div className="absolute inset-0 opacity-20"
                     style={{ backgroundImage: "radial-gradient(circle at 30% 50%, white 1px, transparent 1px), radial-gradient(circle at 70% 50%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
                 </div>
@@ -1386,7 +1420,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                       { label: "Projects", value: projects.length, color: "#f59e0b" },
                     ].map((s) => (
                       <div key={s.label} className="text-center">
-                        <p className={`text-2xl font-extrabold ${s.color}`}>
+                        <p className="text-2xl font-extrabold" style={{ color: s.color }}>
                           {s.value}
                         </p>
                         <p className="text-[11px] font-bold text-indigo-400/60 uppercase tracking-wider mt-0.5">

@@ -8,32 +8,15 @@ import {
   SunMedium, Laptop
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
-
-/* ─────────────────────────────────────────────────
-   APPLY FUNCTIONS — these write to <html> immediately
-   ───────────────────────────────────────────────── */
-const applyTheme = (theme) => {
-  const isDark = theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark-mode", isDark);
-};
-
-const applyFontSize = (size) => {
-  const map = { small: "13px", medium: "15px", large: "17px", "x-large": "19px" };
-  document.documentElement.style.setProperty("--app-font-size", map[size] || "15px");
-};
-
-const applyFontFamily = (font) => {
-  document.documentElement.style.setProperty("--app-font-family", `'${font}', sans-serif`);
-};
-
-const applyFlags = (s) => {
-  const r = document.documentElement;
-  r.classList.toggle("reduce-animations", !!(s.reduceAnimations || s.reducedMotion));
-  r.classList.toggle("high-contrast",     !!(s.highContrast || s.highContrastMode));
-  r.classList.toggle("compact-view",      !!s.compactView);
-  r.classList.toggle("liquid-glass-disabled", s.liquidGlass === false);
-};
+import { useLanguage } from "../../../i18n/LanguageContext";
+import {
+  applyAllSettings,
+  saveSettings,
+  loadStoredSettings,
+  ACCENT_PRESETS,
+  FONT_SIZE_MAP,
+  FONT_FAMILY_MAP,
+} from "../../../app/useAppTheme";
 
 const STORAGE_KEY = "learnflow_settings";
 
@@ -43,10 +26,6 @@ const save = (s) => {
   } catch {
     // Browser storage can be unavailable in private/restricted contexts.
   }
-};
-
-const loadSaved = () => {
-  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
 };
 
 /* ─────────────────────────────────────────────────
@@ -733,7 +712,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                           { id: "light",  icon: Sun,    label: "Light Mode",       desc: "Bright liquid canvas",      bg: "linear-gradient(135deg,#fde68a,#f59e0b)" },
                           { id: "dark",   icon: Moon,   label: "Dark Mode",        desc: "Deep dark specular glass",  bg: "linear-gradient(135deg,#312e81,#6d28d9)" },
                           { id: "system", icon: Laptop, label: "System Dynamic",   desc: "Syncs with OS mode",        bg: "linear-gradient(135deg,#6b7280,#374151)" },
-                        ].map(({ id, icon: ThemeIcon, label, desc, bg }) => {
+                        ].map(({ id, icon, label, desc, bg }) => {
                           const isSelected = settings.theme === id;
                           return (
                             <button
@@ -754,7 +733,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                                 </div>
                               )}
                               <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center shadow-md transition-transform group-hover:scale-110" style={{ background: bg }}>
-                                <ThemeIcon className="w-5 h-5 text-white" />
+                                {React.createElement(icon, { className: "w-5 h-5 text-white" })}
                               </div>
                               <p className="text-sm font-bold" style={{ color: isSelected ? "#4f46e5" : "#1f2937" }}>{label}</p>
                               <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>{desc}</p>

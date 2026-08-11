@@ -709,7 +709,7 @@ const ExamPage = ({ user }) => {
 
         html.dark-mode .form-header-strip,
         html.dark-mode .progress-fill {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+          background: var(--accent-gradient) !important;
         }
 
         html.dark-mode .form-eyebrow,
@@ -831,9 +831,9 @@ const ExamPage = ({ user }) => {
         }
         .form-header-strip {
           height:8px;
-          background:linear-gradient(90deg,#4f46e5,#8b5cf6,#22d3ee) !important;
+          background:var(--accent-gradient) !important;
         }
-        .form-eyebrow { color:#4f46e5 !important; letter-spacing:.12em; }
+        .form-eyebrow { color:var(--accent-color) !important; letter-spacing:.12em; }
         .form-title,.question-text,.result-title,.state-card strong { color:#172033 !important; }
         .form-description,.intro-note,.question-number,.submit-hint,
         .result-message,.state-card { color:#64708a !important; }
@@ -849,7 +849,7 @@ const ExamPage = ({ user }) => {
         .intro-stat span { color:#64708a !important; }
         .progress-card { top:max(78px,calc(66px + env(safe-area-inset-top))); }
         .progress-track { height:10px; background:rgba(100,116,160,.14) !important; }
-        .progress-fill { background:linear-gradient(90deg,#4f46e5,#8b5cf6,#22d3ee) !important; }
+        .progress-fill { background:var(--accent-gradient) !important; }
         .question-card { transition:border-color .2s ease,box-shadow .2s ease; }
         .question-card:focus-within {
           border-color:rgba(99,102,241,.32) !important;
@@ -872,12 +872,13 @@ const ExamPage = ({ user }) => {
         }
         .exam-button { min-height:44px; border-radius:14px; }
         .exam-button.primary {
-          background:linear-gradient(135deg,#4f46e5,#7c3aed) !important;
-          box-shadow:0 10px 24px rgba(79,70,229,.24),inset 0 1px 0 rgba(255,255,255,.22);
+          background:var(--accent-gradient) !important;
+          box-shadow:0 10px 24px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22);
         }
         .exam-button.primary:hover:not(:disabled) {
-          background:linear-gradient(135deg,#4338ca,#6d28d9) !important;
-          box-shadow:0 14px 30px rgba(79,70,229,.30),inset 0 1px 0 rgba(255,255,255,.22);
+          background:var(--accent-gradient) !important;
+          filter:brightness(.94);
+          box-shadow:0 14px 30px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22);
         }
         .exam-button.secondary {
           background:rgba(255,255,255,.62) !important;

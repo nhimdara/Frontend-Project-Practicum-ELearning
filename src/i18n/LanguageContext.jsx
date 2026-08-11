@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -191,6 +192,8 @@ const patterns = [
   [/^(\d+(\.\d+)?) cr total$/, (_, n) => `${n} ក្រេឌីតសរុប`],
   [/^\+(\d+) more$/, (_, n) => `+${n} ទៀត`],
   [/^(\d+) more$/, (_, n) => `${n} ទៀត`],
+  // Khmer uses zero-width word separators that ESLint otherwise treats as irregular whitespace.
+  // eslint-disable-next-line no-irregular-whitespace
   [/^The curriculum of (.+) Department is designed to equip students with abilities to use new technologies and theories to design and develop software solutions$/, (_, major) => `កម្មវិធីសិក្សានៃដេប៉ាតឺម៉ង់ ${translate(major, "khmer")} ត្រូវ​បាន​រចនា​ឡើង​ដើម្បី​បំពាក់​បំប៉ន​សិស្ស​នូវ​សមត្ថភាព​ក្នុង​ការ​ប្រើប្រាស់​បច្ចេកវិទ្យា​និង​ទ្រឹស្តី​ថ្មីៗ​ដើម្បី​រចនា​និង​អភិវឌ្ឍ​ដំណោះស្រាយ​សូហ្វវែរ`],
   [/^(\d+) subjects$/, (_, n) => `${n} មុខវិជ្ជា`],
   [/^(\d+) questions$/, (_, n) => `${n} សំណួរ`],

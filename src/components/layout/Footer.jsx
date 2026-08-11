@@ -23,7 +23,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 // glow tucked in one corner.
 const GlassPanel = ({ className = "", children }) => (
   <div
-    className={`relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] ${className}`}
+    className={`footer-glass-panel relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] ${className}`}
   >
     <div className="footer-glass-highlight pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
     <div className="footer-glass-glow pointer-events-none absolute -top-12 -left-12 h-32 w-32 rounded-full blur-3xl" />
@@ -108,9 +108,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 text-white overflow-hidden">
+    <footer className="student-site-footer relative bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 overflow-hidden">
       {/* Ambient liquid background — this is the color/light the glass panels refract */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="footer-ambient absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
@@ -156,9 +156,9 @@ const Footer = () => {
                     className="flex items-center gap-3 hover:text-white transition-colors group"
                   >
                     <div
-                      className={`p-2 rounded-full ${accent.bg} border ${accent.border} backdrop-blur-sm group-hover:bg-white/15 group-hover:border-white/20 transition-colors`}
+                      className={`footer-contact-icon-wrap p-2 rounded-full ${accent.bg} border ${accent.border} backdrop-blur-sm group-hover:bg-white/15 group-hover:border-white/20 transition-colors`}
                     >
-                      <item.icon className={`h-4 w-4 ${accent.icon}`} />
+                      <item.icon className={`footer-contact-icon h-4 w-4 ${accent.icon}`} />
                     </div>
                     <span className={`footer-copy text-sm font-medium ${accent.text}`}>{item.text}</span>
                   </a>
@@ -181,7 +181,7 @@ const Footer = () => {
                     className="footer-copy hover:text-white transition-all duration-300 flex items-center gap-2 group"
                   >
                     <span
-                      className={`w-1 h-1 ${quickLinkDots[index % quickLinkDots.length]} rounded-full group-hover:w-2 transition-all`}
+                      className={`footer-link-dot w-1 h-1 ${quickLinkDots[index % quickLinkDots.length]} rounded-full group-hover:w-2 transition-all`}
                     />
                     {link.name}
                   </Link>
