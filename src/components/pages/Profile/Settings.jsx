@@ -4,85 +4,64 @@ import {
   Smartphone, Eye, EyeOff, Save, Check, CreditCard,
   History, LogOut, AlertTriangle, Volume2, Monitor,
   Download, Clock, DollarSign, BookOpen, Award, Settings as SettingsIcon,
-  Upload
+  Upload, Sparkles, Palette, Layers, Type, Sliders, RotateCcw, CheckCircle2,
+  SunMedium, Laptop
 } from "lucide-react";
 import { profileApi, syncStoredSession } from "../../api/profile";
-
-/* ─────────────────────────────────────────────────
-   APPLY FUNCTIONS — these write to <html> immediately
-   ───────────────────────────────────────────────── */
-const applyTheme = (theme) => {
-  const isDark = theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark-mode", isDark);
-};
-
-const applyFontSize = (size) => {
-  const map = { small: "13px", medium: "15px", large: "17px", "x-large": "19px" };
-  document.documentElement.style.setProperty("--app-font-size", map[size] || "15px");
-};
-
-const applyFontFamily = (font) => {
-  document.documentElement.style.setProperty("--app-font-family", `'${font}', sans-serif`);
-};
-
-const applyFlags = (s) => {
-  const r = document.documentElement;
-  r.classList.toggle("reduce-animations", !!(s.reduceAnimations || s.reducedMotion));
-  r.classList.toggle("high-contrast",     !!(s.highContrast || s.highContrastMode));
-  r.classList.toggle("compact-view",      !!s.compactView);
-  r.classList.toggle("liquid-glass-disabled", s.liquidGlass === false);
-};
-
-const STORAGE_KEY = "learnflow_settings";
-
-const save = (s) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch {
-    // Browser storage can be unavailable in private/restricted contexts.
-  }
-};
-
-const loadSaved = () => {
-  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
-};
+import {
+  applyAllSettings,
+  saveSettings,
+  loadStoredSettings,
+  ACCENT_PRESETS,
+  FONT_SIZE_MAP,
+  FONT_FAMILY_MAP
+} from "../../../app/useAppTheme";
 
 /* ─────────────────────────────────────────────────
    SUB-COMPONENTS
    ───────────────────────────────────────────────── */
 const ToggleSwitch = ({ label, description, checked, onChange }) => (
-  <label className="flex items-start justify-between cursor-pointer group py-1">
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    onClick={onChange}
+    className="w-full flex items-start justify-between cursor-pointer group py-1.5 text-left"
+  >
     <div className="flex-1 pr-6">
-      <p className="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">{label}</p>
-      {description && <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{description}</p>}
+      <p className="settings-toggle-label text-sm font-semibold transition-colors">{label}</p>
+      {description && <p className="settings-toggle-description text-xs mt-0.5 leading-relaxed">{description}</p>}
     </div>
-    <div className="relative inline-flex flex-shrink-0 items-center mt-0.5" onClick={onChange}>
-      <div className={`w-11 h-6 rounded-full transition-all duration-200 ${checked ? "bg-indigo-600" : "bg-gray-200"}`} />
-      <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
+    <div className="relative inline-flex flex-shrink-0 items-center mt-0.5">
+      <div className={`settings-toggle-track w-11 h-6 rounded-full transition-all duration-300 ${checked ? "shadow-md" : ""}`}
+           style={{ background: checked ? "var(--accent-gradient, linear-gradient(135deg,#6366f1,#8b5cf6))" : undefined }} />
+      <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ${checked ? "translate-x-5" : "translate-x-0"}`} />
     </div>
-  </label>
+  </button>
 );
 
-const SectionHeader = ({ title, description, onSave, isLoading }) => (
-  <div className="settings-section-header flex items-start justify-between mb-7 pb-5">
+const SectionHeader = ({ title, description, onSave, isLoading, extraActions }) => (
+  <div className="settings-section-header flex items-start justify-between mb-7 pb-5 border-b border-gray-100 dark:border-gray-800">
     <div>
-      <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>{title}</h2>
-      <p className="text-sm text-gray-500 mt-0.5">{description}</p>
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Playfair Display', serif" }}>{title}</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
     </div>
-    <button onClick={onSave} disabled={isLoading}
-      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 ml-4 transition-all disabled:opacity-60"
-      style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", boxShadow: "0 4px 16px rgba(99,102,241,0.3)" }}>
-      {isLoading
-        ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Saving...</>
-        : <><Save className="h-4 w-4" />Save</>}
-    </button>
+    <div className="flex items-center gap-2.5 flex-shrink-0 ml-4">
+      {extraActions}
+      <button onClick={onSave} disabled={isLoading}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 transition-all disabled:opacity-60 hover:scale-105 active:scale-95"
+        style={{ background: "var(--accent-gradient, linear-gradient(135deg,#6366f1,#8b5cf6))", boxShadow: "0 4px 18px var(--accent-glow, rgba(99,102,241,0.35))" }}>
+        {isLoading
+          ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Saving...</>
+          : <><Save className="h-4 w-4" />Save</>}
+      </button>
+    </div>
   </div>
 );
 
 const Field = ({ label, children }) => (
   <div>
-    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
+    <label className="block text-xs font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
     {children}
   </div>
 );
@@ -127,12 +106,14 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     showCertificates: true,
     activityStatus: true,
     theme: "system",
+    accentColor: "indigo",
     fontSize: "medium",
-    compactView: false,
+    fontFamily: "Inter",
     liquidGlass: true,
+    glossyReflections: true,
+    compactView: false,
     reduceAnimations: false,
     highContrast: false,
-    fontFamily: "Inter",
     language: "english",
     timezone: "Asia/Phnom_Penh",
     dateFormat: "MM/DD/YYYY",
@@ -159,7 +140,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
   };
 
   const [settings, setSettings] = useState(() => {
-    const saved = loadSaved() || {};
+    const saved = loadStoredSettings();
     return {
       ...DEFAULTS,
       ...saved,
@@ -209,39 +190,43 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     };
   }, [user?.id]);
 
-  /* Apply saved settings on first mount. */
+  /* Apply saved settings on mount and when settings change. */
   useEffect(() => {
-    applyFontSize(settings.fontSize);
-    applyFontFamily(settings.fontFamily);
-    applyFlags(settings);
-  }, []); // eslint-disable-line
-
-  /* System mode follows device changes live; explicit light/dark stay fixed. */
-  useEffect(() => {
-    applyTheme(settings.theme);
-    if (settings.theme !== "system") return undefined;
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const syncSystemTheme = () => applyTheme("system");
-    media.addEventListener("change", syncSystemTheme);
-    return () => media.removeEventListener("change", syncSystemTheme);
-  }, [settings.theme]);
+    applyAllSettings(settings);
+  }, [settings]);
 
   /* ── change handler — applies immediately + saves ── */
   const handleChange = (key, value) => {
     setSettings(prev => {
       const next = { ...prev, [key]: value };
-      save(next);
-      if (key === "theme")      applyTheme(value);
-      if (key === "fontSize")   applyFontSize(value);
-      if (key === "fontFamily") applyFontFamily(value);
-      if (["reduceAnimations","highContrast","compactView","liquidGlass","highContrastMode","reducedMotion"].includes(key))
-        applyFlags(next);
+      saveSettings(next);
+      applyAllSettings(next);
       return next;
     });
   };
 
   const handleToggle = (key) => handleChange(key, !settings[key]);
+
+  const handleResetAppearance = () => {
+    const defaults = {
+      theme: "system",
+      accentColor: "indigo",
+      fontSize: "medium",
+      fontFamily: "Inter",
+      liquidGlass: true,
+      glossyReflections: true,
+      compactView: false,
+      reduceAnimations: false,
+      highContrast: false,
+    };
+    setSettings(prev => {
+      const next = { ...prev, ...defaults };
+      saveSettings(next);
+      applyAllSettings(next);
+      return next;
+    });
+    showSavedMessage("Reset to iOS 26 Liquid Glass defaults!");
+  };
 
   const showSavedMessage = (message) => {
     setSuccessMessage(message);
@@ -317,7 +302,8 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         syncStoredSession(savedProfile);
         onUserUpdate?.(savedProfile);
       }
-      save(settings);
+      saveSettings(settings);
+      applyAllSettings(settings);
       showSavedMessage(`${section} settings saved!`);
     } catch (err) {
       setSettingsError(err.message);
@@ -343,25 +329,26 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         .sett-select { width:100%; padding:10px 14px; border-radius:12px; font-size:14px; border:1.5px solid #e5e7eb; background:#fafafa; outline:none; transition:all 0.15s; font-family:'DM Sans',sans-serif; color:#111827; cursor:pointer; }
         .sett-select:focus { border-color:#a5b4fc; background:white; box-shadow:0 0 0 3px rgba(165,180,252,0.2); }
         .sidebar-btn { width:100%; text-align:left; padding:10px 14px; border-radius:14px; border:none; background:transparent; cursor:pointer; transition:all 0.15s; font-family:'DM Sans',sans-serif; }
-        .sidebar-btn:hover { background:#f5f5ff; }
-        .sidebar-btn.active { background:#eef2ff; }
+        .sidebar-btn:hover { background:var(--accent-light); }
+        .sidebar-btn.active { background:var(--accent-light); }
         .content-panel { background:white; border-radius:24px; border:1px solid #f0f0f8; box-shadow:0 2px 20px rgba(0,0,0,0.04); overflow:hidden; }
         .sett-card { background:#fafafa; border-radius:16px; border:1px solid #f0f0f8; padding:16px; }
         .settings-section-header { border-bottom:1px solid #f3f4f6; }
         .settings-theme-option { border:2px solid #e5e7eb; background:#fff; }
-        .settings-theme-option.selected { border-color:#6366f1; background:#eef2ff; }
+        .settings-theme-option.selected { border-color:var(--accent-color); background:var(--accent-light); }
         .settings-theme-label { color:#374151; }
-        .settings-theme-option.selected .settings-theme-label { color:#4f46e5; }
+        .settings-theme-option.selected .settings-theme-label { color:var(--accent-color); }
         .settings-empty-state { background:#fff; border:1px solid #f0f0f8; }
         .settings-add-payment { border:1.5px dashed #c7d2fe; color:#4f46e5; background:#fafafe; }
         .settings-autosave { background:#eef2ff; }
         html:not(.dark-mode) .settings-tab-icon { background:#eef2ff !important; }
         html:not(.dark-mode) .settings-tab-icon svg { color:#64748b !important; }
-        html:not(.dark-mode) .sidebar-btn.active .settings-tab-icon { background:#e0e7ff !important; }
-        html:not(.dark-mode) .sidebar-btn.active .settings-tab-icon svg { color:#4f46e5 !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-icon { background:var(--accent-light) !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-icon svg { color:var(--accent-color) !important; }
         html:not(.dark-mode) .settings-tab-title { color:#334155 !important; }
         html:not(.dark-mode) .settings-tab-description { color:#7c879e !important; }
-        html:not(.dark-mode) .sidebar-btn.active .settings-tab-title { color:#4f46e5 !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-title { color:var(--accent-color) !important; }
+        html:not(.dark-mode) .sidebar-btn.active .settings-tab-description { color:var(--accent-secondary) !important; }
         .section-divider { border-top:1px solid #f3f4f6; margin-top:24px; padding-top:24px; }
         .danger-zone { background:#fff5f5; border-radius:16px; border:1px solid #fecaca; padding:16px; }
         .toast { position:fixed; top:84px; right:20px; z-index:9999; background:white; border:1.5px solid #a7f3d0; border-radius:16px; padding:12px 20px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(16,185,129,0.18); animation:toastIn 0.3s ease; }
@@ -372,14 +359,14 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         html.dark-mode .content-panel { background: #1a1a35 !important; border-color: #2a2a4a !important; }
         html.dark-mode .sett-card { background: #14142b !important; border-color: #2a2a4a !important; }
         html.dark-mode .sidebar-btn:hover { background: #252545 !important; }
-        html.dark-mode .sidebar-btn.active { background: #252550 !important; }
+        html.dark-mode .sidebar-btn.active { background: var(--accent-light) !important; }
         html.dark-mode .settings-tab-icon { background:#23274c !important; }
         html.dark-mode .settings-tab-icon svg { color:#a8b1d6 !important; }
-        html.dark-mode .sidebar-btn.active .settings-tab-icon { background:#303464 !important; }
-        html.dark-mode .sidebar-btn.active .settings-tab-icon svg { color:#aebcff !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-icon { background:var(--accent-light) !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-icon svg { color:var(--accent-color) !important; }
         html.dark-mode .settings-tab-title { color:#d7def7 !important; }
         html.dark-mode .settings-tab-description { color:#8f9aca !important; }
-        html.dark-mode .sidebar-btn.active .settings-tab-title { color:#aebcff !important; }
+        html.dark-mode .sidebar-btn.active .settings-tab-title { color:var(--accent-color) !important; }
         html.dark-mode .sidebar-btn.active .settings-tab-description { color:#b8c1e6 !important; }
         html.dark-mode .settings-section-header { border-bottom:1px solid #3a3f70 !important; }
         html.dark-mode .settings-input-addon { background:#23274c !important; border-color:#3a3a5c !important; color:#a8b1d6 !important; }
@@ -446,7 +433,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
         }
         .settings-theme-option.selected {
           background:rgba(224,231,255,.78) !important;
-          border-color:#6366f1 !important;
+          border-color:var(--accent-color) !important;
           box-shadow:0 10px 28px rgba(79,70,229,.14),inset 0 1px 0 #fff;
         }
 
@@ -488,6 +475,43 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
           border-color:rgba(165,180,252,.14);
           box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
         }
+        .appearance-glass-card {
+          background:rgba(255,255,255,.72);
+          border:1px solid rgba(99,102,241,.20);
+          box-shadow:0 4px 24px rgba(99,102,241,.08),inset 0 1px 0 rgba(255,255,255,.82);
+          backdrop-filter:blur(20px) saturate(150%);
+          -webkit-backdrop-filter:blur(20px) saturate(150%);
+        }
+        .appearance-toggle-card { border-color:rgba(100,116,160,.18); }
+        .appearance-specimen-title { color:#111827; }
+        .appearance-specimen-copy { color:#4b5563; }
+        .appearance-specimen-input {
+          border:1.5px solid rgba(99,102,241,.30);
+          background:rgba(255,255,255,.80);
+          color:#374151;
+        }
+        .appearance-toggle-divider { border-color:rgba(100,116,160,.18) !important; }
+        .settings-toggle-label { color:#334155 !important; }
+        .settings-toggle-description { color:#7c879e !important; }
+        .settings-toggle-track { background:#dbe4f0; }
+        .group:hover .settings-toggle-label { color:#4f46e5 !important; }
+        html.dark-mode .appearance-glass-card {
+          background:rgba(15,18,43,.66);
+          border-color:rgba(129,140,248,.26);
+          box-shadow:0 16px 38px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.07);
+        }
+        html.dark-mode .appearance-specimen-title { color:#f4f7ff; }
+        html.dark-mode .appearance-specimen-copy { color:#a8b1d6; }
+        html.dark-mode .appearance-specimen-input {
+          background:rgba(7,8,22,.54);
+          border-color:rgba(129,140,248,.32);
+          color:#e8ecff;
+        }
+        html.dark-mode .appearance-toggle-divider { border-color:rgba(165,180,252,.16) !important; }
+        html.dark-mode .settings-toggle-label { color:#e8edff !important; }
+        html.dark-mode .settings-toggle-description { color:#9ba7d1 !important; }
+        html.dark-mode .settings-toggle-track { background:#343b61; }
+        html.dark-mode .group:hover .settings-toggle-label { color:#aebcff !important; }
 
         @media (max-width: 640px) {
           .settings-page-heading { align-items:flex-start !important; gap:14px; flex-wrap:wrap; }
@@ -561,14 +585,14 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                         className={`sidebar-btn ${isActive ? "active" : ""}`}>
                         <div className="flex items-center gap-3">
                           <div className="settings-tab-icon w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                            style={{ background: isActive ? "#eef2ff" : "#f3f4f6" }}>
-                            <Icon className="h-4 w-4" style={{ color: isActive ? "#4f46e5" : "#9ca3af" }} />
+                            style={{ background: isActive ? "var(--accent-light)" : "#f3f4f6" }}>
+                            <Icon className="h-4 w-4" style={{ color: isActive ? "var(--accent-color)" : "#9ca3af" }} />
                           </div>
                           <div className="text-left">
-                            <p className="settings-tab-title text-sm font-semibold" style={{ color: isActive ? "#4f46e5" : "#374151" }}>{tab.label}</p>
+                            <p className="settings-tab-title text-sm font-semibold" style={{ color: isActive ? "var(--accent-color)" : "#374151" }}>{tab.label}</p>
                             <p className="settings-tab-description text-xs text-gray-400">{tab.desc}</p>
                           </div>
-                          {isActive && <div className="ml-auto w-1.5 h-5 rounded-full" style={{ background: "#6366f1" }} />}
+                          {isActive && <div className="ml-auto w-1.5 h-5 rounded-full" style={{ background: "var(--accent-color)" }} />}
                         </div>
                       </button>
                     );
@@ -609,7 +633,7 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                             onClick={handleAvatarSelect}
                             disabled={avatarSaving}
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
-                            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                            style={{ background: "var(--accent-gradient)" }}
                           >
                             {avatarSaving
                               ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Uploading...</>
@@ -641,63 +665,229 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
                 {/* APPEARANCE */}
                 {activeTab === "appearance" && (
-                  <div>
-                    <SectionHeader title="Appearance" description="Customize your viewing experience" onSave={() => handleSave("Appearance")} isLoading={isLoading} />
-                    <div className="space-y-6 max-w-2xl">
-                      <Field label="Theme">
-                        <div className="grid grid-cols-3 gap-3 mt-1">
-                          {[
-                            { id: "light",  icon: Sun,     label: "Light",  bg: "linear-gradient(135deg,#fde68a,#f59e0b)" },
-                            { id: "dark",   icon: Moon,    label: "Dark",   bg: "linear-gradient(135deg,#312e81,#6d28d9)" },
-                            { id: "system", icon: Monitor, label: "System", bg: "linear-gradient(135deg,#6b7280,#374151)" },
-                          ].map(({ id, icon, label, bg }) => (
-                            <button key={id} onClick={() => handleChange("theme", id)}
-                              className={`settings-theme-option ${settings.theme === id ? "selected" : ""} p-4 rounded-2xl text-center transition-all`}>
-                              <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{ background: bg }}>
-                                {React.createElement(icon, {
-                                  className: "h-5 w-5 text-white",
-                                })}
+                  <div className="space-y-8">
+                    <SectionHeader
+                      title="Appearance & Interface"
+                      description="Customize iOS 26 liquid glass materials, theme modes, ambient accent tint, and display scale."
+                      onSave={() => handleSave("Appearance")}
+                      isLoading={isLoading}
+                      extraActions={
+                        <button
+                          type="button"
+                          onClick={handleResetAppearance}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border"
+                          style={{
+                            color: "var(--accent-color)",
+                            background: "var(--accent-light)",
+                            borderColor: "var(--accent-border)"
+                          }}
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          Reset Defaults
+                        </button>
+                      }
+                    />
+
+                    {/* THEME MODE SELECTOR */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "#6b7280" }}>
+                        <SunMedium className="w-3.5 h-3.5" style={{ color: "var(--accent-color)" }} />
+                        Appearance Mode
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                        {[
+                          { id: "light",  icon: Sun,    label: "Light Mode",       desc: "Bright liquid canvas",      bg: "linear-gradient(135deg,#fde68a,#f59e0b)" },
+                          { id: "dark",   icon: Moon,   label: "Dark Mode",        desc: "Deep dark specular glass",  bg: "linear-gradient(135deg,#312e81,#6d28d9)" },
+                          { id: "system", icon: Laptop, label: "System Dynamic",   desc: "Syncs with OS mode",        bg: "linear-gradient(135deg,#6b7280,#374151)" },
+                        ].map(({ id, icon: ThemeIcon, label, desc, bg }) => {
+                          const isSelected = settings.theme === id;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => handleChange("theme", id)}
+                              className="relative group p-4 rounded-2xl text-left transition-all duration-300 cursor-pointer overflow-hidden border"
+                              style={{
+                                background: isSelected ? "rgba(99,102,241,0.10)" : "rgba(255,255,255,0.7)",
+                                borderColor: isSelected ? "#6366f1" : "rgba(209,213,219,0.8)",
+                                boxShadow: isSelected ? "0 4px 20px rgba(99,102,241,0.18)" : "none",
+                                backdropFilter: "blur(16px)"
+                              }}
+                            >
+                              {isSelected && (
+                                <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--accent-gradient)" }}>
+                                  <Check className="w-3 h-3 text-white" style={{ strokeWidth: 3 }} />
+                                </div>
+                              )}
+                              <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center shadow-md transition-transform group-hover:scale-110" style={{ background: bg }}>
+                                <ThemeIcon className="w-5 h-5 text-white" />
                               </div>
-                              <span className="settings-theme-label text-sm font-semibold">{label}</span>
+                              <p className="text-sm font-bold" style={{ color: isSelected ? "#4f46e5" : "#1f2937" }}>{label}</p>
+                              <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>{desc}</p>
                             </button>
-                          ))}
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* LIQUID ACCENT COLOR TINT */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "#6b7280" }}>
+                        <Palette className="w-3.5 h-3.5" style={{ color: "var(--accent-color)" }} />
+                        Liquid Accent Tint
+                      </label>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                        {Object.values(ACCENT_PRESETS).map((acc) => {
+                          const isSelected = (settings.accentColor || "indigo") === acc.id;
+                          return (
+                            <button
+                              key={acc.id}
+                              type="button"
+                              onClick={() => handleChange("accentColor", acc.id)}
+                              className="p-3 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border"
+                              style={{
+                                background: isSelected ? acc.light : "rgba(255,255,255,0.7)",
+                                borderColor: isSelected ? acc.color : "rgba(209,213,219,0.7)",
+                                boxShadow: isSelected ? `0 4px 16px ${acc.glow}` : "none",
+                                transform: isSelected ? "scale(1.03)" : "scale(1)"
+                              }}
+                            >
+                              <div className="relative w-8 h-8 rounded-full mb-2 flex items-center justify-center shadow-md" style={{ background: acc.gradient }}>
+                                {isSelected && <Check className="w-4 h-4 text-white" style={{ strokeWidth: 3 }} />}
+                              </div>
+                              <span className="text-xs font-semibold" style={{ color: isSelected ? acc.color : "#374151" }}>
+                                {acc.label.split(" ").pop()}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* FONT SIZE & FONT FAMILY */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Font Size */}
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider mb-2.5 flex items-center gap-2" style={{ color: "#6b7280" }}>
+                          <Type className="w-3.5 h-3.5" style={{ color: "var(--accent-color)" }} />
+                          Display Font Scale
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(FONT_SIZE_MAP).map(([key, info]) => {
+                            const isSelected = settings.fontSize === key;
+                            return (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => handleChange("fontSize", key)}
+                                className="p-3 rounded-xl text-left transition-all cursor-pointer border"
+                                style={{
+                                  background: isSelected ? "rgba(99,102,241,0.10)" : "rgba(255,255,255,0.7)",
+                                  borderColor: isSelected ? "#6366f1" : "rgba(209,213,219,0.7)",
+                                  color: isSelected ? "#4f46e5" : "#374151"
+                                }}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-semibold">{info.label}</span>
+                                  {isSelected && <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--accent-color)" }} />}
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
-                      </Field>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <Field label="Font Size">
-                          <select className="sett-select" value={settings.fontSize} onChange={e => handleChange("fontSize", e.target.value)}>
-                            <option value="small">Small (13px)</option>
-                            <option value="medium">Medium (15px)</option>
-                            <option value="large">Large (17px)</option>
-                            <option value="x-large">Extra Large (19px)</option>
-                          </select>
-                        </Field>
-                        <Field label="Font Family">
-                          <select className="sett-select" value={settings.fontFamily} onChange={e => handleChange("fontFamily", e.target.value)}>
-                            <option value="Inter">Inter</option>
-                            <option value="DM Sans">DM Sans</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Poppins">Poppins</option>
-                          </select>
-                        </Field>
                       </div>
 
-                      {/* Live preview */}
-                      <div className="p-4 rounded-2xl sett-card text-center">
-                        <p className="text-xs text-gray-400 mb-1 uppercase tracking-wider">Live Preview</p>
-                        <p style={{ fontFamily: `'${settings.fontFamily}', sans-serif`, fontSize: { small:"13px", medium:"15px", large:"17px", "x-large":"19px" }[settings.fontSize] || "15px" }}>
-                          The quick brown fox jumps over the lazy dog
+                      {/* Font Family */}
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider mb-2.5 flex items-center gap-2" style={{ color: "#6b7280" }}>
+                          <Layers className="w-3.5 h-3.5" style={{ color: "var(--accent-color)" }} />
+                          Typography System
+                        </label>
+                        <select
+                          className="sett-select"
+                          value={settings.fontFamily || "Inter"}
+                          onChange={(e) => handleChange("fontFamily", e.target.value)}
+                        >
+                          {Object.entries(FONT_FAMILY_MAP).map(([fontKey, fontInfo]) => (
+                            <option key={fontKey} value={fontKey}>
+                              {fontInfo.name} — {fontInfo.desc}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* LIVE SPECIMEN SANDBOX */}
+                    <div className="appearance-glass-card p-5 rounded-2xl relative overflow-hidden">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5" style={{ color: "var(--accent-color)" }}>
+                          <Sparkles className="w-3.5 h-3.5" /> Live iOS 26 Specimen Sandbox
+                        </span>
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "rgba(99,102,241,0.12)", color: "#4f46e5" }}>
+                          {FONT_FAMILY_MAP[settings.fontFamily]?.name || "Inter"} · {FONT_SIZE_MAP[settings.fontSize]?.label}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="appearance-specimen-title text-base font-bold" style={{ fontFamily: FONT_FAMILY_MAP[settings.fontFamily]?.stack }}>
+                          Liquid Glass Visual System
+                        </h3>
+                        <p className="appearance-specimen-copy text-sm leading-relaxed" style={{ fontFamily: FONT_FAMILY_MAP[settings.fontFamily]?.stack }}>
+                          Experience smooth ambient color refractions, responsive typography scaling, and crystal translucency across your entire learning workspace.
                         </p>
+                        <div className="flex items-center gap-3 pt-2 flex-wrap">
+                          <button
+                            type="button"
+                            className="px-4 py-1.5 rounded-xl text-xs font-bold text-white shadow-md transition-transform hover:scale-105"
+                            style={{ background: "var(--accent-gradient)" }}
+                          >
+                            Interactive Button
+                          </button>
+                          <input
+                            type="text"
+                            readOnly
+                            value="Specular focus ring glow..."
+                            className="appearance-specimen-input flex-1 min-w-0 px-3 py-1.5 text-xs rounded-xl outline-none"
+                          />
+                        </div>
                       </div>
+                    </div>
 
-                      <div className="sett-card space-y-4">
-                        <ToggleSwitch label="Liquid Glass" description="Use translucent iOS-style surfaces and background blur" checked={settings.liquidGlass !== false} onChange={() => handleToggle("liquidGlass")} />
-                        <ToggleSwitch label="Compact View" description="Show more content with reduced spacing" checked={settings.compactView} onChange={() => handleToggle("compactView")} />
-                        <ToggleSwitch label="Reduce Animations" description="Minimize motion effects throughout the site" checked={settings.reduceAnimations} onChange={() => handleToggle("reduceAnimations")} />
-                        <ToggleSwitch label="High Contrast" description="Increase contrast for better visibility" checked={settings.highContrast} onChange={() => handleToggle("highContrast")} />
-                      </div>
+                    {/* MATERIAL & EXPERIENCE TOGGLES */}
+                    <div className="appearance-glass-card appearance-toggle-card rounded-2xl p-4 space-y-1">
+                      <ToggleSwitch
+                        label="iOS 26 Liquid Glass Translucency"
+                        description="Enable multi-layer backdrop blur and specular surface reflections"
+                        checked={settings.liquidGlass !== false}
+                        onChange={() => handleToggle("liquidGlass")}
+                      />
+                      <div className="appearance-toggle-divider" style={{ borderTop: "1px solid", margin: "2px 0" }} />
+                      <ToggleSwitch
+                        label="Glossy Light Reflections"
+                        description="Show subtle top-edge highlights on cards and glass panels"
+                        checked={settings.glossyReflections !== false}
+                        onChange={() => handleToggle("glossyReflections")}
+                      />
+                      <div className="appearance-toggle-divider" style={{ borderTop: "1px solid", margin: "2px 0" }} />
+                      <ToggleSwitch
+                        label="Compact View Mode"
+                        description="Reduce padding and margins for higher information density"
+                        checked={!!settings.compactView}
+                        onChange={() => handleToggle("compactView")}
+                      />
+                      <div className="appearance-toggle-divider" style={{ borderTop: "1px solid", margin: "2px 0" }} />
+                      <ToggleSwitch
+                        label="Reduce Motion & Animations"
+                        description="Minimize transitions and dynamic keyframe effects for accessibility"
+                        checked={!!settings.reduceAnimations || !!settings.reducedMotion}
+                        onChange={() => handleToggle("reduceAnimations")}
+                      />
+                      <div className="appearance-toggle-divider" style={{ borderTop: "1px solid", margin: "2px 0" }} />
+                      <ToggleSwitch
+                        label="High Contrast Mode"
+                        description="Enhance border definition and color vibrancy for optimal readability"
+                        checked={!!settings.highContrast || !!settings.highContrastMode}
+                        onChange={() => handleToggle("highContrast")}
+                      />
                     </div>
                   </div>
                 )}

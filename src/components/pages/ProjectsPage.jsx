@@ -84,11 +84,11 @@ const ProjectsPage = () => {
         .lg-icon-btn:hover { background: rgba(255,255,255,0.28); }
 
         .lg-primary-button {
-          background: linear-gradient(135deg, #6366f1, #06b6d4);
+          background: var(--accent-gradient);
           border-radius: 999px;
           color: #fff;
           font-weight: 600;
-          box-shadow: 0 10px 26px rgba(99,102,241,0.4), 0 1px 0 rgba(255,255,255,0.25) inset;
+          box-shadow: 0 10px 26px var(--accent-glow), 0 1px 0 rgba(255,255,255,0.25) inset;
           transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .lg-primary-button:hover {

@@ -406,11 +406,11 @@ const HomePage = () => {
         }
 
         .lg-primary-btn {
-          background: linear-gradient(135deg, rgba(99,102,241,0.92), rgba(139,92,246,0.92));
+          background: var(--accent-gradient, linear-gradient(135deg, #6366f1, #8b5cf6));
           backdrop-filter: blur(14px) saturate(180%);
           -webkit-backdrop-filter: blur(14px) saturate(180%);
           border: 1px solid rgba(255,255,255,0.3);
-          box-shadow: 0 1px 1px rgba(255,255,255,0.35) inset, 0 16px 40px rgba(99,102,241,0.4);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.35) inset, 0 16px 40px var(--accent-glow, rgba(99,102,241,0.4));
         }
         .lg-ghost-btn {
           background: rgba(255,255,255,0.1);
@@ -448,16 +448,19 @@ const HomePage = () => {
         }
 
         .lg-cta-banner {
-          background: linear-gradient(135deg, rgba(79,70,229,0.85), rgba(139,92,246,0.85), rgba(126,34,206,0.85));
+          background:
+            linear-gradient(135deg,
+              color-mix(in srgb, var(--accent-color) 88%, transparent),
+              color-mix(in srgb, var(--accent-secondary) 92%, transparent));
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           border: 1px solid rgba(255,255,255,0.18);
-          box-shadow: 0 1px 1px rgba(255,255,255,0.2) inset, 0 30px 70px rgba(79,70,229,0.35);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.2) inset, 0 30px 70px var(--accent-glow);
         }
         .lg-cta-primary {
           background: rgba(255,255,255,0.92);
           backdrop-filter: blur(10px);
-          color: #4338ca;
+          color: var(--accent-color);
           box-shadow: 0 10px 26px rgba(0,0,0,0.2);
         }
         .lg-cta-ghost {
@@ -469,9 +472,19 @@ const HomePage = () => {
         .lg-cta-ghost:hover { background: rgba(255,255,255,0.22); }
 
         .lg-eyebrow {
-          background: rgba(99,102,241,0.08);
+          background: var(--accent-light, rgba(99,102,241,0.08));
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(99,102,241,0.15);
+          border: 1px solid var(--accent-border, rgba(99,102,241,0.15));
+        }
+        .hero-accent-title {
+          display: inline-block;
+          background-image: var(--accent-gradient, linear-gradient(135deg, #22d3ee, #818cf8));
+          background-size: 100% 100%;
+          background-repeat: no-repeat;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          color: transparent;
         }
 
         /* ── CTA banner aurora ── */
@@ -544,7 +557,7 @@ const HomePage = () => {
               <h1 className="anim-2 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.08] tracking-[-0.03em] mb-4 sm:mb-6">
                 Learn Without
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300">
+                <span className="hero-accent-title text-transparent bg-clip-text">
                   Limits
                 </span>
               </h1>
@@ -692,7 +705,7 @@ const HomePage = () => {
             <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-cyan-400/10 blur-3xl" />
 
             <div className="relative z-10">
-              <p className="text-[0.72rem] font-bold uppercase tracking-[0.15em] text-indigo-200 mb-3">
+              <p className="text-[0.72rem] font-bold uppercase tracking-[0.15em] text-white/75 mb-3">
                 Ready to start?
               </p>
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-4 tracking-tight">
@@ -707,7 +720,7 @@ const HomePage = () => {
                   onClick={() => window.location.href = "/lessons"}
                   className="lg-cta-primary flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-sm sm:text-base hover:scale-[1.03] active:scale-[0.98] transition-all"
                 >
-                  <Play className="h-4 w-4 fill-indigo-600" />
+                  <Play className="h-4 w-4 fill-current" />
                   Start Learning Now
                 </button>
                 <Link

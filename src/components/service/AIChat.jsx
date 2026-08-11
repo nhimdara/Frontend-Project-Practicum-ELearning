@@ -188,6 +188,20 @@ const AIChat = () => {
 
   return (
     <>
+      {/* Hidden SVG filter — powers the glass refraction warp, decorative only */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <filter id="lg-glass-distort">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.009 0.014"
+            numOctaves="2"
+            seed="7"
+            result="noise"
+          />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+
       {/* Chat Button - Left Side */}
       {!isOpen && (
         <button
@@ -196,8 +210,9 @@ const AIChat = () => {
           aria-label="Open AI Chat"
         >
           <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 animate-ping opacity-20" />
-            <div className="lg-fab-button relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center transition-all duration-300">
+            <div className="lg-fab-ring absolute -inset-1.5 rounded-full pointer-events-none" />
+            <div className="chat-accent-pulse absolute inset-0 rounded-full animate-ping opacity-20" />
+            <div className="lg-fab-button relative overflow-hidden w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center transition-all duration-300">
               <Bot className="h-8 w-8 text-white" />
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white/80 animate-pulse" />
             </div>
@@ -212,38 +227,38 @@ const AIChat = () => {
       {isOpen && (
         <div
           className={`chat-window fixed left-3 right-3 z-50 transition-all duration-300 ease-in-out sm:left-8 sm:right-auto ${
-            isMinimized ? "bottom-3 h-14 sm:bottom-8 sm:w-72" : "bottom-3 h-[min(600px,calc(100dvh-1.5rem))] sm:bottom-8 sm:w-96"
+            isMinimized ? "chat-window-minimized bottom-3 h-16 sm:bottom-8 sm:w-80" : "bottom-3 h-[min(600px,calc(100dvh-1.5rem))] sm:bottom-8 sm:w-96"
           }`}
         >
           {/* Chat Container */}
           <div className="lg-chat-shell relative h-full flex flex-col overflow-hidden">
             {/* Header */}
             <div
-              className="lg-chat-header p-4 flex items-center justify-between cursor-pointer"
+              className={`lg-chat-header flex items-center justify-between cursor-pointer relative overflow-hidden ${isMinimized ? "h-full px-3 py-2 gap-2" : "p-4"}`}
               onClick={() => isMinimized && setIsMinimized(false)}
             >
-              <div className="flex items-center gap-3">
-                <div className="lg-avatar-chip relative w-9 h-9 flex items-center justify-center">
+              <div className="flex min-w-0 items-center gap-3 relative z-10">
+                <div className="lg-avatar-chip relative overflow-hidden w-9 h-9 flex items-center justify-center">
                   <Bot className="h-5 w-5 text-white" />
                   <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white/40" />
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold text-sm flex items-center gap-1">
+                <div className="min-w-0">
+                  <h3 className="text-white font-semibold text-sm flex items-center gap-1 tracking-tight whitespace-nowrap">
                     AI Learning Assistant
                     <Sparkles className="h-3 w-3 text-yellow-300" />
                   </h3>
-                  <p className="text-white/70 text-xs">
+                  <p className={`text-white/70 text-[11px] font-medium uppercase tracking-wide whitespace-nowrap ${isMinimized ? "hidden" : ""}`}>
                     Online • Ready to help
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex flex-shrink-0 items-center gap-1 relative z-10">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     clearChat();
                   }}
-                  className="lg-header-btn p-1.5"
+                  className="lg-header-btn w-8 h-8 inline-flex items-center justify-center p-0"
                   title="Clear chat"
                 >
                   <AlertCircle className="h-4 w-4 text-white" />
@@ -253,7 +268,7 @@ const AIChat = () => {
                     e.stopPropagation();
                     setIsMinimized(!isMinimized);
                   }}
-                  className="lg-header-btn p-1.5"
+                  className="lg-header-btn w-8 h-8 inline-flex items-center justify-center p-0"
                 >
                   {isMinimized ? (
                     <Maximize2 className="h-4 w-4 text-white" />
@@ -267,7 +282,7 @@ const AIChat = () => {
                     setIsOpen(false);
                     setIsMinimized(false);
                   }}
-                  className="lg-header-btn p-1.5"
+                  className="lg-header-btn w-8 h-8 inline-flex items-center justify-center p-0"
                 >
                   <X className="h-4 w-4 text-white" />
                 </button>
@@ -301,13 +316,13 @@ const AIChat = () => {
                         </div>
                         <div>
                           <div
-                            className={`rounded-2xl p-3 ${
+                            className={`rounded-2xl p-3 relative overflow-hidden ${
                               msg.type === "user"
                                 ? "lg-bubble-user text-white"
                                 : "lg-bubble-bot"
                             }`}
                           >
-                            <p className="text-sm whitespace-pre-wrap">
+                            <p className="text-sm whitespace-pre-wrap relative z-10">
                               {msg.content}
                             </p>
                           </div>
@@ -324,8 +339,12 @@ const AIChat = () => {
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 flex items-center justify-center">
                           <Bot className="h-4 w-4 text-white" />
                         </div>
-                        <div className="lg-bubble-bot rounded-2xl p-4">
-                          <Loader2 className="h-5 w-5 text-indigo-600 animate-spin" />
+                        <div className="lg-bubble-bot relative overflow-hidden rounded-2xl px-4 py-3.5">
+                          <div className="lg-typing-dots relative z-10">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -334,7 +353,7 @@ const AIChat = () => {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="lg-quickbar px-4 py-2.5">
+                <div className="lg-quickbar px-3 py-2.5">
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {["Foundation Year", "Projects", "Videos", "Pricing"].map(
                       (quick) => (
@@ -344,9 +363,9 @@ const AIChat = () => {
                             setInput(quick);
                             inputRef.current?.focus();
                           }}
-                          className="lg-quick-chip text-xs px-3 py-1.5 whitespace-nowrap"
+                          className="lg-quick-chip relative overflow-hidden text-xs px-3 py-1.5 whitespace-nowrap"
                         >
-                          {quick}
+                          <span className="relative z-10">{quick}</span>
                         </button>
                       ),
                     )}
@@ -354,9 +373,9 @@ const AIChat = () => {
                 </div>
 
                 {/* Input Area */}
-                <div className="lg-inputbar p-4">
-                  <div className="flex items-end gap-2">
-                    <div className="flex-1 relative">
+                <div className="lg-inputbar-wrap px-3 pb-3 pt-1">
+                  <div className="lg-inputbar flex flex-col p-2">
+                    <div className="w-full relative">
                       <textarea
                         ref={inputRef}
                         value={input}
@@ -370,9 +389,9 @@ const AIChat = () => {
                       <button
                         onClick={handleSend}
                         disabled={!input.trim() || isLoading}
-                        className="lg-send-btn absolute right-2 bottom-2 p-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="lg-send-btn overflow-hidden absolute right-2 bottom-1 w-9 h-9 inline-flex items-center justify-center p-0 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
-                        <Send className="h-4 w-4" />
+                        <Send className="h-4 w-4 relative z-10" />
                       </button>
                     </div>
                   </div>
@@ -391,162 +410,374 @@ const AIChat = () => {
         @keyframes slideIn {
           from {
             opacity: 0;
-            transform: translateY(20px) scale(0.95);
+            transform: translateY(24px) scale(0.94);
+            filter: blur(6px);
           }
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
+            filter: blur(0);
           }
         }
 
         .chat-window {
-          animation: slideIn 0.3s ease-out;
+          animation: slideIn 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+        }
+        .chat-window::before,
+        .chat-window::after {
+          content: "";
+          position: absolute;
+          z-index: 0;
+          border-radius: 999px;
+          filter: blur(38px);
+          pointer-events: none;
+          opacity: 0.55;
+          animation: driftGlow 9s ease-in-out infinite alternate;
+        }
+        .chat-window::before {
+          width: 55%;
+          height: 30%;
+          top: -6%;
+          left: -8%;
+          background: var(--accent-gradient);
+        }
+        .chat-window::after {
+          width: 45%;
+          height: 26%;
+          bottom: -8%;
+          right: -6%;
+          background: var(--accent-gradient);
+          animation-delay: -4s;
+        }
+        @keyframes driftGlow {
+          from { transform: translate(0, 0) scale(1); }
+          to { transform: translate(6px, -8px) scale(1.08); }
+        }
+        .lg-chat-shell { position: relative; z-index: 1; }
+
+        /* ── iOS 26 "Liquid Glass" primitives ───────────────────────── */
+        :root {
+          --glass-hairline: rgba(255,255,255,0.75);
+          --glass-hairline-soft: rgba(255,255,255,0.35);
+          --glass-shine: rgba(255,255,255,0.55);
+          --glass-fill: rgba(255,255,255,0.55);
+          --glass-fill-soft: rgba(255,255,255,0.32);
+          --glass-shadow-soft: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -1px 6px rgba(15,15,35,0.05) inset;
         }
 
-        /* ── Liquid glass primitives ───────────────────────── */
+        .lg-fab-ring {
+          background: conic-gradient(from 0deg, var(--accent-color), transparent 30%, transparent 70%, var(--accent-color));
+          opacity: 0.55;
+          filter: blur(2px);
+          animation: spinRing 5s linear infinite;
+        }
+        @keyframes spinRing {
+          to { transform: rotate(360deg); }
+        }
         .lg-fab-button {
-          background: linear-gradient(135deg, rgba(99,102,241,0.92), rgba(139,92,246,0.92));
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.35);
+          background: var(--accent-gradient);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid var(--glass-hairline-soft);
           border-radius: 999px;
-          box-shadow: 0 1px 1px rgba(255,255,255,0.4) inset, 0 12px 30px rgba(99,102,241,0.45);
+          box-shadow:
+            0 1px 1px rgba(255,255,255,0.5) inset,
+            0 -6px 10px rgba(0,0,0,0.08) inset,
+            0 14px 32px var(--accent-glow);
+        }
+        .lg-fab-button::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 42%);
+          mix-blend-mode: overlay;
+          pointer-events: none;
+        }
+        .lg-fab-button::after {
+          content: "";
+          position: absolute;
+          top: 8%;
+          left: 14%;
+          width: 46%;
+          height: 26%;
+          border-radius: 999px;
+          background: radial-gradient(ellipse at center, rgba(255,255,255,0.85), rgba(255,255,255,0) 70%);
+          filter: blur(1px);
+          pointer-events: none;
+        }
+        .lg-fab-button {
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
         }
         .lg-fab-button:hover {
           transform: scale(1.08);
-          box-shadow: 0 1px 1px rgba(255,255,255,0.4) inset, 0 16px 36px rgba(99,102,241,0.55);
+          box-shadow:
+            0 1px 1px rgba(255,255,255,0.5) inset,
+            0 -6px 10px rgba(0,0,0,0.08) inset,
+            0 18px 40px var(--accent-glow);
         }
+        .chat-accent-pulse { background:var(--accent-gradient); }
         .lg-tooltip {
-          background: rgba(20,20,35,0.7);
-          backdrop-filter: blur(12px) saturate(180%);
-          -webkit-backdrop-filter: blur(12px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 10px;
+          background: rgba(20,20,35,0.55);
+          backdrop-filter: blur(18px) saturate(200%);
+          -webkit-backdrop-filter: blur(18px) saturate(200%);
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.18);
         }
 
         .lg-chat-shell {
           color: #172033;
-          background: rgba(255,255,255,0.72);
-          backdrop-filter: blur(28px) saturate(180%);
-          -webkit-backdrop-filter: blur(28px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.6);
-          border-radius: 24px;
-          box-shadow: 0 1px 1px rgba(255,255,255,0.7) inset, 0 24px 60px rgba(15,15,35,0.25);
+          background: rgba(255,255,255,0.6);
+          backdrop-filter: blur(36px) saturate(190%);
+          -webkit-backdrop-filter: blur(36px) saturate(190%);
+          border: 1px solid var(--glass-hairline-soft);
+          border-radius: 32px;
+          box-shadow:
+            0 1px 1px rgba(255,255,255,0.8) inset,
+            0 0 0 1px rgba(255,255,255,0.15) inset,
+            0 30px 70px rgba(15,15,35,0.28);
+        }
+        .lg-chat-shell::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          backdrop-filter: blur(2px);
+          -webkit-backdrop-filter: blur(2px);
+          filter: url(#lg-glass-distort);
+          opacity: 0.5;
+          pointer-events: none;
         }
 
         .lg-chat-header {
-          background: linear-gradient(135deg, rgba(79,70,229,0.9), rgba(139,92,246,0.9));
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-          border-bottom: 1px solid rgba(255,255,255,0.15);
+          background: var(--accent-gradient);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border-bottom: 1px solid rgba(255,255,255,0.18);
+        }
+        .lg-chat-header::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 55%);
+          pointer-events: none;
+        }
+        .lg-chat-header::after {
+          content: "";
+          position: absolute;
+          top: -60%;
+          left: -10%;
+          width: 60%;
+          height: 180%;
+          background: radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0) 70%);
+          transform: rotate(12deg);
+          pointer-events: none;
         }
         .lg-avatar-chip {
-          background: rgba(255,255,255,0.18);
-          border: 1px solid rgba(255,255,255,0.3);
-          border-radius: 12px;
+          background: rgba(255,255,255,0.2);
+          border: 1px solid rgba(255,255,255,0.35);
+          border-radius: 13px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.4) inset;
+        }
+        .lg-avatar-chip::before {
+          content: "";
+          position: absolute;
+          top: 6%;
+          left: 12%;
+          width: 40%;
+          height: 30%;
+          border-radius: 999px;
+          background: radial-gradient(ellipse at center, rgba(255,255,255,0.8), rgba(255,255,255,0) 75%);
+          pointer-events: none;
         }
         .lg-header-btn {
-          background: rgba(255,255,255,0.1);
-          border-radius: 10px;
-          transition: background 0.2s ease;
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 11px;
+          transition: background 0.2s ease, transform 0.15s ease;
         }
-        .lg-header-btn:hover { background: rgba(255,255,255,0.22); }
+        .lg-header-btn svg,
+        .lg-send-btn svg,
+        .lg-fab-button svg,
+        .lg-avatar-chip svg {
+          display:block;
+          flex:none;
+          margin:auto;
+        }
+        .lg-header-btn:hover { background: rgba(255,255,255,0.24); }
+        .lg-header-btn:active { transform: scale(0.92); }
 
         .lg-messages-bg {
-          background: rgba(244,245,251,0.5);
+          background: rgba(244,245,251,0.35);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(120,130,160,0.35) transparent;
+        }
+        .lg-messages-bg::-webkit-scrollbar { width: 5px; }
+        .lg-messages-bg::-webkit-scrollbar-thumb {
+          background: rgba(120,130,160,0.35);
+          border-radius: 999px;
+        }
+        .lg-typing-dots {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          height: 18px;
+        }
+        .lg-typing-dots span {
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: var(--accent-color);
+          opacity: 0.55;
+          animation: typingBounce 1.1s ease-in-out infinite;
+        }
+        .lg-typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .lg-typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingBounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+          30% { transform: translateY(-4px); opacity: 1; }
         }
 
         .lg-bubble-user {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          box-shadow: 0 6px 16px rgba(99,102,241,0.3);
+          background: var(--accent-gradient);
+          box-shadow: 0 8px 20px var(--accent-glow);
+        }
+        .lg-bubble-user::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%);
+          pointer-events: none;
         }
         .lg-bubble-bot {
           color: #172033 !important;
-          background: rgba(255,255,255,0.85);
-          backdrop-filter: blur(10px) saturate(180%);
-          -webkit-backdrop-filter: blur(10px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.9);
-          box-shadow: 0 4px 14px rgba(31,41,55,0.06);
+          background: rgba(255,255,255,0.62);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid var(--glass-hairline);
+          box-shadow: 0 1px 1px rgba(255,255,255,0.7) inset, 0 6px 16px rgba(31,41,55,0.07);
+        }
+        .lg-bubble-bot::before {
+          content: "";
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 40%;
+          background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+          pointer-events: none;
         }
 
         .lg-quickbar {
-          background: rgba(255,255,255,0.55);
-          backdrop-filter: blur(14px) saturate(180%);
-          -webkit-backdrop-filter: blur(14px) saturate(180%);
-          border-top: 1px solid rgba(255,255,255,0.6);
+          background: transparent;
         }
         .lg-quick-chip {
-          background: rgba(99,102,241,0.08);
-          border: 1px solid rgba(99,102,241,0.15);
-          border-radius: 999px;
-          color: #4338ca;
-          font-weight: 500;
-          transition: all 0.2s ease;
-        }
-        .lg-quick-chip:hover {
-          background: rgba(99,102,241,0.16);
-        }
-
-        .lg-inputbar {
-          background: rgba(255,255,255,0.6);
+          background: var(--glass-fill-soft);
           backdrop-filter: blur(14px) saturate(180%);
           -webkit-backdrop-filter: blur(14px) saturate(180%);
-          border-top: 1px solid rgba(255,255,255,0.7);
+          border: 1px solid var(--accent-border);
+          border-radius: 999px;
+          color: var(--accent-color);
+          font-weight: 500;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 2px 8px rgba(15,15,35,0.04);
+          transition: all 0.2s ease;
+        }
+        .lg-quick-chip::before {
+          content: "";
+          position: absolute;
+          top: 0; left: 8%;
+          width: 50%;
+          height: 55%;
+          border-radius: 999px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 100%);
+          pointer-events: none;
+        }
+        .lg-quick-chip:hover {
+          background: var(--accent-light);
+          transform: translateY(-1px);
+        }
+        .lg-quick-chip:active { transform: translateY(0) scale(0.97); }
+
+        .lg-inputbar-wrap { background: transparent; }
+        .lg-inputbar {
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(22px) saturate(190%);
+          -webkit-backdrop-filter: blur(22px) saturate(190%);
+          border: 1px solid var(--glass-hairline);
+          border-radius: 22px;
+          box-shadow:
+            0 1px 1px rgba(255,255,255,0.8) inset,
+            0 10px 26px rgba(15,15,35,0.12);
         }
         .lg-textarea {
-          background: rgba(255,255,255,0.7);
-          border: 1px solid rgba(31,41,55,0.08);
+          background: rgba(255,255,255,0.55);
+          border: 1px solid rgba(31,41,55,0.06);
           color: #172033;
           border-radius: 16px;
           outline: none;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.7) inset;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .lg-textarea:focus {
-          border-color: rgba(99,102,241,0.5);
-          box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+          border-color: var(--accent-border);
+          box-shadow: 0 0 0 3px var(--accent-ring), 0 1px 1px rgba(255,255,255,0.7) inset;
         }
         .lg-textarea::placeholder { color:#7d899e; opacity:1; }
         .chat-timestamp,
         .chat-disclaimer { color:#7b879d; }
         .lg-send-btn {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          background: var(--accent-gradient);
           color: #fff;
-          border-radius: 10px;
-          box-shadow: 0 4px 12px rgba(99,102,241,0.4);
-          transition: transform 0.2s ease;
+          border-radius: 999px;
+          box-shadow: 0 1px 1px rgba(255,255,255,0.5) inset, 0 6px 16px var(--accent-glow);
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .lg-send-btn::before {
+          content: "";
+          position: absolute;
+          top: 10%;
+          left: 18%;
+          width: 40%;
+          height: 30%;
+          border-radius: 999px;
+          background: radial-gradient(ellipse at center, rgba(255,255,255,0.8), rgba(255,255,255,0) 75%);
+          pointer-events: none;
         }
         .lg-send-btn:hover:not(:disabled) {
-          transform: scale(1.06);
+          transform: scale(1.08);
         }
+        .lg-send-btn:active:not(:disabled) { transform: scale(0.96); }
 
         html.dark-mode .lg-chat-shell {
           color:#f5f7ff;
-          background:rgba(10,14,31,.90);
-          border-color:rgba(165,180,252,.22);
-          box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 28px 72px rgba(0,0,0,.48);
+          background:rgba(12,16,34,.78);
+          border-color:rgba(165,180,252,.2);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 1px rgba(255,255,255,0.04), 0 30px 76px rgba(0,0,0,.5);
         }
-        html.dark-mode .lg-messages-bg { background:rgba(5,8,22,.48); }
+        html.dark-mode .lg-messages-bg { background:rgba(5,8,22,.32); }
         html.dark-mode .lg-bubble-bot {
           color:#eef2ff !important;
-          background:rgba(26,32,63,.88);
-          border-color:rgba(165,180,252,.16);
-          box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06);
+          background:rgba(26,32,63,.72);
+          border-color:rgba(165,180,252,.18);
+          box-shadow:0 6px 18px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.07);
         }
-        html.dark-mode .lg-quickbar,
-        html.dark-mode .lg-inputbar {
-          background:rgba(11,15,34,.82);
-          border-color:rgba(165,180,252,.14);
-        }
+        html.dark-mode .lg-bubble-bot::before { background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%); }
         html.dark-mode .lg-quick-chip {
-          color:#cbd5ff;
-          background:rgba(99,102,241,.16);
-          border-color:rgba(165,180,252,.20);
+          color:var(--accent-color);
+          background:rgba(20,24,48,.5);
+          border-color:rgba(165,180,252,.22);
         }
-        html.dark-mode .lg-quick-chip:hover { color:#fff; background:rgba(99,102,241,.28); }
+        html.dark-mode .lg-quick-chip:hover { color:#fff; background:var(--accent-color); }
+        html.dark-mode .lg-inputbar {
+          background:rgba(12,16,34,.7);
+          border-color:rgba(165,180,252,.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 10px 28px rgba(0,0,0,.35);
+        }
         html.dark-mode .lg-textarea {
           color:#f5f7ff !important;
-          background:rgba(5,8,22,.76) !important;
-          border-color:rgba(165,180,252,.22) !important;
+          background:rgba(6,9,24,.6) !important;
+          border-color:rgba(165,180,252,.18) !important;
           caret-color:#a5b4fc;
         }
         html.dark-mode .lg-textarea::placeholder { color:#818daf !important; }
@@ -555,10 +786,17 @@ const AIChat = () => {
 
         @media (max-width:640px) {
           .chat-window { bottom:max(8px,env(safe-area-inset-bottom)); }
-          .lg-chat-shell { border-radius:26px; }
-          .lg-chat-header { padding:12px; }
+          .lg-chat-shell { border-radius:30px; }
+          .lg-chat-header { padding:10px 12px; gap:8px; }
+          .lg-chat-header .lg-avatar-chip { width:34px; height:34px; flex:none; }
+          .lg-chat-header h3 { font-size:12px; line-height:16px; }
+          .lg-chat-header p { font-size:9px; line-height:13px; letter-spacing:.035em; }
+          .lg-chat-header .lg-header-btn { width:30px; height:30px; }
           .lg-messages-bg { padding:14px 12px; }
-          .lg-inputbar { padding:12px; padding-bottom:max(12px,env(safe-area-inset-bottom)); }
+          .lg-quickbar > div { scrollbar-width:none; }
+          .lg-quickbar > div::-webkit-scrollbar { display:none; }
+          .chat-disclaimer { width:100%; margin-top:6px; font-size:10px; line-height:14px; white-space:normal; }
+          .lg-inputbar-wrap { padding-bottom:max(10px,env(safe-area-inset-bottom)); }
         }
       `}</style>
     </>

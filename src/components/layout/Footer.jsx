@@ -22,7 +22,7 @@ import { FaFacebook, FaTwitter, FaLinkedin, FaYoutube, FaInstagram } from "react
 // glow tucked in one corner.
 const GlassPanel = ({ className = "", children }) => (
   <div
-    className={`relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] ${className}`}
+    className={`footer-glass-panel relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] ${className}`}
   >
     <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
     <div className="pointer-events-none absolute -top-12 -left-12 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
@@ -62,7 +62,6 @@ const Footer = () => {
     { name: "Lessons", path: "/lessons" },
     { name: "Projects", path: "/projects" },
     { name: "Calendar", path: "/calendar" },
-    { name: "Dashboard", path: "/dashboard" },
     { name: "Profile", path: "/profile" },
   ];
 
@@ -107,12 +106,34 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 text-white overflow-hidden">
+    <footer className="app-footer relative text-white overflow-hidden">
+      <style>{`
+        .app-footer {
+          background:
+            radial-gradient(circle at 88% 8%, color-mix(in srgb,var(--accent-color) 25%,transparent), transparent 28rem),
+            radial-gradient(circle at 8% 92%, color-mix(in srgb,var(--accent-secondary) 20%,transparent), transparent 28rem),
+            linear-gradient(135deg,#0f172a,#172033 58%,color-mix(in srgb,var(--accent-color) 24%,#111827));
+        }
+        .app-footer .footer-accent-gradient {
+          background-image:var(--accent-gradient);
+          -webkit-background-clip:text;
+          background-clip:text;
+          -webkit-text-fill-color:transparent;
+          color:transparent;
+        }
+        .app-footer .footer-copy { color:#dbe4f0 !important; }
+        .app-footer .footer-muted { color:#b8c4d8 !important; }
+        .app-footer .footer-accent-line { background:var(--accent-gradient) !important; }
+        .app-footer .footer-accent-icon { color:var(--accent-secondary) !important; }
+        .app-footer .footer-orb-primary { background:var(--accent-color); opacity:.18; }
+        .app-footer .footer-orb-secondary { background:var(--accent-secondary); opacity:.14; }
+        .app-footer a.footer-copy:hover { color:#fff !important; }
+      `}</style>
       {/* Ambient liquid background — this is the color/light the glass panels refract */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
+        <div className="footer-orb-primary absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl animate-pulse" />
+        <div className="footer-orb-secondary absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="footer-orb-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] rounded-full blur-3xl animate-pulse delay-2000" />
         <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse delay-500" />
       </div>
 
@@ -133,12 +154,12 @@ const Footer = () => {
                 </div>
                 <div className="absolute -inset-1 bg-indigo-400/20 rounded-full blur-md group-hover:bg-indigo-400/30 transition-all" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="footer-accent-gradient text-xl font-bold">
                 ELearning
               </span>
             </div>
 
-            <p className="text-indigo-100 mb-6 leading-relaxed">
+            <p className="footer-copy mb-6 leading-relaxed">
               Empowering learners worldwide with quality education, expert-led
               courses, and a supportive community. Join us in shaping the future
               of learning.
@@ -159,7 +180,7 @@ const Footer = () => {
                     >
                       <item.icon className={`h-4 w-4 ${accent.icon}`} />
                     </div>
-                    <span className={`text-sm font-medium ${accent.text}`}>{item.text}</span>
+                    <span className={`footer-copy text-sm font-medium ${accent.text}`}>{item.text}</span>
                   </a>
                 );
               })}
@@ -168,16 +189,16 @@ const Footer = () => {
 
           {/* Quick Links */}
           <GlassPanel className="p-6 sm:p-8">
-            <h4 className="text-lg font-semibold mb-4 relative inline-block bg-gradient-to-r from-indigo-300 to-violet-300 bg-clip-text text-transparent">
+            <h4 className="footer-accent-gradient text-lg font-semibold mb-4 relative inline-block">
               Quick Links
-              <span className="absolute -bottom-1 left-0 w-12 h-0.5 bg-indigo-400 rounded-full" />
+              <span className="footer-accent-line absolute -bottom-1 left-0 w-12 h-0.5 rounded-full" />
             </h4>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
                   <Link
                     to={link.path}
-                    className="text-indigo-100 hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                    className="footer-copy hover:text-white transition-all duration-300 flex items-center gap-2 group"
                   >
                     <span
                       className={`w-1 h-1 ${quickLinkDots[index % quickLinkDots.length]} rounded-full group-hover:w-2 transition-all`}
@@ -191,9 +212,9 @@ const Footer = () => {
 
           {/* Resources */}
           <GlassPanel className="p-6 sm:p-8">
-            <h4 className="text-lg font-semibold mb-4 relative inline-block bg-gradient-to-r from-purple-300 to-fuchsia-300 bg-clip-text text-transparent">
+            <h4 className="footer-accent-gradient text-lg font-semibold mb-4 relative inline-block">
               Resources
-              <span className="absolute -bottom-1 left-0 w-12 h-0.5 bg-purple-400 rounded-full" />
+              <span className="footer-accent-line absolute -bottom-1 left-0 w-12 h-0.5 rounded-full" />
             </h4>
             <ul className="space-y-3">
               {resources.map((resource, index) => {
@@ -203,9 +224,9 @@ const Footer = () => {
                   <li key={index}>
                     <a
                       href={resource.href}
-                      className="text-purple-100 hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                      className="footer-copy hover:text-white transition-all duration-300 flex items-center gap-2 group"
                     >
-                      <Icon className={`h-4 w-4 ${iconColor} group-hover:scale-110 transition-transform`} />
+                      <Icon className={`footer-accent-icon h-4 w-4 ${iconColor} group-hover:scale-110 transition-transform`} />
                       {resource.name}
                     </a>
                   </li>
@@ -216,9 +237,9 @@ const Footer = () => {
 
           {/* Social & Legal */}
           <GlassPanel className="p-6 sm:p-8">
-            <h4 className="text-lg font-semibold mb-4 relative inline-block bg-gradient-to-r from-cyan-300 to-sky-300 bg-clip-text text-transparent">
+            <h4 className="footer-accent-gradient text-lg font-semibold mb-4 relative inline-block">
               Connect With Us
-              <span className="absolute -bottom-1 left-0 w-12 h-0.5 bg-cyan-400 rounded-full" />
+              <span className="footer-accent-line absolute -bottom-1 left-0 w-12 h-0.5 rounded-full" />
             </h4>
 
             {/* Social Links */}
@@ -244,7 +265,7 @@ const Footer = () => {
                 <a
                   key={label}
                   href="#"
-                  className={`text-sm text-cyan-100 ${legalHovers[index % legalHovers.length]} transition-colors block`}
+                  className={`footer-copy text-sm ${legalHovers[index % legalHovers.length]} transition-colors block`}
                 >
                   {label}
                 </a>
@@ -257,12 +278,12 @@ const Footer = () => {
         <div className="pb-8">
           <GlassPanel className="rounded-full px-6 py-3">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-indigo-200">
+              <p className="footer-muted text-sm">
                 &copy; {currentYear} EduLearn. All rights reserved.
               </p>
 
               <div className="flex items-center gap-4">
-                <span className="text-sm text-cyan-100 flex items-center gap-1">
+                <span className="footer-copy text-sm flex items-center gap-1">
                   Made with{" "}
                   <Heart className="h-3 w-3 text-red-500 fill-red-500 animate-pulse" />{" "}
                   in Cambodia

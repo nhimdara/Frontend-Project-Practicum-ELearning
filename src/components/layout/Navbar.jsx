@@ -255,8 +255,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
           overflow: hidden;
           background:
             radial-gradient(circle at 12% 0%, rgba(255,255,255,0.28), transparent 34%),
-            linear-gradient(135deg, rgba(79,70,229,0.94), rgba(124,58,237,0.90)) !important;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 0 10px 30px rgba(79,70,229,0.20);
+            var(--accent-gradient) !important;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 0 10px 30px var(--accent-glow);
         }
 
         .profile-dropdown-stat {
@@ -279,8 +279,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
         .profile-dropdown-link:hover,
         .profile-dropdown-link:focus-visible {
-          background: rgba(99,102,241,0.11) !important;
-          box-shadow: inset 0 0 0 1px rgba(99,102,241,0.10);
+          background: var(--accent-light) !important;
+          box-shadow: inset 0 0 0 1px var(--accent-border);
         }
 
         html.dark-mode .profile-dropdown-surface {
@@ -296,8 +296,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
         html.dark-mode .profile-dropdown-link:hover,
         html.dark-mode .profile-dropdown-link:focus-visible {
-          background: rgba(99,102,241,0.20) !important;
-          box-shadow: inset 0 0 0 1px rgba(165,180,252,0.16);
+          background: var(--accent-light) !important;
+          box-shadow: inset 0 0 0 1px var(--accent-border);
           color: #ffffff !important;
         }
 

@@ -64,6 +64,25 @@ const LIQUID_GLASS_STYLES = `
     transform: scale(1.08);
     background: rgba(255,255,255,0.65);
   }
+  .student-calendar .calendar-accent-gradient {
+    background-image: var(--accent-gradient) !important;
+  }
+  .student-calendar .calendar-accent-text {
+    color: var(--accent-color) !important;
+  }
+  .student-calendar .calendar-accent-tag {
+    color: var(--accent-color) !important;
+    background: var(--accent-light) !important;
+  }
+  .student-calendar .calendar-accent-glow,
+  .student-calendar .calendar-accent-blob {
+    background: var(--accent-color) !important;
+  }
+  .student-calendar .calendar-accent-glow { opacity: .24; }
+  .student-calendar .calendar-accent-blob { opacity: .18; }
+  .student-calendar .calendar-accent-ring {
+    --tw-ring-color: var(--accent-border) !important;
+  }
 `;
 
 const YEAR_STYLE = {
@@ -128,7 +147,16 @@ const getMajorStyle = (major, yearKey) => {
       ring: "ring-emerald-300/40",
     },
   };
-  return majorColors[major] || YEAR_STYLE[yearKey];
+  const fallback = majorColors[major] || YEAR_STYLE[yearKey];
+  return {
+    ...fallback,
+    grad: "calendar-accent-gradient",
+    accent: "calendar-accent-text",
+    tag: "calendar-accent-tag",
+    glow: "calendar-accent-glow",
+    blob: "calendar-accent-blob",
+    ring: "calendar-accent-ring",
+  };
 };
 
 // ─── Liquid Glass surface ───────────────────────────────────────

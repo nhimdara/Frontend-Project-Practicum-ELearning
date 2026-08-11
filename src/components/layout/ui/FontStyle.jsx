@@ -2,12 +2,12 @@ import React from "react";
 
 const FontStyle = () => (
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; }
 
     .nav-font  { font-family: 'Outfit', sans-serif; }
-    .body-font { font-family: 'DM Sans', sans-serif; }
+    .body-font { font-family: var(--app-font-family, 'DM Sans', sans-serif); }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(24px); }
@@ -29,6 +29,11 @@ const FontStyle = () => (
       0%   { transform: scale(1);   opacity: 0.4; }
       100% { transform: scale(1.6); opacity: 0; }
     }
+    @keyframes liquidOrbFloat {
+      0%, 100% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.08); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
 
     .anim-1 { animation: fadeUp 0.7s ease-out 0.1s both; }
     .anim-2 { animation: fadeUp 0.7s ease-out 0.25s both; }
@@ -38,9 +43,10 @@ const FontStyle = () => (
 
     .float-badge { animation: float 4s ease-in-out infinite; }
     .float-badge-2 { animation: float 4s ease-in-out 1.5s infinite; }
+    .liquid-orb-anim { animation: liquidOrbFloat 14s ease-in-out infinite; }
 
     .shimmer-badge {
-      background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4, #6366f1);
+      background: var(--accent-gradient, linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4, #6366f1));
       background-size: 200% auto;
       animation: shimmer 3s linear infinite;
     }
@@ -50,7 +56,7 @@ const FontStyle = () => (
       position: absolute;
       inset: -4px;
       border-radius: 20px;
-      background: rgba(255,255,255,0.3);
+      background: var(--accent-light, rgba(255,255,255,0.3));
       animation: pulse-ring 2s ease-out infinite;
     }
 
@@ -83,8 +89,8 @@ const FontStyle = () => (
 
     .custom-input:focus {
       outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+      border-color: var(--accent-color, #6366f1);
+      box-shadow: 0 0 0 3px var(--accent-ring, rgba(99,102,241,0.15));
     }
   `}</style>
 );

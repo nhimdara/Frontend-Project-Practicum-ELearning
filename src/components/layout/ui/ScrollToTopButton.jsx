@@ -31,18 +31,18 @@ const ScrollToTopButton = ({ visible = true }) => (
         -webkit-backdrop-filter:blur(18px) saturate(180%);
       }
       .app-scroll-top-ring {
-        background:conic-gradient(from 0deg,#6366f1,#8b5cf6,#a855f7,#6366f1);
+        background:conic-gradient(from 0deg,var(--accent-color),var(--accent-secondary),var(--accent-color));
         animation:app-scroll-top-spin 3s linear infinite;
         opacity:.72;
       }
       .app-scroll-top-core {
-        background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+        background:var(--accent-gradient);
         box-shadow:0 8px 20px rgba(79,70,229,.42),inset 0 1px 0 rgba(255,255,255,.22);
       }
       .app-scroll-top:hover .app-scroll-top-core { transform:scale(1.08); }
-      .app-scroll-top-glow { background:linear-gradient(135deg,#6366f1,#a855f7); filter:blur(9px); }
+      .app-scroll-top-glow { background:var(--accent-gradient); filter:blur(9px); }
       .app-scroll-top:hover .app-scroll-top-glow { opacity:.34; }
-      .app-scroll-top:focus-visible { outline:3px solid rgba(99,102,241,.32); outline-offset:4px; }
+      .app-scroll-top:focus-visible { outline:3px solid var(--accent-ring); outline-offset:4px; }
       html.dark-mode .app-scroll-top {
         border-color:rgba(165,180,252,.28);
         background:rgba(12,16,36,.72);

@@ -58,6 +58,13 @@ body.modal-open {
 }
 /* Base font settings */
 :root {
+  --accent-color: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --accent-glow: rgba(99, 102, 241, 0.35);
+  --accent-light: rgba(99, 102, 241, 0.12);
+  --accent-border: rgba(99, 102, 241, 0.3);
+  --accent-ring: rgba(99, 102, 241, 0.25);
   --lf-primary: #4f46e5;
   --lf-primary-strong: #4338ca;
   --lf-accent: #06b6d4;
@@ -91,15 +98,15 @@ body, button, input, select, textarea {
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(79, 70, 229, 0.10), transparent 32rem),
-    radial-gradient(circle at top right, rgba(6, 182, 212, 0.09), transparent 30rem),
+    radial-gradient(circle at top left, var(--accent-light), transparent 32rem),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-secondary) 9%, transparent), transparent 30rem),
     linear-gradient(180deg, #fbfdff 0%, var(--lf-light-bg) 100%) !important;
   color: var(--lf-light-text);
 }
 
 ::selection {
-  background: rgba(79, 70, 229, 0.22);
-  color: #1e1b4b;
+  background: var(--accent-ring);
+  color: var(--lf-light-text);
 }
 
 button,
@@ -120,7 +127,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--lf-primary) !important;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
+  box-shadow: 0 0 0 3px var(--accent-ring) !important;
 }
 
 /* Light mode polish */
@@ -168,15 +175,15 @@ html:not(.dark-mode) .bg-gradient-to-br.from-indigo-600 {
 html.dark-mode {
   color-scheme: dark;
   background:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 28rem),
-    radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 30rem),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent-color) 20%, transparent), transparent 28rem),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-secondary) 16%, transparent), transparent 30rem),
     linear-gradient(180deg, #070816 0%, #0d1024 100%);
 }
 
 html.dark-mode body {
   background:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.20), transparent 28rem),
-    radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 30rem),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent-color) 20%, transparent), transparent 28rem),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-secondary) 16%, transparent), transparent 30rem),
     linear-gradient(180deg, #070816 0%, #0d1024 100%) !important;
   color: var(--lf-dark-text) !important;
 }
@@ -603,9 +610,9 @@ html.dark-mode .ghost-btn {
 html.dark-mode .tab-btn.active,
 html.dark-mode .sidebar-btn.active,
 html.dark-mode .skill-chip {
-  background: rgba(99, 102, 241, 0.18) !important;
-  color: #c7d2fe !important;
-  border-color: rgba(129, 140, 248, 0.36) !important;
+  background: var(--accent-light) !important;
+  color: var(--accent-color) !important;
+  border-color: var(--accent-border) !important;
 }
 
 html.dark-mode .ghost-btn {
@@ -617,9 +624,9 @@ html.dark-mode .primary-btn,
 html:not(.dark-mode) .primary-btn,
 html:not(.dark-mode) button[class*="bg-indigo-600"],
 html.dark-mode button[class*="bg-indigo-600"] {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  background: var(--accent-gradient) !important;
   color: #ffffff !important;
-  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.24) !important;
+  box-shadow: 0 14px 30px var(--accent-glow) !important;
 }
 
 html:not(.dark-mode) a[class*="text-gray-"],
@@ -1166,7 +1173,7 @@ html:not(.dark-mode) nav.app-navbar [data-brand="elearning"] {
 }
 
 html:not(.dark-mode) nav.app-navbar [data-brand="elearning"] span {
-  color: #4f46e5 !important;
+  color: var(--accent-color) !important;
 }
 
 nav.app-navbar .app-nav-control,
@@ -1192,17 +1199,17 @@ html:not(.dark-mode) nav.app-navbar .app-nav-link {
 }
 
 html:not(.dark-mode) nav.app-navbar .app-nav-link:hover {
-  color: #4338ca !important;
-  background: rgba(79,70,229,0.08) !important;
+  color: var(--accent-secondary) !important;
+  background: var(--accent-light) !important;
 }
 
 html:not(.dark-mode) nav.app-navbar .app-nav-link.is-active {
-  color: #3730a3 !important;
-  background: rgba(79,70,229,0.12) !important;
+  color: var(--accent-color) !important;
+  background: var(--accent-light) !important;
 }
 
 html:not(.dark-mode) nav.app-navbar .app-nav-indicator {
-  background: linear-gradient(90deg, #4f46e5, #8b5cf6) !important;
+  background: var(--accent-gradient) !important;
 }
 
 html:not(.dark-mode) nav.app-navbar .app-profile-name {
@@ -1516,6 +1523,22 @@ html.liquid-glass-disabled:not(.dark-mode) .content-panel,
 html.liquid-glass-disabled:not(.dark-mode) .prof-card,
 html.liquid-glass-disabled:not(.dark-mode) .project-card,
 html.liquid-glass-disabled:not(.dark-mode) .student-glass-card,
+html.liquid-glass-disabled:not(.dark-mode) .lg-card,
+html.liquid-glass-disabled:not(.dark-mode) .lg-header-card,
+html.liquid-glass-disabled:not(.dark-mode) .lg-searchbar,
+html.liquid-glass-disabled:not(.dark-mode) .glass-card,
+html.liquid-glass-disabled:not(.dark-mode) .lg-about-card,
+html.liquid-glass-disabled:not(.dark-mode) .lg-stat-card,
+html.liquid-glass-disabled:not(.dark-mode) .appearance-glass-card,
+html.liquid-glass-disabled:not(.dark-mode) .settings-autosave,
+html.liquid-glass-disabled:not(.dark-mode) .profile-dropdown-surface,
+html.liquid-glass-disabled:not(.dark-mode) .dropdown-panel,
+html.liquid-glass-disabled:not(.dark-mode) .lg-chat-shell,
+html.liquid-glass-disabled:not(.dark-mode) .lg-messages-bg,
+html.liquid-glass-disabled:not(.dark-mode) .lg-quickbar,
+html.liquid-glass-disabled:not(.dark-mode) .lg-inputbar,
+html.liquid-glass-disabled:not(.dark-mode) .lg-modal,
+html.liquid-glass-disabled:not(.dark-mode) .subscription-modal,
 html.liquid-glass-disabled:not(.dark-mode) .form-header,
 html.liquid-glass-disabled:not(.dark-mode) .form-card,
 html.liquid-glass-disabled:not(.dark-mode) .progress-card,
@@ -1527,6 +1550,28 @@ html.liquid-glass-disabled:not(.dark-mode) .modal-content {
   background:#ffffff !important;
   border-color:#e5e7eb !important;
   box-shadow:0 2px 20px rgba(15,23,42,.06) !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .lg-pill,
+html.liquid-glass-disabled:not(.dark-mode) .lg-ghost-btn,
+html.liquid-glass-disabled:not(.dark-mode) .lg-filter-chip-inactive,
+html.liquid-glass-disabled:not(.dark-mode) .lg-sheet {
+  background:#f3f4f6 !important;
+  border-color:#d1d5db !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled:not(.dark-mode) .footer-glass-panel {
+  background:#172033 !important;
+  border-color:#334155 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled .student-hero :is(.glass-card,.lg-stat-card,.lg-ghost-btn,.lg-pill) {
+  background:#1f2937 !important;
+  border-color:#64748b !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
 }
 
 html.liquid-glass-disabled:not(.dark-mode) .sett-card,
@@ -1557,6 +1602,23 @@ html.liquid-glass-disabled.dark-mode .content-panel,
 html.liquid-glass-disabled.dark-mode .prof-card,
 html.liquid-glass-disabled.dark-mode .project-card,
 html.liquid-glass-disabled.dark-mode .student-glass-card,
+html.liquid-glass-disabled.dark-mode .lg-card,
+html.liquid-glass-disabled.dark-mode .lg-header-card,
+html.liquid-glass-disabled.dark-mode .lg-searchbar,
+html.liquid-glass-disabled.dark-mode .glass-card,
+html.liquid-glass-disabled.dark-mode .lg-about-card,
+html.liquid-glass-disabled.dark-mode .lg-stat-card,
+html.liquid-glass-disabled.dark-mode .appearance-glass-card,
+html.liquid-glass-disabled.dark-mode .settings-autosave,
+html.liquid-glass-disabled.dark-mode .profile-dropdown-surface,
+html.liquid-glass-disabled.dark-mode .dropdown-panel,
+html.liquid-glass-disabled.dark-mode .lg-chat-shell,
+html.liquid-glass-disabled.dark-mode .lg-messages-bg,
+html.liquid-glass-disabled.dark-mode .lg-quickbar,
+html.liquid-glass-disabled.dark-mode .lg-inputbar,
+html.liquid-glass-disabled.dark-mode .lg-modal,
+html.liquid-glass-disabled.dark-mode .subscription-modal,
+html.liquid-glass-disabled.dark-mode .footer-glass-panel,
 html.liquid-glass-disabled.dark-mode .form-header,
 html.liquid-glass-disabled.dark-mode .form-card,
 html.liquid-glass-disabled.dark-mode .progress-card,
@@ -1568,6 +1630,95 @@ html.liquid-glass-disabled.dark-mode .modal-content {
   background:#1a1a35 !important;
   border-color:#2a2a4a !important;
   box-shadow:0 4px 18px rgba(0,0,0,.24) !important;
+}
+
+html.liquid-glass-disabled.dark-mode .lg-pill,
+html.liquid-glass-disabled.dark-mode .lg-ghost-btn,
+html.liquid-glass-disabled.dark-mode .lg-filter-chip-inactive,
+html.liquid-glass-disabled.dark-mode .lg-sheet {
+  background:#23274c !important;
+  border-color:#3a3f70 !important;
+  box-shadow:none !important;
+}
+
+html.liquid-glass-disabled .profile-dropdown-header .profile-dropdown-stat {
+  color:#ffffff !important;
+  background:rgba(15,23,42,.22) !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+  box-shadow:none !important;
+}
+html.liquid-glass-disabled .profile-dropdown-header .profile-dropdown-stat :is(p,svg) {
+  color:#ffffff !important;
+  opacity:1 !important;
+}
+
+html.liquid-glass-disabled :is(.lg-sheen,.cta-aurora) {
+  display:none !important;
+}
+
+html.liquid-glass-disabled :is(.content-panel,.prof-card,.project-card,.student-glass-card,.lg-card,
+  .lg-header-card,.lg-searchbar,.glass-card,.lg-about-card,.lg-stat-card,.appearance-glass-card,
+  .settings-autosave,.profile-dropdown-surface,.dropdown-panel,.lg-chat-shell,.footer-glass-panel) {
+  filter:none !important;
+}
+
+/* Classic Lessons UI from 60ba198: solid cards and conventional controls. */
+html.liquid-glass-disabled:not(.dark-mode) .student-lessons {
+  background:linear-gradient(180deg,#f9fafb 0%,#ffffff 100%) !important;
+}
+html.liquid-glass-disabled.dark-mode .student-lessons {
+  background:#0d0d1a !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-card {
+  border-radius:16px !important;
+  overflow:hidden;
+  transition:transform .3s ease,box-shadow .3s ease !important;
+}
+html.liquid-glass-disabled:not(.dark-mode) .student-lessons .lg-card {
+  background:#ffffff !important;
+  border:1px solid #f3f4f6 !important;
+  box-shadow:0 1px 3px rgba(15,23,42,.08) !important;
+}
+html.liquid-glass-disabled.dark-mode .student-lessons .lg-card {
+  background:#1a1a35 !important;
+  border:1px solid #2a2a4a !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.25) !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-card:hover {
+  transform:translateY(-8px) !important;
+  box-shadow:0 24px 48px rgba(15,23,42,.18) !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-pill {
+  color:#ffffff !important;
+  background:rgba(255,255,255,.20) !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-play-orb {
+  color:#ffffff !important;
+  background:rgba(255,255,255,.30) !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-secondary-button {
+  color:#374151 !important;
+  background:#f9fafb !important;
+  border:0 !important;
+  border-radius:12px !important;
+  box-shadow:none !important;
+}
+html.liquid-glass-disabled.dark-mode .student-lessons .lg-secondary-button {
+  color:#9999cc !important;
+  background:#14142b !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-card:hover .lg-secondary-button {
+  color:#ffffff !important;
+  background:var(--course-gradient,var(--accent-gradient)) !important;
+}
+html.liquid-glass-disabled .student-lessons .lg-header-card,
+html.liquid-glass-disabled .student-lessons .lg-searchbar {
+  border-radius:16px !important;
+  box-shadow:0 2px 12px rgba(15,23,42,.08) !important;
 }
 
 html.liquid-glass-disabled.dark-mode .sett-card,
@@ -1594,6 +1745,44 @@ html.reduce-animations *::after {
   transition-duration: 0.001ms !important;
   transition-delay: 0ms !important;
   scroll-behavior: auto !important;
+}
+
+/* === DYNAMIC STUDENT ACCENT ===
+   Existing pages use Tailwind indigo/violet utilities. Route those visual
+   accent utilities through the user-selected palette without changing markup
+   in every page. Semantic success/warning/danger colors remain untouched. */
+html[data-accent] :is(.text-indigo-200,.text-indigo-300,.text-indigo-400,.text-indigo-500,.text-indigo-600,.text-indigo-700,.text-indigo-800,
+  .text-violet-500,.text-violet-600,.text-purple-500,.text-purple-600,.text-purple-700,
+  .text-blue-400,.text-blue-500,.text-blue-600,.text-blue-700,.text-cyan-300,.text-cyan-400,.text-cyan-500,.text-cyan-600,.text-cyan-700) {
+  color:var(--accent-color) !important;
+}
+html[data-accent] :is(.bg-indigo-400,.bg-indigo-500,.bg-indigo-600,.bg-indigo-700,
+  .bg-violet-400,.bg-violet-500,.bg-purple-400,.bg-purple-500,
+  .bg-blue-400,.bg-blue-500,.bg-blue-600,.bg-cyan-400,.bg-cyan-500,.bg-cyan-600) {
+  background-color:var(--accent-color) !important;
+}
+html[data-accent] :is(.bg-indigo-50,.bg-indigo-100,.bg-violet-50,.bg-violet-100,.bg-purple-50,.bg-purple-100,
+  .bg-blue-50,.bg-blue-100,.bg-cyan-50,.bg-cyan-100) {
+  background-color:var(--accent-light) !important;
+}
+html[data-accent] :is(.border-indigo-100,.border-indigo-200,.border-indigo-300,.border-indigo-400,
+  .border-indigo-500,.border-indigo-600,.border-violet-400,.border-purple-400) {
+  border-color:var(--accent-border) !important;
+}
+html[data-accent] :is(.ring-indigo-100,.ring-indigo-200,.ring-indigo-300,.ring-indigo-400,.ring-indigo-500) {
+  --tw-ring-color:var(--accent-ring) !important;
+}
+html[data-accent] :is(.bg-gradient-to-r,.bg-gradient-to-br,.bg-gradient-to-bl):is(
+  .from-indigo-300,.from-indigo-400,.from-indigo-500,.from-indigo-600,
+  .from-violet-500,.from-violet-600,.from-violet-700,.from-purple-300,.from-purple-500,
+  .from-blue-400,.from-blue-500,.from-blue-600,.from-cyan-300,.from-cyan-400,.from-cyan-500,.from-cyan-600) {
+  background-image:var(--accent-gradient) !important;
+}
+html[data-accent] :is(.hover\\:text-indigo-600,.hover\\:text-indigo-700):hover {
+  color:var(--accent-secondary) !important;
+}
+html[data-accent] :is(.hover\\:bg-indigo-600,.hover\\:bg-indigo-700):hover {
+  background-color:var(--accent-secondary) !important;
 }
 
 /* === HIGH CONTRAST === */

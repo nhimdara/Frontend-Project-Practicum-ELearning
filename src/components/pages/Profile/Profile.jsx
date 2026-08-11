@@ -521,8 +521,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         
         .tab-btn.active { 
-          background: #eef2ff; 
-          color: #4f46e5; 
+          background: var(--accent-light); 
+          color: var(--accent-color); 
         }
         
         .tab-btn:not(.active) { 
@@ -553,9 +553,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-radius: 99px; 
           font-size: 13px; 
           font-weight: 600;
-          background: #eef2ff; 
-          color: #4f46e5; 
-          border: 1.5px solid #c7d2fe;
+          background: var(--accent-light); 
+          color: var(--accent-color); 
+          border: 1.5px solid var(--accent-border);
           transition: all 0.15s;
         }
         
@@ -589,11 +589,11 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-radius: 14px; 
           font-size: 14px; 
           font-weight: 600;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+          background: var(--accent-gradient); 
           color: white; 
           border: none; 
           cursor: pointer;
-          box-shadow: 0 4px 16px rgba(99,102,241,0.3); 
+          box-shadow: 0 4px 16px var(--accent-glow); 
           transition: all 0.2s; 
           font-family: 'DM Sans', sans-serif;
         }
@@ -617,8 +617,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         
         .ghost-btn:hover { 
-          border-color: #a5b4fc; 
-          color: #4f46e5; 
+          border-color: var(--accent-border); 
+          color: var(--accent-color); 
         }
         
         .project-card {
@@ -666,8 +666,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           align-items: center;
           gap: 6px;
           padding: 6px 12px;
-          background: #eef2ff;
-          color: #4f46e5;
+          background: var(--accent-light);
+          color: var(--accent-color);
           border-radius: 20px;
           font-size: 12px;
           font-weight: 600;
@@ -680,7 +680,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          background: var(--accent-gradient);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -691,7 +691,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         
         .avatar-upload-btn:hover {
           transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+          box-shadow: 0 4px 12px var(--accent-glow);
         }
         
         .avatar-preview {
@@ -707,8 +707,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         .prof-root {
           min-height:100dvh;
           background:
-            radial-gradient(circle at 8% 5%,rgba(99,102,241,.18),transparent 30rem),
-            radial-gradient(circle at 94% 16%,rgba(14,165,233,.13),transparent 30rem),
+            radial-gradient(circle at 8% 5%,var(--accent-light),transparent 30rem),
+            radial-gradient(circle at 94% 16%,color-mix(in srgb,var(--accent-secondary) 13%,transparent),transparent 30rem),
             linear-gradient(145deg,#f8faff 0%,#edf3ff 58%,#faf7ff 100%) !important;
           background-attachment:fixed !important;
         }
@@ -721,8 +721,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         .project-card:hover {
           transform:none;
-          border-color:rgba(99,102,241,.28) !important;
-          box-shadow:0 30px 76px rgba(79,70,229,.16),inset 0 1px 0 #fff !important;
+          border-color:var(--accent-border) !important;
+          box-shadow:0 30px 76px var(--accent-light),inset 0 1px 0 #fff !important;
         }
         .form-field {
           min-height:44px;
@@ -733,8 +733,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         }
         .form-field:focus {
           background:rgba(255,255,255,.94) !important;
-          border-color:#818cf8 !important;
-          box-shadow:0 0 0 4px rgba(99,102,241,.13),inset 0 1px 0 #fff !important;
+          border-color:var(--accent-color) !important;
+          box-shadow:0 0 0 4px var(--accent-ring),inset 0 1px 0 #fff !important;
         }
         .tab-btn {
           min-height:42px;
@@ -742,10 +742,10 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-radius:15px;
         }
         .tab-btn.active {
-          background:rgba(99,102,241,.12) !important;
-          border-color:rgba(99,102,241,.14);
-          color:#4338ca !important;
-          box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 8px 22px rgba(79,70,229,.08);
+          background:var(--accent-light) !important;
+          border-color:var(--accent-border);
+          color:var(--accent-color) !important;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 8px 22px var(--accent-light);
         }
         .tab-btn:not(.active):hover { background:rgba(255,255,255,.58) !important; }
         .ghost-btn {
@@ -754,12 +754,12 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-color:rgba(100,116,160,.18) !important;
           box-shadow:inset 0 1px 0 rgba(255,255,255,.90);
         }
-        .primary-btn { min-height:44px; box-shadow:0 10px 26px rgba(79,70,229,.24),inset 0 1px 0 rgba(255,255,255,.22); }
-        .primary-btn:hover { transform:none; box-shadow:0 14px 30px rgba(79,70,229,.30),inset 0 1px 0 rgba(255,255,255,.22); }
+        .primary-btn { min-height:44px; box-shadow:0 10px 26px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22); }
+        .primary-btn:hover { transform:none; box-shadow:0 14px 30px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22); }
         .skill-chip,.tech-tag {
-          background:rgba(224,231,255,.72) !important;
-          border-color:rgba(99,102,241,.18) !important;
-          color:#4338ca !important;
+          background:var(--accent-light) !important;
+          border-color:var(--accent-border) !important;
+          color:var(--accent-color) !important;
         }
         .modal-overlay {
           background:rgba(15,23,42,.56) !important;
@@ -774,8 +774,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
 
         html.dark-mode .prof-root {
           background:
-            radial-gradient(circle at 8% 5%,rgba(99,102,241,.23),transparent 30rem),
-            radial-gradient(circle at 94% 16%,rgba(14,165,233,.13),transparent 30rem),
+            radial-gradient(circle at 8% 5%,color-mix(in srgb,var(--accent-color) 23%,transparent),transparent 30rem),
+            radial-gradient(circle at 94% 16%,color-mix(in srgb,var(--accent-secondary) 13%,transparent),transparent 30rem),
             linear-gradient(145deg,#070816 0%,#0c1024 58%,#0d0b1d 100%) !important;
         }
         html.dark-mode .prof-card,html.dark-mode .project-card,html.dark-mode .modal-content {
@@ -801,8 +801,8 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         html.dark-mode .tab-btn { color:#a8b1d6 !important; }
         html.dark-mode .tab-btn.active {
           color:#f4f7ff !important;
-          background:rgba(99,102,241,.22) !important;
-          border-color:rgba(165,180,252,.18);
+          background:var(--accent-light) !important;
+          border-color:var(--accent-border);
           box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
         }
         html.dark-mode .ghost-btn {
@@ -811,9 +811,9 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           color:#d7def7 !important;
         }
         html.dark-mode .skill-chip,html.dark-mode .tech-tag {
-          background:rgba(99,102,241,.18) !important;
-          border-color:rgba(165,180,252,.20) !important;
-          color:#c7d2fe !important;
+          background:var(--accent-light) !important;
+          border-color:var(--accent-border) !important;
+          color:var(--accent-color) !important;
         }
         html.dark-mode .modal-overlay { background:rgba(3,5,14,.78) !important; }
         html.dark-mode .success-toast {
@@ -1255,7 +1255,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
             <div className="lg:col-span-1">
               <div className="prof-card overflow-hidden">
                 {/* Cover */}
-                <div className="h-24 relative" style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)" }}>
+                <div className="h-24 relative" style={{ background: "var(--accent-gradient)" }}>
                   <div className="absolute inset-0 opacity-20"
                     style={{ backgroundImage: "radial-gradient(circle at 30% 50%, white 1px, transparent 1px), radial-gradient(circle at 70% 50%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
                 </div>
@@ -1296,7 +1296,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   <div className="text-center mt-4 mb-5">
                     <h2 className="prof-heading text-xl font-bold text-gray-900">{user.name}</h2>
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1"
-                      style={{ background: "#eef2ff", color: "#4f46e5" }}>{user.displayRole}</span>
+                      style={{ background: "var(--accent-light)", color: "var(--accent-color)" }}>{user.displayRole}</span>
                     <p className="text-xs text-gray-400 mt-1">
                       Joined {formatDate(user.joinDate)}
                     </p>
@@ -1305,7 +1305,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-2 py-4" style={{ borderTop: "1px solid #f3f4f6", borderBottom: "1px solid #f3f4f6" }}>
                     {[
-                      { label: "Courses", value: user.coursesEnrolled || 0, color: "#6366f1" },
+                      { label: "Courses", value: user.coursesEnrolled || 0, color: "var(--accent-color)" },
                       { label: "Certificates", value: user.certificates || 0, color: "#10b981" },
                       { label: "Projects", value: projects.length, color: "#f59e0b" },
                     ].map((s) => (

@@ -106,6 +106,26 @@ const SEMESTER_STYLES = [
   { rgb: "217,70,239", text: "text-fuchsia-600", dot: "bg-fuchsia-500" },
 ];
 
+// Stable per-course colors. A title/id hash keeps the palette varied like the
+// earlier card design while preventing colors from changing on every render.
+const COURSE_COLORS = [
+  { from: "#4f46e5", to: "#8b5cf6", rgb: "79,70,229" },
+  { from: "#0891b2", to: "#2563eb", rgb: "8,145,178" },
+  { from: "#059669", to: "#0d9488", rgb: "5,150,105" },
+  { from: "#d97706", to: "#ea580c", rgb: "217,119,6" },
+  { from: "#e11d48", to: "#f43f5e", rgb: "225,29,72" },
+  { from: "#7c3aed", to: "#c026d3", rgb: "124,58,237" },
+  { from: "#0284c7", to: "#06b6d4", rgb: "2,132,199" },
+  { from: "#be185d", to: "#db2777", rgb: "190,24,93" },
+];
+
+const getCourseColor = (lesson) => {
+  const key = String(lesson.id ?? lesson.title ?? "course");
+  let hash = 0;
+  for (let i = 0; i < key.length; i += 1) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
+  return COURSE_COLORS[Math.abs(hash) % COURSE_COLORS.length];
+};
+
 // Video Count Badge Component
 const VideoCountBadge = ({ count }) => {
   if (!count) return null;
@@ -403,7 +423,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
   const hasVideos = lesson.videos && lesson.videos.length > 0;
   const videoCount = hasVideos ? lesson.videos.length : 0;
-  const cardGradient = lesson.color || "from-indigo-500 to-purple-600";
+  const courseColor = getCourseColor(lesson);
 
   const handlePlayVideo = () => {
     if (videoCount > 1) {
@@ -441,6 +461,13 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
     <>
       <div
         className={`lg-card group relative overflow-hidden ${isDark ? "lg-card-dark" : ""}`}
+        style={{
+          "--course-color": courseColor.from,
+          "--course-gradient": `linear-gradient(135deg, ${courseColor.from}, ${courseColor.to})`,
+          "--course-light": `rgba(${courseColor.rgb},0.10)`,
+          "--course-border": `rgba(${courseColor.rgb},0.30)`,
+          "--course-glow": `rgba(${courseColor.rgb},0.32)`,
+        }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -449,7 +476,8 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
 
         {/* Card Header */}
         <div
-          className={`relative h-44 bg-gradient-to-br ${cardGradient} overflow-hidden cursor-pointer`}
+          className="relative h-44 overflow-hidden cursor-pointer"
+          style={{ background: "var(--course-gradient)" }}
           onClick={handlePlayVideo}
         >
           <div
@@ -896,26 +924,26 @@ const LessonsPage = () => {
         }
 
         .lg-secondary-button {
-          background: rgba(99,102,241,0.08);
-          border: 1px solid rgba(99,102,241,0.15);
+          background: var(--course-light, var(--accent-light));
+          border: 1px solid var(--course-border, var(--accent-border));
           border-radius: 16px;
-          color: #4338ca;
+          color: var(--course-color, var(--accent-color));
           font-weight: 600;
           transition: all 0.25s ease;
         }
         .lg-secondary-button:hover {
-          background: linear-gradient(135deg, #6366f1, #a855f7);
+          background: var(--course-gradient, var(--accent-gradient));
           color: #fff;
           border-color: transparent;
-          box-shadow: 0 10px 24px rgba(99,102,241,0.35);
+          box-shadow: 0 10px 24px var(--course-glow, var(--accent-glow));
         }
 
         .lg-cta-button {
-          background: linear-gradient(135deg, #6366f1, #a855f7);
+          background: var(--accent-gradient);
           border-radius: 16px;
           color: #fff;
           font-weight: 700;
-          box-shadow: 0 10px 26px rgba(99,102,241,0.4), 0 1px 0 rgba(255,255,255,0.3) inset;
+          box-shadow: 0 10px 26px var(--accent-glow), 0 1px 0 rgba(255,255,255,0.3) inset;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .lg-cta-button:hover:not(:disabled) {
@@ -1075,9 +1103,9 @@ const LessonsPage = () => {
           transition: all 0.2s ease;
         }
         .lg-filter-chip-active {
-          background: linear-gradient(135deg, #6366f1, #a855f7);
+          background: var(--accent-gradient);
           color: #fff;
-          box-shadow: 0 6px 16px rgba(99,102,241,0.35);
+          box-shadow: 0 6px 16px var(--accent-glow);
         }
         .lg-filter-chip-inactive {
           background: rgba(255,255,255,0.6);
