@@ -626,11 +626,11 @@ const TeacherDashboard = ({ user, onLogout }) => {
             ...sidebarStyle,
             transform: "translateX(0)",
             transition: "transform 0.3s ease",
-            position: "sticky",
+            position: "fixed",
             top: 0,
             left: 0,
             height: "100vh",
-            overflowY: "auto",
+            overflow: "hidden",
             zIndex: 16,
           }}
           className={`sidebar ${mobileMenuOpen ? "is-open" : ""}`}
@@ -639,6 +639,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
             style={{
               padding: "24px 20px 20px",
               borderBottom: "1px solid rgba(255,255,255,0.07)",
+              flexShrink: 0,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -691,7 +692,16 @@ const TeacherDashboard = ({ user, onLogout }) => {
             )}
           </div>
 
-          <nav style={{ flex: 1, padding: "12px 10px" }}>
+          <nav
+            style={{
+              flex: 1,
+              minHeight: 0,
+              padding: "12px 10px",
+              overflowY: "auto",
+              overscrollBehavior: "contain",
+              scrollbarWidth: "thin",
+            }}
+          >
             {navItems.map(({ id, icon: Icon, label }) => (
               <button
                 key={id}
@@ -729,7 +739,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
             ))}
           </nav>
 
-          <div style={{ padding: "12px 10px" }}>
+          <div style={{ padding: "12px 10px", flexShrink: 0 }}>
             <button
               onClick={() => openAdd()}
               style={{
@@ -761,6 +771,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
               display: "flex",
               alignItems: "center",
               gap: 10,
+              flexShrink: 0,
             }}
           >
             <div
@@ -827,6 +838,12 @@ const TeacherDashboard = ({ user, onLogout }) => {
             </button>
           </div>
         </aside>
+
+        <div
+          className="teacher-sidebar-spacer"
+          aria-hidden="true"
+          style={{ width: 260, flex: "0 0 260px" }}
+        />
 
         {/* MAIN CONTENT */}
         <main style={mainStyle} className="teacher-main">
