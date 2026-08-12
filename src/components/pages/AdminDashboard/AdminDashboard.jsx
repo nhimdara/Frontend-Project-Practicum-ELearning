@@ -1087,8 +1087,12 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
       {/* Logo */}
       <div className="admin-brand px-6 py-5 border-b border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
-            <img src={logo} alt="Elearning Logo" className="w-full h-full" />
+          <div className="admin-brand-logo w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+            <img
+              src={logo}
+              alt="Elearning Logo"
+              className="block h-full w-full rounded-full object-contain"
+            />
           </div>
           <div>
             <p className="text-white font-bold text-sm leading-none">

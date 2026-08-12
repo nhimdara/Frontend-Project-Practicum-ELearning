@@ -2,14 +2,14 @@
   --liquid-bg-1: rgba(71, 85, 200, 0.65);
   --liquid-bg-2: rgba(34, 211, 238, 0.35);
   --liquid-bg-3: rgba(168, 85, 247, 0.42);
-  --glass-surface: rgba(15, 23, 42, 0.38);
-  --glass-surface-strong: rgba(15, 23, 42, 0.64);
-  --glass-surface-soft: rgba(148, 163, 184, 0.12);
-  --glass-border: rgba(255, 255, 255, 0.22);
-  --glass-border-strong: rgba(255, 255, 255, 0.34);
-  --glass-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
-  --glass-shadow-soft: 0 8px 28px rgba(59, 130, 246, 0.12);
-  --glass-blur: 18px;
+  --glass-surface: rgba(15, 23, 42, 0.46);
+  --glass-surface-strong: rgba(15, 23, 42, 0.7);
+  --glass-surface-soft: rgba(148, 163, 184, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-border-strong: rgba(165, 180, 252, 0.34);
+  --glass-shadow: 0 20px 50px rgba(2, 6, 23, 0.2);
+  --glass-shadow-soft: 0 8px 24px rgba(59, 130, 246, 0.1);
+  --glass-blur: 22px;
   --liquid-accent: linear-gradient(
     135deg,
     #8b5cf6 0%,
@@ -57,17 +57,18 @@
 .admin-page-body .admin-card,
 .admin-page-body .glass-panel {
   background: linear-gradient(
-    180deg,
-    rgba(15, 23, 42, 0.42),
-    rgba(15, 23, 42, 0.22)
+    145deg,
+    rgba(30, 41, 59, 0.58) 0%,
+    rgba(15, 23, 42, 0.34) 58%,
+    rgba(49, 46, 129, 0.2) 100%
   );
   border: 1px solid var(--glass-border);
   box-shadow:
     var(--glass-shadow),
     inset 1px 1px 0 rgba(255, 255, 255, 0.12),
     inset -1px -1px 0 rgba(148, 163, 184, 0.08);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 }
 
 .admin-sidebar {
@@ -94,8 +95,16 @@
   );
 }
 
-.admin-brand img {
-  box-shadow: 0 14px 22px rgba(91, 66, 232, 0.3);
+.admin-brand-logo {
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.16);
+  overflow: hidden;
+}
+
+.admin-brand-logo img {
+  box-shadow: none;
 }
 
 .admin-nav {
@@ -113,7 +122,7 @@
 }
 
 .admin-nav-item:hover {
-  transform: translateX(2px);
+  transform: translateX(1px);
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.12);
 }
@@ -177,7 +186,7 @@
 }
 
 .admin-page-body .rounded-2xl {
-  border-radius: 18px !important;
+  border-radius: 20px !important;
 }
 
 .admin-page-body .rounded-xl {
@@ -198,11 +207,23 @@
 .admin-page-body .rounded-2xl:hover,
 .admin-page-body form:hover {
   border-color: var(--glass-border-strong) !important;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow:
     var(--glass-shadow),
-    0 12px 28px rgba(96, 165, 250, 0.14),
+    0 10px 24px rgba(96, 165, 250, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* ExamQuestionForm already provides its own panel. Prevent the nested form from
+   becoming a second glass card with an outline and hover movement. */
+.admin-page-body .exam-question-form > form,
+.admin-page-body .exam-question-form > form:hover {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
 }
 
 .admin-page-body input,
@@ -250,6 +271,22 @@
 
 .admin-dashboard-root button:hover {
   transform: translateY(-1px);
+}
+
+.admin-dashboard-root .admin-utility-icon-button {
+  flex: 0 0 auto;
+  border: 1px solid rgba(165, 180, 252, 0.28);
+  background: rgba(30, 41, 59, 0.72);
+  color: #c7d2fe;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 16px rgba(2, 6, 23, 0.16);
+}
+
+.admin-dashboard-root .admin-utility-icon-button:hover {
+  border-color: rgba(129, 140, 248, 0.58);
+  background: rgba(79, 70, 229, 0.28);
+  color: #ffffff;
 }
 
 .admin-dashboard-root button:focus-visible,
@@ -314,6 +351,21 @@
 .admin-dashboard-root button[class*='bg-red-600']:hover:before,
 .admin-dashboard-root .liquid-button:hover:before {
   transform: rotate(18deg) translateX(36%);
+}
+
+.admin-dashboard-root .exam-question-form button[type='submit']:disabled {
+  background: rgba(100, 116, 139, 0.3) !important;
+  border-color: rgba(148, 163, 184, 0.32);
+  box-shadow: none;
+  color: var(--admin-muted-strong) !important;
+  filter: none;
+  opacity: 1;
+}
+
+.admin-dashboard-root
+  .exam-question-form
+  button[type='submit']:disabled:before {
+  display: none;
 }
 
 .admin-page-body table {
@@ -391,7 +443,7 @@
 .admin-page-body .space-y-3 > div:hover,
 .admin-page-body .space-y-2 > div:hover,
 .admin-page-body .space-y-4 > div:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.18);
 }
 
@@ -425,21 +477,27 @@
 }
 
 html:not(.dark-mode) .admin-dashboard-root {
+  --admin-text: #0f172a;
+  --admin-muted: #52627a;
+  --admin-muted-strong: #334155;
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --glass-border-strong: rgba(129, 140, 248, 0.42);
+  --glass-shadow: 0 18px 45px rgba(51, 65, 85, 0.1);
   background:
     radial-gradient(
       circle at 18% 10%,
-      rgba(96, 165, 250, 0.32),
-      transparent 26%
+      rgba(96, 165, 250, 0.3),
+      transparent 30%
     ),
     radial-gradient(
       circle at 80% 12%,
-      rgba(168, 85, 247, 0.24),
-      transparent 28%
+      rgba(168, 85, 247, 0.22),
+      transparent 32%
     ),
     radial-gradient(
       circle at 75% 82%,
-      rgba(34, 211, 238, 0.18),
-      transparent 28%
+      rgba(34, 211, 238, 0.16),
+      transparent 32%
     ),
     linear-gradient(135deg, #ecf2ff 0%, #eef5ff 30%, #f5f3ff 100%);
   color: #0f172a;
@@ -452,15 +510,99 @@ html:not(.dark-mode) .admin-dashboard-root .admin-page-body form,
 html:not(.dark-mode) .admin-dashboard-root .admin-page-body .bg-slate-900,
 html:not(.dark-mode) .admin-dashboard-root .admin-page-body .bg-slate-950 {
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.46),
-    rgba(248, 250, 255, 0.26)
+    145deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(248, 250, 255, 0.66) 56%,
+    rgba(238, 242, 255, 0.7) 100%
   );
-  border-color: rgba(148, 163, 184, 0.24);
+  border-color: rgba(255, 255, 255, 0.76);
   box-shadow:
-    0 18px 42px rgba(15, 23, 42, 0.075),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.6);
+    0 18px 45px rgba(51, 65, 85, 0.1),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.88),
+    inset -1px -1px 0 rgba(129, 140, 248, 0.08);
   color: #0f172a;
+}
+
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  .exam-question-form
+  > form,
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  .exam-question-form
+  > form:hover {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Tailwind's dark-dashboard text utilities need an explicit light counterpart.
+   Keep this scoped to chrome so active gradient buttons remain white. */
+html:not(.dark-mode) .admin-dashboard-root .admin-brand .text-white,
+html:not(.dark-mode) .admin-dashboard-root .admin-sidebar-footer .text-white,
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-topbar
+  > div:first-child
+  .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-nav-item:not(.bg-indigo-600),
+html:not(.dark-mode) .admin-dashboard-root .admin-sidebar-footer .text-slate-500,
+html:not(.dark-mode) .admin-dashboard-root .admin-topbar .text-slate-400,
+html:not(.dark-mode) .admin-dashboard-root .admin-topbar .text-slate-500 {
+  color: #52627a !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-brand .text-indigo-400,
+html:not(.dark-mode) .admin-dashboard-root .admin-sidebar .text-indigo-300,
+html:not(.dark-mode) .admin-dashboard-root .admin-topbar .text-indigo-300,
+html:not(.dark-mode) .admin-dashboard-root .admin-topbar .text-indigo-400 {
+  color: #4f46e5 !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-sidebar-footer {
+  background: rgba(238, 242, 255, 0.86);
+  border-color: rgba(100, 116, 139, 0.24);
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-utility-icon-button {
+  border-color: rgba(99, 102, 241, 0.24);
+  background: rgba(238, 242, 255, 0.9);
+  color: #4f46e5;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 5px 14px rgba(79, 70, 229, 0.1);
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-utility-icon-button:hover {
+  border-color: rgba(79, 70, 229, 0.42);
+  background: rgba(224, 231, 255, 0.98);
+  color: #3730a3;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-sidebar {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.88),
+    rgba(239, 246, 255, 0.7)
+  );
+  border-right-color: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    12px 0 36px rgba(51, 65, 85, 0.08),
+    inset -1px 0 0 rgba(129, 140, 248, 0.1);
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-topbar {
+  background: rgba(255, 255, 255, 0.68);
+  border-bottom-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 28px rgba(51, 65, 85, 0.07);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
 }
 
 html:not(.dark-mode)
@@ -500,15 +642,65 @@ html:not(.dark-mode)
 html:not(.dark-mode) .admin-dashboard-root input,
 html:not(.dark-mode) .admin-dashboard-root select,
 html:not(.dark-mode) .admin-dashboard-root textarea {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.92);
   color: #0f172a;
-  border-color: rgba(148, 163, 184, 0.38);
+  border-color: rgba(100, 116, 139, 0.38);
+}
+
+html:not(.dark-mode) .admin-dashboard-root input::placeholder,
+html:not(.dark-mode) .admin-dashboard-root textarea::placeholder {
+  color: #7c8ba1;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-page-body table thead th {
+  background: #eef2ff;
+  color: #475569 !important;
+  border-bottom-color: rgba(100, 116, 139, 0.28);
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-page-body table tbody tr {
+  background: rgba(255, 255, 255, 0.54);
+}
+
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  table
+  tbody
+  tr:hover {
+  background: rgba(224, 231, 255, 0.68);
+}
+
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  .bg-gradient-to-br.text-white,
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  button[class*='bg-indigo-600'] {
+  color: #ffffff !important;
+}
+
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  button[class*='hover:text-indigo-400']:hover {
+  color: #4f46e5 !important;
+}
+
+html:not(.dark-mode)
+  .admin-dashboard-root
+  .admin-page-body
+  button[class*='hover:text-red-400']:hover {
+  color: #dc2626 !important;
 }
 
 html:not(.dark-mode)
   .admin-dashboard-root
   .admin-nav-item:not(.bg-indigo-600):hover {
   background: rgba(79, 70, 229, 0.08);
+  color: #312e81 !important;
 }
 
 html.dark-mode
@@ -590,4 +782,25 @@ html.dark-mode .admin-dashboard-root span[style*='color: #9ca3af'] {
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
+}
+
+/* Keep the liquid-glass appearance static and crisp: no motion or blur. */
+.admin-dashboard-root,
+.admin-dashboard-root *,
+.admin-dashboard-root *::before,
+.admin-dashboard-root *::after {
+  animation: none !important;
+  transition: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.admin-dashboard-root button:hover,
+.admin-dashboard-root .admin-nav-item:hover,
+.admin-dashboard-root .admin-page-body .rounded-2xl:hover,
+.admin-dashboard-root .admin-page-body form:hover,
+.admin-dashboard-root .admin-page-body .space-y-2 > div:hover,
+.admin-dashboard-root .admin-page-body .space-y-3 > div:hover,
+.admin-dashboard-root .admin-page-body .space-y-4 > div:hover {
+  transform: none !important;
 }

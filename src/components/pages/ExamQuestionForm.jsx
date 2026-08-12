@@ -77,7 +77,7 @@ function ExamQuestionForm({
 
   const selectedMajor = form.major;
   const actorRole = normalizeRole(user?.dbRole || user?.role);
-  const canManage = ["admin", "teacher"].includes(actorRole);
+  const canManage = ["superadmin", "admin", "teacher"].includes(actorRole);
 
   const optionEntries = useMemo(
     () =>
