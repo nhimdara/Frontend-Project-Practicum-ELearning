@@ -1274,7 +1274,7 @@ html.dark-mode nav.app-navbar [data-brand="elearning"] {
 
 html.dark-mode nav.app-navbar.app-navbar-top [data-brand="elearning"] span,
 html.dark-mode nav.app-navbar [data-brand="elearning"] span {
-  color: #c7d2fe !important;
+  color: var(--accent-color, #818cf8) !important;
 }
 
 html:not(.dark-mode) nav.app-navbar [data-brand="elearning"] {
