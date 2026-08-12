@@ -1,6 +1,7 @@
-/* Tailwind v4 otherwise scans from the Vite project root, including the
-   30,000+ generated files under android/.gradle. Keep HMR scoped to app code. */
-@import "tailwindcss" source("./");
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --ui-primary: #4f46e5;
@@ -144,13 +145,6 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 768px) {
   [class*="blur-3xl"] {
     animation: none !important;
-  }
-
-  /* Large live backdrop filters are a frequent source of dropped frames on
-     mobile GPUs. Translucent surface colors still preserve the glass look. */
-  *, *::before, *::after {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
   }
 }
 

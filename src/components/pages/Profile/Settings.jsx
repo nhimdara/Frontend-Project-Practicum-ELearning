@@ -43,10 +43,10 @@ const ToggleSwitch = ({ label, description, checked, onChange }) => (
       <p className="settings-toggle-label text-sm font-semibold transition-colors">{label}</p>
       {description && <p className="settings-toggle-description text-xs mt-0.5 leading-relaxed">{description}</p>}
     </div>
-    <div className="motion-setting-control relative inline-flex flex-shrink-0 items-center mt-0.5">
-      <div className={`settings-toggle-track w-11 h-6 rounded-full transition-[background-color,box-shadow] duration-300 ease-out ${checked ? "shadow-md" : ""}`}
+    <div className="relative inline-flex flex-shrink-0 items-center mt-0.5">
+      <div className={`settings-toggle-track w-11 h-6 rounded-full transition-all duration-300 ${checked ? "shadow-md" : ""}`}
            style={{ background: checked ? "var(--accent-gradient, linear-gradient(135deg,#6366f1,#8b5cf6))" : undefined }} />
-      <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${checked ? "translate-x-5" : "translate-x-0"}`} />
+      <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ${checked ? "translate-x-5" : "translate-x-0"}`} />
     </div>
   </button>
 );
@@ -219,22 +219,6 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
   };
 
   const handleToggle = (key) => handleChange(key, !settings[key]);
-
-  // Keep the old accessibility key in sync so users with previously saved
-  // settings can turn reduced motion both on and off reliably.
-  const handleReducedMotionToggle = () => {
-    setSettings(prev => {
-      const enabled = !(prev.reduceAnimations || prev.reducedMotion);
-      const next = {
-        ...prev,
-        reduceAnimations: enabled,
-        reducedMotion: enabled,
-      };
-      saveSettings(next);
-      applyAllSettings(next);
-      return next;
-    });
-  };
 
   const handleResetAppearance = () => {
     const defaults = {
@@ -906,9 +890,9 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
                       <div className="appearance-toggle-divider" style={{ borderTop: "1px solid", margin: "2px 0" }} />
                       <ToggleSwitch
                         label="Reduce Motion & Animations"
-                        description="Stop decorative motion while keeping short, gentle interface feedback"
+                        description="Minimize transitions and dynamic keyframe effects for accessibility"
                         checked={!!settings.reduceAnimations || !!settings.reducedMotion}
-                        onChange={handleReducedMotionToggle}
+                        onChange={() => handleToggle("reduceAnimations")}
                       />
                       <div className="appearance-toggle-divider" style={{ borderTop: "1px solid", margin: "2px 0" }} />
                       <ToggleSwitch

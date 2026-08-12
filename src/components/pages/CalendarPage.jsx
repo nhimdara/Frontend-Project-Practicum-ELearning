@@ -347,11 +347,10 @@ const CalendarPage = ({ user }) => {
   const [error, setError] = useState(null);
   const [activeYear, setActiveYear] = useState("Foundation");
   const [searchTerm, setSearchTerm] = useState("");
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [selectedSubject, setSelectedSubject] = useState(null);
-  const scrollProgressRef = useRef(null);
-  const heroImageRef = useRef(null);
-  const scrollFrameRef = useRef(null);
-  const pointerFrameRef = useRef(null);
+  const motionFrameRef = useRef(null);
 
   // Fetch lessons when major changes
   useEffect(() => {
@@ -372,36 +371,32 @@ const CalendarPage = ({ user }) => {
   // Scroll and mouse effects
   useEffect(() => {
     const onScroll = () => {
-      if (scrollFrameRef.current) return;
-      scrollFrameRef.current = requestAnimationFrame(() => {
+      if (motionFrameRef.current) return;
+      motionFrameRef.current = requestAnimationFrame(() => {
         const total = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = total > 0 ? window.scrollY / total : 0;
-        if (scrollProgressRef.current) scrollProgressRef.current.style.transform = `scaleX(${progress})`;
-        scrollFrameRef.current = null;
+        setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
+        motionFrameRef.current = null;
       });
     };
-    const allowPointerMotion =
-      !document.documentElement.classList.contains("reduce-animations") &&
-      window.matchMedia(
-        "(hover: hover) and (prefers-reduced-motion: no-preference)",
-      ).matches;
+    const allowPointerMotion = window.matchMedia(
+      "(hover: hover) and (prefers-reduced-motion: no-preference)",
+    ).matches;
     const onMouse = (event) => {
-      if (pointerFrameRef.current) return;
-      pointerFrameRef.current = requestAnimationFrame(() => {
-        const x = (event.clientX / window.innerWidth - 0.5) * 18;
-        const y = (event.clientY / window.innerHeight - 0.5) * 18;
-        if (heroImageRef.current) heroImageRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(1.1)`;
-        pointerFrameRef.current = null;
+      if (motionFrameRef.current) return;
+      motionFrameRef.current = requestAnimationFrame(() => {
+        setMousePos({
+          x: (event.clientX / window.innerWidth - 0.5) * 18,
+          y: (event.clientY / window.innerHeight - 0.5) * 18,
+        });
+        motionFrameRef.current = null;
       });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     if (allowPointerMotion) window.addEventListener("mousemove", onMouse);
-    onScroll();
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (allowPointerMotion) window.removeEventListener("mousemove", onMouse);
-      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
-      if (pointerFrameRef.current) cancelAnimationFrame(pointerFrameRef.current);
+      if (motionFrameRef.current) cancelAnimationFrame(motionFrameRef.current);
     };
   }, []);
 
@@ -492,21 +487,22 @@ const CalendarPage = ({ user }) => {
 
       {/* Scroll bar */}
       <div
-        ref={scrollProgressRef}
-        className="fixed top-0 left-0 w-full h-0.5 origin-left bg-gradient-to-r from-indigo-500 via-cyan-400 to-violet-500 z-50"
-        style={{ transform: "scaleX(0)", willChange: "transform" }}
+        className="fixed top-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 via-cyan-400 to-violet-500 z-50 transition-all duration-150"
+        style={{ width: `${scrollProgress}%` }}
       />
 
       {/* Hero Section */}
       <div className="student-hero relative w-full h-[580px] overflow-hidden">
         <img
-          ref={heroImageRef}
           src={lessonBanner}
           alt="Curriculum Banner"
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ transform: "translate3d(0, 0, 0) scale(1.1)", willChange: "transform" }}
+          style={{
+            transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.1)`,
+            transition: "transform 0.3s ease-out",
+          }}
         />
         <div className="absolute inset-0 bg-black/60" />
 
