@@ -23,9 +23,11 @@ const LoginPage = ({ onAuthSuccess }) => {
   const pointerFrameRef = useRef(null);
 
   useEffect(() => {
-    const allowPointerGlow = window.matchMedia(
-      "(hover: hover) and (prefers-reduced-motion: no-preference)",
-    ).matches;
+    const allowPointerGlow =
+      !document.documentElement.classList.contains("reduce-animations") &&
+      window.matchMedia(
+        "(hover: hover) and (prefers-reduced-motion: no-preference)",
+      ).matches;
     if (!allowPointerGlow) return undefined;
     const handleMouseMove = (event) => {
       if (pointerFrameRef.current) return;

@@ -44,7 +44,9 @@ const ParticleCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion =
+      document.documentElement.classList.contains("reduce-animations") ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const compactDevice = window.matchMedia("(max-width: 768px)").matches;
     let isVisible = !document.hidden;
     let isIntersecting = true;

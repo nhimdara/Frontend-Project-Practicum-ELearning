@@ -144,7 +144,9 @@ export const applyAllSettings = (s = {}) => {
   root.style.setProperty("--lf-accent", accent.secondary);
 
   // 5. Flags & Display modes
-  root.classList.toggle("reduce-animations", !!(s.reduceAnimations || s.reducedMotion));
+  const reduceAnimations = !!(s.reduceAnimations || s.reducedMotion);
+  root.classList.toggle("reduce-animations", reduceAnimations);
+  root.dataset.motion = reduceAnimations ? "reduced" : "full";
   root.classList.toggle("high-contrast", !!(s.highContrast || s.highContrastMode));
   root.classList.toggle("compact-view", !!s.compactView);
   root.classList.toggle("liquid-glass-disabled", s.liquidGlass === false);
@@ -178,4 +180,3 @@ const useAppTheme = () => {
 };
 
 export default useAppTheme;
-

@@ -1849,11 +1849,19 @@ html.liquid-glass-disabled.dark-mode .form-field {
 html.reduce-animations *,
 html.reduce-animations *::before,
 html.reduce-animations *::after {
-  animation-duration: 0.001ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.001ms !important;
+  animation: none !important;
+  transition: none !important;
   transition-delay: 0ms !important;
   scroll-behavior: auto !important;
+}
+
+/* The preference control itself stays smooth so the change never feels
+   broken. Motion is short and limited to the switch thumb and color. */
+html.reduce-animations .motion-setting-control,
+html.reduce-animations .motion-setting-control * {
+  transition-property: transform, background-color, box-shadow !important;
+  transition-duration: 140ms !important;
+  transition-timing-function: ease-out !important;
 }
 
 /* Route every student-facing brand utility through the selected accent.

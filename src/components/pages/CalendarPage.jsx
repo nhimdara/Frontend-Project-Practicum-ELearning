@@ -378,9 +378,11 @@ const CalendarPage = ({ user }) => {
         motionFrameRef.current = null;
       });
     };
-    const allowPointerMotion = window.matchMedia(
-      "(hover: hover) and (prefers-reduced-motion: no-preference)",
-    ).matches;
+    const allowPointerMotion =
+      !document.documentElement.classList.contains("reduce-animations") &&
+      window.matchMedia(
+        "(hover: hover) and (prefers-reduced-motion: no-preference)",
+      ).matches;
     const onMouse = (event) => {
       if (motionFrameRef.current) return;
       motionFrameRef.current = requestAnimationFrame(() => {
