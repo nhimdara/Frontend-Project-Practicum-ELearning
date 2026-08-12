@@ -1,7 +1,6 @@
-@import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 otherwise scans from the Vite project root, including the
+   30,000+ generated files under android/.gradle. Keep HMR scoped to app code. */
+@import "tailwindcss" source("./");
 
 :root {
   --ui-primary: #4f46e5;

@@ -12,9 +12,10 @@ export default defineConfig({
       // Android/Gradle caches can contain tens of thousands of files. They are
       // unrelated to the web app and can exhaust Linux's inotify watch limit.
       ignored: [
-        '**/android/.gradle/**',
-        '**/android/build/**',
-        '**/android/app/build/**',
+        '**/android/**',
+        '**/.gradle/**',
+        '**/dist/**',
+        '**/.git/**',
       ],
     },
   },
