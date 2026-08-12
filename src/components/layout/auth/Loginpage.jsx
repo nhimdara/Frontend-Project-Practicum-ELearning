@@ -18,9 +18,9 @@ const LoginPage = ({ onAuthSuccess }) => {
   );
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showResetPassword, setShowResetPassword] = useState(false);
   const pointerFrameRef = useRef(null);
+  const cursorGlowRef = useRef(null);
 
   useEffect(() => {
     const allowPointerGlow = window.matchMedia(
@@ -30,7 +30,9 @@ const LoginPage = ({ onAuthSuccess }) => {
     const handleMouseMove = (event) => {
       if (pointerFrameRef.current) return;
       pointerFrameRef.current = requestAnimationFrame(() => {
-        setMousePosition({ x: event.clientX, y: event.clientY });
+        if (cursorGlowRef.current) {
+          cursorGlowRef.current.style.transform = `translate3d(${event.clientX - 192}px, ${event.clientY - 192}px, 0)`;
+        }
         pointerFrameRef.current = null;
       });
     };
@@ -87,10 +89,9 @@ const LoginPage = ({ onAuthSuccess }) => {
     <div className="auth-login-root min-h-screen font-sans relative overflow-hidden">
       {/* Interactive Cursor Glow */}
       <div
-        className="fixed pointer-events-none z-30 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl transition-transform duration-300 ease-out"
-        style={{
-          transform: `translate(${mousePosition.x - 192}px, ${mousePosition.y - 192}px)`,
-        }}
+        ref={cursorGlowRef}
+        className="fixed pointer-events-none z-30 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl"
+        style={{ transform: "translate3d(-192px,-192px,0)", willChange: "transform" }}
       />
 
       {/* Original Background with Banner */}

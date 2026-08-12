@@ -50,7 +50,7 @@ const ParticleCanvas = () => {
     let isIntersecting = true;
 
     const resize = () => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
       canvas.width = Math.round(canvas.offsetWidth * ratio);
       canvas.height = Math.round(canvas.offsetHeight * ratio);
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -59,7 +59,8 @@ const ParticleCanvas = () => {
     window.addEventListener("resize", resize);
 
     // Create particles
-    const COUNT = reducedMotion ? 0 : compactDevice ? 36 : 64;
+    const lowPowerDevice = (navigator.hardwareConcurrency || 4) <= 4;
+    const COUNT = reducedMotion ? 0 : compactDevice ? 16 : lowPowerDevice ? 22 : 32;
     const particles = Array.from({ length: COUNT }, () => ({
       x: Math.random() * canvas.offsetWidth,
       y: Math.random() * canvas.offsetHeight,
@@ -269,15 +270,23 @@ const HomePage = () => {
     const bg = el.querySelector(".hero-bg");
     if (!bg) return;
 
+    let frame = null;
     const onScroll = () => {
-      const scrolled = window.scrollY;
-      if (scrolled < window.innerHeight * 1.5) {
-        bg.style.transform = `translateY(${scrolled * 0.28}px) scale(1.08)`;
-      }
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        const scrolled = window.scrollY;
+        if (scrolled < window.innerHeight * 1.5) {
+          bg.style.transform = `translate3d(0,${scrolled * 0.2}px,0) scale(1.08)`;
+        }
+        frame = null;
+      });
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   const stats = [
