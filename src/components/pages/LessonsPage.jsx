@@ -724,11 +724,13 @@ const LessonsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All Levels");
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const motionFrameRef = useRef(null);
+  const scrollProgressRef = useRef(null);
+  const heroImageRef = useRef(null);
+  const scrollFrameRef = useRef(null);
+  const pointerFrameRef = useRef(null);
 
   // ── Read user's major from session ───────────────────────
   const userMajor = (() => {
@@ -788,11 +790,18 @@ const LessonsPage = () => {
 
   useEffect(() => {
     const onScroll = () => {
-      if (motionFrameRef.current) return;
-      motionFrameRef.current = requestAnimationFrame(() => {
+      if (scrollFrameRef.current) return;
+      scrollFrameRef.current = requestAnimationFrame(() => {
         const total = document.documentElement.scrollHeight - window.innerHeight;
-        setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
-        motionFrameRef.current = null;
+        const progress = total > 0 ? (window.scrollY / total) * 100 : 0;
+        if (scrollProgressRef.current) {
+          scrollProgressRef.current.style.transform = `scaleX(${progress / 100})`;
+        }
+        setShowScrollTop(current => {
+          const next = progress > 20;
+          return current === next ? current : next;
+        });
+        scrollFrameRef.current = null;
       });
     };
     const allowPointerMotion =
@@ -801,21 +810,24 @@ const LessonsPage = () => {
         "(hover: hover) and (prefers-reduced-motion: no-preference)",
       ).matches;
     const onMouse = (event) => {
-      if (motionFrameRef.current) return;
-      motionFrameRef.current = requestAnimationFrame(() => {
-        setMousePos({
-          x: (event.clientX / window.innerWidth - 0.5) * 20,
-          y: (event.clientY / window.innerHeight - 0.5) * 20,
-        });
-        motionFrameRef.current = null;
+      if (pointerFrameRef.current) return;
+      pointerFrameRef.current = requestAnimationFrame(() => {
+        const x = (event.clientX / window.innerWidth - 0.5) * 20;
+        const y = (event.clientY / window.innerHeight - 0.5) * 20;
+        if (heroImageRef.current) {
+          heroImageRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(1.05)`;
+        }
+        pointerFrameRef.current = null;
       });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     if (allowPointerMotion) window.addEventListener("mousemove", onMouse);
+    onScroll();
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (allowPointerMotion) window.removeEventListener("mousemove", onMouse);
-      if (motionFrameRef.current) cancelAnimationFrame(motionFrameRef.current);
+      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+      if (pointerFrameRef.current) cancelAnimationFrame(pointerFrameRef.current);
     };
   }, []);
 
@@ -1260,24 +1272,24 @@ const LessonsPage = () => {
 
       {/* Scroll Progress */}
       <div
-        className="lg-scroll-progress fixed top-0 left-0 h-1 z-50 transition-all duration-150"
-        style={{ width: `${scrollProgress}%` }}
+        ref={scrollProgressRef}
+        className="lg-scroll-progress fixed top-0 left-0 w-full h-1 z-50 origin-left"
+        style={{ transform: "scaleX(0)", willChange: "transform" }}
       />
 
       {/* Back to Top */}
-      <ScrollToTopButton visible={scrollProgress > 20} />
+      <ScrollToTopButton visible={showScrollTop} />
 
       {/* Hero Section */}
       <div className="student-hero relative w-full h-[520px] overflow-hidden">
         <img
+          ref={heroImageRef}
           src={lessonImage}
           alt="Banner"
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out"
-          style={{
-            transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.05)`,
-          }}
+          style={{ transform: "translate3d(0, 0, 0) scale(1.05)", willChange: "transform" }}
         />
         <div className="absolute inset-0 lg-hero-overlay z-[1]" />
         <div className="absolute inset-0 z-[1] opacity-40 pointer-events-none">

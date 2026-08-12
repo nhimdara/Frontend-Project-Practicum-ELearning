@@ -146,6 +146,13 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   [class*="blur-3xl"] {
     animation: none !important;
   }
+
+  /* Large live backdrop filters are a frequent source of dropped frames on
+     mobile GPUs. Translucent surface colors still preserve the glass look. */
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 @media print {

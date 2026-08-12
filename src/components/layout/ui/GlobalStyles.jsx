@@ -1853,6 +1853,8 @@ html.reduce-animations *::after {
   transition: none !important;
   transition-delay: 0ms !important;
   scroll-behavior: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* The preference control itself stays smooth so the change never feels
