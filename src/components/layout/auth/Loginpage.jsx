@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import logo from "../../assets/image/logo.png";
-import banner from "../../assets/image/banner.jpg";
+import logo from "../../assets/image/logo.webp";
+import banner from "../../assets/image/banner.webp";
 import { loginMiddleware } from "../../../auth/authMiddleware";
 import ResetPasswordModal from "./ResetPasswordModal";
 

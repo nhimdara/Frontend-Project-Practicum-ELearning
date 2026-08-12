@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { profileApi } from "../../api/profile";
-import logo from "../../assets/image/logo.png";
+import logo from "../../assets/image/logo.webp";
 
 import {
   MAJORS,

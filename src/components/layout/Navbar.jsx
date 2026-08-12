@@ -1,7 +1,7 @@
 // components/layout/Navbar.jsx (Fixed for mobile)
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from "./../assets/image/logo.png";
+import logo from "./../assets/image/logo.webp";
 import {
   BookOpen,
   Bell,

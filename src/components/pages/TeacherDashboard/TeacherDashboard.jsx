@@ -14,7 +14,7 @@ import React, {
 } from "react";
 import { API_BASE_URL } from "../../../config/api";
 import ExamQuestionForm from "../ExamQuestionForm";
-import logo from "../../assets/image/logo.png";
+import logo from "../../assets/image/logo.webp";
 import {
   approveProject as approveProjectAPI,
   createVideo as createVideoAPI,

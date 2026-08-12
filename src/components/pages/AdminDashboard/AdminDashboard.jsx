@@ -40,7 +40,7 @@ import {
   Download,
   ShieldCheck,
 } from "lucide-react";
-import logo from "../../assets/image/logo.png";
+import logo from "../../assets/image/logo.webp";
 import {
   COLORS,
   DEFAULT_ADMIN_SETTINGS,

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import ScrollToTopButton from "../layout/ui/ScrollToTopButton";
 
-import projectImage from "./../assets/image/projectbanner.jpg";
+import projectImage from "./../assets/image/projectbanner.webp";
 
 const TEACHER_APPROVED_TAG = "teacher-approved";
 const PROJECT_MAJOR_PREFIX = "major:";

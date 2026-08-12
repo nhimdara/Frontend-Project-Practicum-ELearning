@@ -1,4 +1,4 @@
-import logo from "../../assets/image/logo.png";
+import logo from "../../assets/image/logo.webp";
 import { APP_CONFIG, MAJORS as CONFIGURED_MAJORS } from "../../../config/appConfig";
 
 const MAJORS = ["all", ...CONFIGURED_MAJORS];

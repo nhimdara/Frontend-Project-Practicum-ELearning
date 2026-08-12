@@ -1,7 +1,7 @@
 // pages/HomePage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import banner from "./../assets/image/banner.jpg";
+import banner from "./../assets/image/banner.webp";
 
 /* ── Dark mode hook ── */
 const useDarkMode = () => {

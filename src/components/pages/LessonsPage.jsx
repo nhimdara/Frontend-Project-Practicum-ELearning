@@ -22,7 +22,7 @@ import {
   Mail,
 } from "lucide-react";
 import ScrollToTopButton from "../layout/ui/ScrollToTopButton";
-import lessonImage from "./../assets/image/lessonpage.jpeg";
+import lessonImage from "./../assets/image/lessonpage.webp";
 import VideoModal from "./video/VideoModal";
 import VideoPlaylistModal from "./video/VideoPlaylistModal";
 

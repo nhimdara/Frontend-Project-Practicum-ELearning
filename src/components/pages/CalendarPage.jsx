@@ -8,7 +8,7 @@ import {
   Award,
   Loader2,
 } from "lucide-react";
-import lessonBanner from "./../assets/image/lessonpage.jpeg";
+import lessonBanner from "./../assets/image/lessonpage.webp";
 import { APP_CONFIG } from "../../config/appConfig";
 
 // ─── API ─────────────────────────────────────────────────────
