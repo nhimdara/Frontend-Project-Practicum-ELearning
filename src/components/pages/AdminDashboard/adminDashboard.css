@@ -2,7 +2,6 @@
   --liquid-bg-1: rgba(71, 85, 200, 0.65);
   --liquid-bg-2: rgba(34, 211, 238, 0.35);
   --liquid-bg-3: rgba(168, 85, 247, 0.42);
-<<<<<<< HEAD
   --glass-surface: rgba(15, 23, 42, 0.46);
   --glass-surface-strong: rgba(15, 23, 42, 0.7);
   --glass-surface-soft: rgba(148, 163, 184, 0.1);
@@ -11,16 +10,6 @@
   --glass-shadow: 0 20px 50px rgba(2, 6, 23, 0.2);
   --glass-shadow-soft: 0 8px 24px rgba(59, 130, 246, 0.1);
   --glass-blur: 22px;
-=======
-  --glass-surface: rgba(15, 23, 42, 0.38);
-  --glass-surface-strong: rgba(15, 23, 42, 0.64);
-  --glass-surface-soft: rgba(148, 163, 184, 0.12);
-  --glass-border: rgba(255, 255, 255, 0.22);
-  --glass-border-strong: rgba(255, 255, 255, 0.34);
-  --glass-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
-  --glass-shadow-soft: 0 8px 28px rgba(59, 130, 246, 0.12);
-  --glass-blur: 18px;
->>>>>>> 42970a9 (admin dash board)
   --liquid-accent: linear-gradient(
     135deg,
     #8b5cf6 0%,
@@ -68,29 +57,18 @@
 .admin-page-body .admin-card,
 .admin-page-body .glass-panel {
   background: linear-gradient(
-<<<<<<< HEAD
     145deg,
     rgba(30, 41, 59, 0.58) 0%,
     rgba(15, 23, 42, 0.34) 58%,
     rgba(49, 46, 129, 0.2) 100%
-=======
-    180deg,
-    rgba(15, 23, 42, 0.42),
-    rgba(15, 23, 42, 0.22)
->>>>>>> 42970a9 (admin dash board)
   );
   border: 1px solid var(--glass-border);
   box-shadow:
     var(--glass-shadow),
     inset 1px 1px 0 rgba(255, 255, 255, 0.12),
     inset -1px -1px 0 rgba(148, 163, 184, 0.08);
-<<<<<<< HEAD
   backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-=======
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
->>>>>>> 42970a9 (admin dash board)
 }
 
 .admin-sidebar {
@@ -117,7 +95,6 @@
   );
 }
 
-<<<<<<< HEAD
 .admin-brand-logo {
   padding: 2px;
   background: rgba(255, 255, 255, 0.92);
@@ -128,10 +105,6 @@
 
 .admin-brand-logo img {
   box-shadow: none;
-=======
-.admin-brand img {
-  box-shadow: 0 14px 22px rgba(91, 66, 232, 0.3);
->>>>>>> 42970a9 (admin dash board)
 }
 
 .admin-nav {
@@ -149,11 +122,7 @@
 }
 
 .admin-nav-item:hover {
-<<<<<<< HEAD
   transform: translateX(1px);
-=======
-  transform: translateX(2px);
->>>>>>> 42970a9 (admin dash board)
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.12);
 }
@@ -217,11 +186,7 @@
 }
 
 .admin-page-body .rounded-2xl {
-<<<<<<< HEAD
   border-radius: 20px !important;
-=======
-  border-radius: 18px !important;
->>>>>>> 42970a9 (admin dash board)
 }
 
 .admin-page-body .rounded-xl {
@@ -242,7 +207,6 @@
 .admin-page-body .rounded-2xl:hover,
 .admin-page-body form:hover {
   border-color: var(--glass-border-strong) !important;
-<<<<<<< HEAD
   transform: translateY(-1px);
   box-shadow:
     var(--glass-shadow),
@@ -262,15 +226,6 @@
   transform: none;
 }
 
-=======
-  transform: translateY(-2px);
-  box-shadow:
-    var(--glass-shadow),
-    0 12px 28px rgba(96, 165, 250, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
-}
-
->>>>>>> 42970a9 (admin dash board)
 .admin-page-body input,
 .admin-page-body select,
 .admin-page-body textarea {
@@ -318,7 +273,6 @@
   transform: translateY(-1px);
 }
 
-<<<<<<< HEAD
 .admin-dashboard-root .admin-utility-icon-button {
   flex: 0 0 auto;
   border: 1px solid rgba(165, 180, 252, 0.28);
@@ -335,8 +289,6 @@
   color: #ffffff;
 }
 
-=======
->>>>>>> 42970a9 (admin dash board)
 .admin-dashboard-root button:focus-visible,
 .admin-dashboard-root input:focus-visible,
 .admin-dashboard-root select:focus-visible,
@@ -401,7 +353,6 @@
   transform: rotate(18deg) translateX(36%);
 }
 
-<<<<<<< HEAD
 .admin-dashboard-root .exam-question-form button[type='submit']:disabled {
   background: rgba(100, 116, 139, 0.3) !important;
   border-color: rgba(148, 163, 184, 0.32);
@@ -417,8 +368,6 @@
   display: none;
 }
 
-=======
->>>>>>> 42970a9 (admin dash board)
 .admin-page-body table {
   width: 100%;
   border-collapse: separate;
@@ -494,11 +443,7 @@
 .admin-page-body .space-y-3 > div:hover,
 .admin-page-body .space-y-2 > div:hover,
 .admin-page-body .space-y-4 > div:hover {
-<<<<<<< HEAD
   transform: translateY(-1px);
-=======
-  transform: translateY(-2px);
->>>>>>> 42970a9 (admin dash board)
   border-color: rgba(255, 255, 255, 0.18);
 }
 
@@ -532,7 +477,6 @@
 }
 
 html:not(.dark-mode) .admin-dashboard-root {
-<<<<<<< HEAD
   --admin-text: #0f172a;
   --admin-muted: #52627a;
   --admin-muted-strong: #334155;
@@ -554,23 +498,6 @@ html:not(.dark-mode) .admin-dashboard-root {
       circle at 75% 82%,
       rgba(34, 211, 238, 0.16),
       transparent 32%
-=======
-  background:
-    radial-gradient(
-      circle at 18% 10%,
-      rgba(96, 165, 250, 0.32),
-      transparent 26%
-    ),
-    radial-gradient(
-      circle at 80% 12%,
-      rgba(168, 85, 247, 0.24),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 75% 82%,
-      rgba(34, 211, 238, 0.18),
-      transparent 28%
->>>>>>> 42970a9 (admin dash board)
     ),
     linear-gradient(135deg, #ecf2ff 0%, #eef5ff 30%, #f5f3ff 100%);
   color: #0f172a;
@@ -583,7 +510,6 @@ html:not(.dark-mode) .admin-dashboard-root .admin-page-body form,
 html:not(.dark-mode) .admin-dashboard-root .admin-page-body .bg-slate-900,
 html:not(.dark-mode) .admin-dashboard-root .admin-page-body .bg-slate-950 {
   background: linear-gradient(
-<<<<<<< HEAD
     145deg,
     rgba(255, 255, 255, 0.82) 0%,
     rgba(248, 250, 255, 0.66) 56%,
@@ -594,23 +520,12 @@ html:not(.dark-mode) .admin-dashboard-root .admin-page-body .bg-slate-950 {
     0 18px 45px rgba(51, 65, 85, 0.1),
     inset 1px 1px 0 rgba(255, 255, 255, 0.88),
     inset -1px -1px 0 rgba(129, 140, 248, 0.08);
-=======
-    180deg,
-    rgba(255, 255, 255, 0.46),
-    rgba(248, 250, 255, 0.26)
-  );
-  border-color: rgba(148, 163, 184, 0.24);
-  box-shadow:
-    0 18px 42px rgba(15, 23, 42, 0.075),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.6);
->>>>>>> 42970a9 (admin dash board)
   color: #0f172a;
 }
 
 html:not(.dark-mode)
   .admin-dashboard-root
   .admin-page-body
-<<<<<<< HEAD
   .exam-question-form
   > form,
 html:not(.dark-mode)
@@ -693,8 +608,6 @@ html:not(.dark-mode) .admin-dashboard-root .admin-topbar {
 html:not(.dark-mode)
   .admin-dashboard-root
   .admin-page-body
-=======
->>>>>>> 42970a9 (admin dash board)
   [class*='text-white'],
 html:not(.dark-mode)
   .admin-dashboard-root
@@ -729,7 +642,6 @@ html:not(.dark-mode)
 html:not(.dark-mode) .admin-dashboard-root input,
 html:not(.dark-mode) .admin-dashboard-root select,
 html:not(.dark-mode) .admin-dashboard-root textarea {
-<<<<<<< HEAD
   background: rgba(255, 255, 255, 0.92);
   color: #0f172a;
   border-color: rgba(100, 116, 139, 0.38);
@@ -782,21 +694,13 @@ html:not(.dark-mode)
   .admin-page-body
   button[class*='hover:text-red-400']:hover {
   color: #dc2626 !important;
-=======
-  background: rgba(255, 255, 255, 0.7);
-  color: #0f172a;
-  border-color: rgba(148, 163, 184, 0.38);
->>>>>>> 42970a9 (admin dash board)
 }
 
 html:not(.dark-mode)
   .admin-dashboard-root
   .admin-nav-item:not(.bg-indigo-600):hover {
   background: rgba(79, 70, 229, 0.08);
-<<<<<<< HEAD
   color: #312e81 !important;
-=======
->>>>>>> 42970a9 (admin dash board)
 }
 
 html.dark-mode
@@ -879,7 +783,6 @@ html.dark-mode .admin-dashboard-root span[style*='color: #9ca3af'] {
     padding-right: 10px !important;
   }
 }
-<<<<<<< HEAD
 
 /* Keep the liquid-glass appearance static and crisp: no motion or blur. */
 .admin-dashboard-root,
@@ -901,5 +804,3 @@ html.dark-mode .admin-dashboard-root span[style*='color: #9ca3af'] {
 .admin-dashboard-root .admin-page-body .space-y-4 > div:hover {
   transform: none !important;
 }
-=======
->>>>>>> 42970a9 (admin dash board)
