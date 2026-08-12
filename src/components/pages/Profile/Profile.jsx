@@ -929,7 +929,12 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
           border-color:rgba(165,180,252,.17) !important;
           box-shadow:0 30px 76px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.07) !important;
         }
-        html.dark-mode .lg-glass-strong { background:rgba(20,24,52,.82); }
+        html.dark-mode .lg-glass,
+        html.dark-mode .lg-glass-strong {
+          background:rgba(20,24,52,.82);
+          border-color:rgba(165,180,252,.17);
+          box-shadow:0 24px 64px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.07);
+        }
         html.dark-mode .lg-project-card:hover {
           background:rgba(27,33,66,.88);
           border-color:rgba(129,140,248,.32);
@@ -977,6 +982,7 @@ const Profile = ({ user: initialUser, onUserUpdate }) => {
         html.dark-mode .lg-divider { background:linear-gradient(90deg,transparent,rgba(165,180,252,.2),transparent); }
         html.dark-mode .lg-root .text-gray-900,
         html.dark-mode .lg-root .text-gray-800,
+        html.dark-mode .lg-root .text-slate-800,
         html.dark-mode .lg-root .text-slate-900 { color:#f4f7ff !important; }
         html.dark-mode .lg-root .text-gray-700,
         html.dark-mode .lg-root .text-slate-700 { color:#d6ddf3 !important; }
