@@ -57,6 +57,7 @@ import {
   applyThemeMode,
   getCurrentAcademicYear,
   getUserAcademicYear,
+  getUserStudyPeriod,
   getStoredTheme,
   isProjectActive,
   isTeacherApprovedProject,
@@ -73,6 +74,8 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "overview");
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [viewUser, setViewUser] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editUserMessage, setEditUserMessage] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false); // mobile sidebar
   const [lessons, setLessons] = useState([]);
   const [years, setYears] = useState([]);
@@ -274,8 +277,18 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
   // ── Derived stats ─────────────────────────────────────────
   const totalUsers = users.length;
   const activeUsers = users.filter((u) => u.status !== "inactive").length;
-  const todayStr = new Date().toISOString().split("T")[0];
-  const newToday = users.filter((u) => u.joinDate === todayStr).length;
+  const today = new Date();
+  const newToday = users.filter((account) => {
+    const joinedValue = account.joinDate ?? account.created_at;
+    if (!joinedValue) return false;
+    const joined = new Date(joinedValue);
+    return (
+      !Number.isNaN(joined.getTime()) &&
+      joined.getFullYear() === today.getFullYear() &&
+      joined.getMonth() === today.getMonth() &&
+      joined.getDate() === today.getDate()
+    );
+  }).length;
   const isLessonPublished = (lesson) =>
     lesson.is_published === true ||
     lesson.is_published === 1 ||
@@ -325,6 +338,72 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
       alert("Failed to delete user. Please try again.");
     } finally {
       setDeleteConfirm(null);
+    }
+  };
+
+  const handleViewUser = async (userRow) => {
+    setViewUser(userRow);
+    try {
+      const res = await fetch(`${API_BASE}/users/${userRow.id}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not load user details.");
+      setViewUser((current) =>
+        current?.id === userRow.id ? { ...userRow, ...data } : current,
+      );
+    } catch (err) {
+      console.error("fetchUserDetails:", err.message);
+    }
+  };
+
+  const openUserEditor = (userRow) => {
+    const period = getUserStudyPeriod(userRow)?.split(" - ") || [];
+    setEditingUser({
+      ...userRow,
+      name: userRow.name || "",
+      email: userRow.email || "",
+      major: userRow.major || MAJORS[0],
+      startYear: userRow.startYear ?? userRow.start_year ?? period[0] ?? "",
+      endYear: userRow.endYear ?? userRow.end_year ?? period[1] ?? "",
+    });
+    setEditUserMessage("");
+  };
+
+  const saveEditedUser = async (event) => {
+    event.preventDefault();
+    setEditUserMessage("");
+    try {
+      const profileResponse = await fetch(`${API_BASE}/users/${editingUser.id}/profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editingUser.name, email: editingUser.email }),
+      });
+      const profileData = await profileResponse.json().catch(() => ({}));
+      if (!profileResponse.ok) throw new Error(profileData.error || "Could not update user.");
+
+      const isStudent = ["student", "client"].includes(editingUser.role);
+      const academicResponse = await fetch(
+        `${API_BASE}/users/${editingUser.id}/${isStudent ? "student-profile" : "major"}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            isStudent
+              ? {
+                  major: editingUser.major,
+                  startYear: Number(editingUser.startYear),
+                  endYear: Number(editingUser.endYear),
+                }
+              : { major: editingUser.major },
+          ),
+        },
+      );
+      const academicData = await academicResponse.json().catch(() => ({}));
+      if (!academicResponse.ok) throw new Error(academicData.error || "Could not update academic details.");
+
+      await refreshUsers();
+      setEditingUser(null);
+    } catch (err) {
+      setEditUserMessage(err.message);
     }
   };
 
@@ -1207,6 +1286,48 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
         </div>
       )}
 
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <form
+            onSubmit={saveEditedUser}
+            className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="text-white font-bold">Edit User</h3>
+              <button type="button" onClick={() => setEditingUser(null)} className="text-slate-500 hover:text-white">✕</button>
+            </div>
+            <div className="space-y-4">
+              <label className="block text-xs font-semibold text-slate-400">Name
+                <input required value={editingUser.name} onChange={(e) => setEditingUser((u) => ({ ...u, name: e.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white" />
+              </label>
+              <label className="block text-xs font-semibold text-slate-400">Email
+                <input required type="email" value={editingUser.email} onChange={(e) => setEditingUser((u) => ({ ...u, email: e.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white" />
+              </label>
+              <label className="block text-xs font-semibold text-slate-400">Major
+                <select value={editingUser.major} onChange={(e) => setEditingUser((u) => ({ ...u, major: e.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white">
+                  {MAJORS.map((major) => <option key={major}>{major}</option>)}
+                </select>
+              </label>
+              {["student", "client"].includes(editingUser.role) && (
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block text-xs font-semibold text-slate-400">Start Year
+                    <input required type="number" value={editingUser.startYear} onChange={(e) => setEditingUser((u) => ({ ...u, startYear: e.target.value, endYear: Number(e.target.value) + 4 }))} className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white" />
+                  </label>
+                  <label className="block text-xs font-semibold text-slate-400">End Year
+                    <input required type="number" value={editingUser.endYear} onChange={(e) => setEditingUser((u) => ({ ...u, endYear: e.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white" />
+                  </label>
+                </div>
+              )}
+              {editUserMessage && <p className="text-sm text-red-400">{editUserMessage}</p>}
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button type="button" onClick={() => setEditingUser(null)} className="flex-1 rounded-xl border border-slate-700 py-2.5 text-sm font-semibold text-slate-300">Cancel</button>
+              <button type="submit" className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {/* ── View user modal ── */}
       {viewUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -1233,27 +1354,25 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
               {[
                 ["Role", viewUser.role],
                 ["Major", viewUser.major || "—"],
-                [
-                  "Academic Year",
-                  getUserAcademicYear(viewUser) != null
-                    ? `Year ${getUserAcademicYear(viewUser)}`
-                    : "—",
-                ],
-                [
-                  "Study Period",
-                  (viewUser.startYear ?? viewUser.start_year) &&
-                  (viewUser.endYear ?? viewUser.end_year)
-                    ? `${viewUser.startYear ?? viewUser.start_year} - ${viewUser.endYear ?? viewUser.end_year}`
-                    : "—",
-                ],
-                ["Joined", viewUser.joinDate || "—"],
-                ["Courses Enrolled", viewUser.coursesEnrolled ?? 0],
-                ["Progress", `${viewUser.progress ?? 0}%`],
-                ["Certificates", viewUser.certificates ?? 0],
-                [
-                  "Achievements",
-                  (viewUser.achievements || []).join(", ") || "—",
-                ],
+                ...(String(viewUser.role).toLowerCase() === "teacher"
+                  ? []
+                  : [
+                      [
+                        "Academic Year",
+                        getUserAcademicYear(viewUser) != null
+                          ? `Year ${getUserAcademicYear(viewUser)}`
+                          : "—",
+                      ],
+                      ["Study Period", getUserStudyPeriod(viewUser) || "—"],
+                      ["Joined", viewUser.joinDate || "—"],
+                      ["Courses Enrolled", viewUser.coursesEnrolled ?? 0],
+                      ["Progress", `${viewUser.progress ?? 0}%`],
+                      ["Certificates", viewUser.certificates ?? 0],
+                      [
+                        "Achievements",
+                        (viewUser.achievements || []).join(", ") || "—",
+                      ],
+                    ]),
               ].map(([label, val]) => (
                 <div
                   key={label}
@@ -1664,11 +1783,14 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                             <td className="py-3.5 px-5">
                               <div className="flex items-center gap-2">
                                 <button
-                                  onClick={() => setViewUser(u)}
+                                  onClick={() => handleViewUser(u)}
                                   className="p-1.5 rounded-lg hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-400 transition-colors"
                                   title="View details"
                                 >
                                   <Eye className="h-4 w-4" />
+                                </button>
+                                <button onClick={() => openUserEditor(u)} className="p-1.5 rounded-lg hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400 transition-colors" title="Edit user">
+                                  <Edit3 className="h-4 w-4" />
                                 </button>
                                 <button
                                   onClick={() => setDeleteConfirm(u.id)}
@@ -1708,10 +1830,13 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                           {/* Actions */}
                           <div className="flex items-center gap-1 shrink-0">
                             <button
-                              onClick={() => setViewUser(u)}
+                              onClick={() => handleViewUser(u)}
                               className="p-2 rounded-lg hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-400 transition-colors"
                             >
                               <Eye className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => openUserEditor(u)} className="p-2 rounded-lg hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400 transition-colors" title="Edit user">
+                              <Edit3 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(u.id)}
@@ -1911,11 +2036,14 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() => setViewUser(teacher)}
+                                onClick={() => handleViewUser(teacher)}
                                 className="p-1.5 rounded-lg hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-400"
                                 title="View details"
                               >
                                 <Eye className="h-4 w-4" />
+                              </button>
+                              <button onClick={() => openUserEditor(teacher)} className="p-1.5 rounded-lg hover:bg-cyan-500/10 text-slate-400 hover:text-cyan-400" title="Edit teacher">
+                                <Edit3 className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => setDeleteConfirm(teacher.id)}

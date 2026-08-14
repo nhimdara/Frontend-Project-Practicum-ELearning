@@ -31,6 +31,24 @@ export const getCurrentAcademicYear = (startYear) => {
   return Math.min(4, Math.max(1, new Date().getFullYear() - start + 1));
 };
 
+export const getUserStudyPeriod = (user) => {
+  const startYear = user?.startYear ?? user?.start_year;
+  const endYear = user?.endYear ?? user?.end_year;
+  if (startYear && endYear) return `${startYear} - ${endYear}`;
+
+  const cohortMatch = String(user?.email || "").match(
+    /\.(\d{2})(\d{2})@[^@]+$/,
+  );
+  if (!cohortMatch) return null;
+
+  const startShort = Number.parseInt(cohortMatch[1], 10);
+  const endShort = Number.parseInt(cohortMatch[2], 10);
+  if (endShort - startShort !== 4) return null;
+
+  const century = Math.floor(new Date().getFullYear() / 100) * 100;
+  return `${century + startShort} - ${century + endShort}`;
+};
+
 export const getUserAcademicYear = (user) => {
   const startYear = user?.startYear ?? user?.start_year;
   if (startYear != null && startYear !== "") {
@@ -47,18 +65,9 @@ export const getUserAcademicYear = (user) => {
 
   // Generated student addresses end with the study period, for example
   // name.2630@elearning.com = a 2026–2030 cohort.
-  const cohortMatch = String(user?.email || "").match(
-    /\.(\d{2})(\d{2})@[^@]+$/,
-  );
-  if (!cohortMatch) return null;
-
-  const startShort = Number.parseInt(cohortMatch[1], 10);
-  const endShort = Number.parseInt(cohortMatch[2], 10);
-  if (endShort - startShort !== 4) return null;
-
-  const currentYear = new Date().getFullYear();
-  const century = Math.floor(currentYear / 100) * 100;
-  return getCurrentAcademicYear(century + startShort);
+  const studyPeriod = getUserStudyPeriod(user);
+  if (!studyPeriod) return null;
+  return getCurrentAcademicYear(studyPeriod.split(" - ")[0]);
 };
 
 export const isProjectActive = (project) =>
