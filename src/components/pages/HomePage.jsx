@@ -453,6 +453,40 @@ const HomePage = () => {
           will-change: transform;
         }
 
+        /* Browser zoom/display scaling reduces the available CSS viewport height.
+           Compact the hero vertically before content is pushed below the fold. */
+        @media (min-width: 769px) and (max-height: 850px) {
+          .student-home-hero .hero-content-shell {
+            padding-top: 66px;
+          }
+          .student-home-hero .hero-copy-wrap {
+            padding-top: clamp(1.75rem, 4vh, 2.5rem);
+            padding-bottom: clamp(1.25rem, 3vh, 2rem);
+          }
+          .student-home-hero .hero-eyebrow {
+            margin-bottom: 1rem;
+          }
+          .student-home-hero .hero-title {
+            font-size: clamp(2.75rem, 6.5vh, 3.75rem);
+            margin-bottom: 1rem;
+          }
+          .student-home-hero .hero-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+          }
+          .student-home-hero .hero-features {
+            margin-bottom: 1.5rem;
+          }
+          .student-home-hero .hero-stats {
+            padding-bottom: clamp(1rem, 2.5vh, 1.5rem);
+          }
+          .student-home-hero .hero-stat-card {
+            padding-top: .75rem;
+            padding-bottom: .75rem;
+          }
+        }
+
         /* ── Liquid glass primitives ── */
         .glass-card {
           background: rgba(255,255,255,0.12);
@@ -602,17 +636,17 @@ const HomePage = () => {
         <div className="absolute inset-0 z-[1] bg-gradient-to-br from-indigo-900/30 via-transparent to-cyan-900/20" />
 
         {/* HERO CONTENT */}
-        <div className="relative z-10 flex flex-col justify-center flex-1 pt-[66px]">
-          <div className="mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10 py-16 sm:py-20 lg:py-28">
+        <div className="hero-content-shell relative z-10 flex flex-col justify-center flex-1 pt-[66px]">
+          <div className="hero-copy-wrap mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10 py-16 sm:py-20 lg:py-28">
             <div className="max-w-xl lg:max-w-2xl">
-              <div className="anim-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card mb-6 sm:mb-8">
+              <div className="hero-eyebrow anim-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card mb-6 sm:mb-8">
                 <Zap className="h-3.5 w-3.5 text-cyan-300" />
                 <span className="text-[0.72rem] font-semibold text-white/90 tracking-wide uppercase">
                   #1 Online Learning Platform
                 </span>
               </div>
 
-              <h1 className="anim-2 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.08] tracking-[-0.03em] mb-4 sm:mb-6">
+              <h1 className="hero-title anim-2 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.08] tracking-[-0.03em] mb-4 sm:mb-6">
                 Learn Without
                 <br />
                 <span className="hero-accent-title text-transparent bg-clip-text">
@@ -620,7 +654,7 @@ const HomePage = () => {
                 </span>
               </h1>
 
-              <p className="anim-3 text-base sm:text-lg text-white/75 leading-relaxed mb-6 sm:mb-8 max-w-lg">
+              <p className="hero-description anim-3 text-base sm:text-lg text-white/75 leading-relaxed mb-6 sm:mb-8 max-w-lg">
                 Join over{" "}
                 <strong className="text-white font-semibold">
                   50,000+ students
@@ -629,7 +663,7 @@ const HomePage = () => {
                 live mentorship, and industry-recognised certificates.
               </p>
 
-              <ul className="anim-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mb-8 sm:mb-10">
+              <ul className="hero-features anim-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mb-8 sm:mb-10">
                 {features.map((f, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm text-white/80">
                     <CheckCircle
@@ -663,13 +697,13 @@ const HomePage = () => {
           </div>
 
           {/* Floating stat cards */}
-          <div className="relative z-10 w-full pb-8 sm:pb-10">
+          <div className="hero-stats relative z-10 w-full pb-8 sm:pb-10">
             <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 {stats.map((stat, i) => (
                   <div
                     key={stat.label}
-                    className={`lg-stat-card stat-card rounded-2xl px-4 sm:px-5 py-4 text-center ${
+                    className={`hero-stat-card lg-stat-card stat-card rounded-2xl px-4 sm:px-5 py-4 text-center ${
                       i % 2 === 0 ? "float-badge" : "float-badge-2"
                     }`}
                   >
