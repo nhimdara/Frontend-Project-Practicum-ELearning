@@ -1066,6 +1066,10 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
   };
 
   const recentUsers = [...users]
+    .filter(
+      (account) =>
+        String(account.role || "").toLowerCase() !== "superadmin",
+    )
     .sort((a, b) => (b.id > a.id ? 1 : -1))
     .slice(0, 5);
 
@@ -1418,7 +1422,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                 ))}
               </div>
 
-              {/* Superadmin accounts are filtered from this list for admins. */}
+              {/* Platform owner accounts never appear as user sign-ups. */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6">
                 <h2 className="text-white font-bold mb-4 flex items-center gap-2 text-sm md:text-base">
                   <Users className="h-4 w-4 text-indigo-400" />

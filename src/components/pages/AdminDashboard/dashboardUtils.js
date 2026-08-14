@@ -41,9 +41,24 @@ export const getUserAcademicYear = (user) => {
     user?.academicYear ?? user?.academic_year,
     10,
   );
-  return Number.isNaN(academicYear)
-    ? null
-    : Math.min(4, Math.max(1, academicYear));
+  if (!Number.isNaN(academicYear)) {
+    return Math.min(4, Math.max(1, academicYear));
+  }
+
+  // Generated student addresses end with the study period, for example
+  // name.2630@elearning.com = a 2026–2030 cohort.
+  const cohortMatch = String(user?.email || "").match(
+    /\.(\d{2})(\d{2})@[^@]+$/,
+  );
+  if (!cohortMatch) return null;
+
+  const startShort = Number.parseInt(cohortMatch[1], 10);
+  const endShort = Number.parseInt(cohortMatch[2], 10);
+  if (endShort - startShort !== 4) return null;
+
+  const currentYear = new Date().getFullYear();
+  const century = Math.floor(currentYear / 100) * 100;
+  return getCurrentAcademicYear(century + startShort);
 };
 
 export const isProjectActive = (project) =>
