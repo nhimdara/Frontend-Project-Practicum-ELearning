@@ -10,11 +10,9 @@
   --glass-shadow: 0 20px 50px rgba(2, 6, 23, 0.2);
   --glass-shadow-soft: 0 8px 24px rgba(59, 130, 246, 0.1);
   --glass-blur: 22px;
-  --liquid-accent: linear-gradient(
-    135deg,
-    #8b5cf6 0%,
-    #3b82f6 40%,
-    #22d3ee 100%
+  --liquid-accent: var(
+    --accent-gradient,
+    linear-gradient(135deg, #8b5cf6 0%, #3b82f6 40%, #22d3ee 100%)
   );
   --liquid-accent-soft: linear-gradient(
     135deg,

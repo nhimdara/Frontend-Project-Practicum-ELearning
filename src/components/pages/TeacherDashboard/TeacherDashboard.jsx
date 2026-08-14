@@ -13,6 +13,7 @@ import React, {
   useRef,
 } from "react";
 import { API_BASE_URL } from "../../../config/api";
+import { ACCENT_PRESETS, applyAccentColor } from "../../../app/useAppTheme";
 import ExamQuestionForm from "../ExamQuestionForm";
 import logo from "../../assets/image/logo.webp";
 import {
@@ -31,9 +32,11 @@ import {
   dedupeVideosByLessonSlot,
   getProjectMajor,
   getStoredLiquidGlass,
+  getStoredAccentColor,
   getStoredTheme,
   normalizeProjectTags,
   storeLiquidGlass,
+  storeAccentColor,
 } from "./dashboardUtils";
 
 import {
@@ -89,6 +92,7 @@ const TeacherDashboard = ({ user, onLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [themeMode, setThemeMode] = useState(getStoredTheme);
   const [liquidGlass, setLiquidGlass] = useState(getStoredLiquidGlass);
+  const [accentColor, setAccentColor] = useState(getStoredAccentColor);
   const [examReportData, setExamReportData] = useState({
     major: "",
     questions: [],
@@ -111,6 +115,10 @@ const TeacherDashboard = ({ user, onLogout }) => {
     applyStoredTheme(themeMode);
   }, [themeMode]);
 
+  useEffect(() => {
+    applyAccentColor(accentColor);
+  }, [accentColor]);
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
@@ -128,6 +136,13 @@ const TeacherDashboard = ({ user, onLogout }) => {
       showToast(`Liquid Glass ${nextValue ? "enabled" : "disabled"}.`);
       return nextValue;
     });
+  };
+
+  const handleAccentChange = (value) => {
+    setAccentColor(value);
+    storeAccentColor(value);
+    applyAccentColor(value);
+    showToast("Dashboard accent updated.");
   };
 
   // Load initial data - filter lessons by teacher's major
@@ -2133,6 +2148,66 @@ const TeacherDashboard = ({ user, onLogout }) => {
                     >
                       <span />
                     </button>
+                  </div>
+
+                  <div style={{ marginBottom: 18 }}>
+                    <p
+                      style={{
+                        margin: "0 0 10px",
+                        color: "#334155",
+                        fontSize: "13px",
+                        fontWeight: 800,
+                      }}
+                    >
+                      Interface accent
+                    </p>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gap: 8,
+                      }}
+                    >
+                      {Object.values(ACCENT_PRESETS).map((accent) => {
+                        const active = accentColor === accent.id;
+                        return (
+                          <button
+                            key={accent.id}
+                            type="button"
+                            onClick={() => handleAccentChange(accent.id)}
+                            title={accent.label}
+                            aria-label={`Use ${accent.label} accent`}
+                            aria-pressed={active}
+                            style={{
+                              minHeight: 48,
+                              borderRadius: 10,
+                              border: `1px solid ${active ? accent.color : "#e5e7eb"}`,
+                              background: active ? accent.light : "#fff",
+                              color: active ? accent.color : "#64748b",
+                              cursor: "pointer",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 4,
+                              fontSize: 10,
+                              fontWeight: 800,
+                              fontFamily: "'DM Sans', sans-serif",
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 17,
+                                height: 17,
+                                borderRadius: "50%",
+                                background: accent.gradient,
+                              }}
+                            />
+                            {accent.label.split(" ").at(-1)}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <div style={{ display: "grid", gap: 10 }}>

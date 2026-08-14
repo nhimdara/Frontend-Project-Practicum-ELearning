@@ -1000,9 +1000,9 @@ html.dark-mode .mobile-menu-button.is-open {
   --teacher-border: rgba(148, 163, 184, 0.24);
   --teacher-text: #172033;
   --teacher-muted: #68758d;
-  --teacher-accent: #6366f1;
-  --teacher-accent-strong: #4f46e5;
-  --teacher-accent-soft: rgba(99, 102, 241, 0.11);
+  --teacher-accent: var(--accent-color, #6366f1);
+  --teacher-accent-strong: var(--accent-secondary, #4f46e5);
+  --teacher-accent-soft: var(--accent-light, rgba(99, 102, 241, 0.11));
   --teacher-cyan: #0891b2;
 }
 
@@ -1015,9 +1015,9 @@ html.dark-mode .teacher-dashboard-root {
   --teacher-border: rgba(148, 163, 184, 0.17);
   --teacher-text: #f1f5f9;
   --teacher-muted: #9aa8bd;
-  --teacher-accent: #818cf8;
-  --teacher-accent-strong: #6366f1;
-  --teacher-accent-soft: rgba(129, 140, 248, 0.14);
+  --teacher-accent: var(--accent-color, #818cf8);
+  --teacher-accent-strong: var(--accent-secondary, #6366f1);
+  --teacher-accent-soft: var(--accent-light, rgba(129, 140, 248, 0.14));
   --teacher-cyan: #22d3ee;
 }
 
@@ -1237,6 +1237,67 @@ html.dark-mode .teacher-dashboard-root .sidebar button[style*="linear-gradient"]
 .teacher-dashboard-root .sidebar button[title="Logout"]:hover {
   background: rgba(248, 113, 113, 0.12) !important;
   color: #fca5a5 !important;
+}
+
+/* Light mode uses a true light navigation surface. These overrides stay
+   below the shared sidebar rules so inline legacy colors cannot win. */
+html:not(.dark-mode) .teacher-dashboard-root .sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%) !important;
+  border-right-color: #dbe3f1 !important;
+  color: #172033 !important;
+  box-shadow: 8px 0 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar p {
+  color: #172033 !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar p[style*="text-transform"],
+html:not(.dark-mode) .teacher-dashboard-root .sidebar p[style*="color: rgb(100, 116, 139)"],
+html:not(.dark-mode) .teacher-dashboard-root .sidebar p[style*="color: #64748b"] {
+  color: #64748b !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar div[style*="background: rgba(99, 102, 241, 0.15)"] {
+  background: var(--teacher-accent-soft) !important;
+  color: var(--teacher-accent-strong) !important;
+  border-color: var(--accent-border, rgba(99, 102, 241, 0.22)) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav button {
+  color: #64748b !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav button:hover {
+  background: #eef2f8 !important;
+  color: #172033 !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active,
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav button[style*="rgba(99,102,241,0.15)"] {
+  background: var(--teacher-accent-soft) !important;
+  color: var(--teacher-accent-strong) !important;
+  border-left-color: var(--teacher-accent) !important;
+  box-shadow: inset 3px 0 0 var(--teacher-accent) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar nav .teacher-nav-item.is-active:hover {
+  background: color-mix(in srgb, var(--teacher-accent) 16%, white) !important;
+  color: var(--teacher-accent-strong) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button[style*="linear-gradient"] {
+  background: var(--accent-gradient) !important;
+  box-shadow: 0 8px 20px var(--accent-glow) !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button[title="Logout"] {
+  color: #64748b !important;
+}
+
+html:not(.dark-mode) .teacher-dashboard-root .sidebar button[title="Logout"]:hover {
+  background: #fff1f2 !important;
+  color: #e11d48 !important;
 }
 
 .teacher-glass-setting {

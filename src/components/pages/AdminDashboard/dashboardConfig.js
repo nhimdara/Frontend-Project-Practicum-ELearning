@@ -16,6 +16,7 @@ export const DEFAULT_ADMIN_SETTINGS = {
   defaultMajor: "ITE",
   publishNewLessons: true,
   compactTables: false,
+  accentColor: "indigo",
   themeMode: getStoredTheme(),
   profileName: "",
   profileEmail: "",

@@ -105,6 +105,22 @@ export const saveSettings = (settings) => {
   }
 };
 
+export const applyAccentColor = (accentKey = "indigo") => {
+  const root = document.documentElement;
+  const accent = ACCENT_PRESETS[accentKey] || ACCENT_PRESETS.indigo;
+  root.dataset.accent = accent.id;
+  root.style.setProperty("--accent-color", accent.color);
+  root.style.setProperty("--accent-secondary", accent.secondary);
+  root.style.setProperty("--accent-gradient", accent.gradient);
+  root.style.setProperty("--accent-glow", accent.glow);
+  root.style.setProperty("--accent-light", accent.light);
+  root.style.setProperty("--accent-border", accent.border);
+  root.style.setProperty("--accent-ring", accent.ring);
+  root.style.setProperty("--lf-primary", accent.color);
+  root.style.setProperty("--lf-primary-strong", accent.secondary);
+  root.style.setProperty("--lf-accent", accent.secondary);
+};
+
 export const applyAllSettings = (s = {}) => {
   const root = document.documentElement;
 
@@ -153,13 +169,56 @@ export const applyAllSettings = (s = {}) => {
   root.classList.toggle("glossy-disabled", s.glossyReflections === false);
 };
 
-const useAppTheme = () => {
+const resetStudentAppearance = () => {
+  const root = document.documentElement;
+
+  delete root.dataset.accent;
+  delete root.dataset.liquidGlass;
+  root.style.removeProperty("--accent-color");
+  root.style.removeProperty("--accent-secondary");
+  root.style.removeProperty("--accent-gradient");
+  root.style.removeProperty("--accent-glow");
+  root.style.removeProperty("--accent-light");
+  root.style.removeProperty("--accent-border");
+  root.style.removeProperty("--accent-ring");
+  root.style.removeProperty("--lf-primary");
+  root.style.removeProperty("--lf-primary-strong");
+  root.style.removeProperty("--lf-accent");
+  root.style.removeProperty("--app-font-size");
+  root.style.removeProperty("--app-font-family");
+  root.style.removeProperty("font-size");
+  root.classList.remove(
+    "reduce-animations",
+    "high-contrast",
+    "compact-view",
+    "liquid-glass-disabled",
+    "classic-ui",
+    "glossy-disabled",
+  );
+};
+
+const useAppTheme = (user) => {
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const isStaff = ["admin", "superadmin", "teacher"].includes(user?.role);
 
     const sync = () => {
-      const settings = loadStoredSettings();
-      applyAllSettings(settings);
+      if (isStaff) {
+        resetStudentAppearance();
+        const storageKey =
+          user?.role === "teacher"
+            ? "learnflow_teacher_appearance"
+            : "learnflow_admin_settings";
+        try {
+          const settings = JSON.parse(localStorage.getItem(storageKey) || "{}");
+          applyAccentColor(settings.accentColor || "indigo");
+        } catch {
+          applyAccentColor("indigo");
+        }
+        return;
+      }
+
+      applyAllSettings(loadStoredSettings());
     };
 
     // Apply settings immediately on mount
@@ -174,7 +233,7 @@ const useAppTheme = () => {
       window.removeEventListener("learnflow_settings_change", sync);
       window.removeEventListener("storage", sync);
     };
-  }, []);
+  }, [user?.role]);
 };
 
 export default useAppTheme;

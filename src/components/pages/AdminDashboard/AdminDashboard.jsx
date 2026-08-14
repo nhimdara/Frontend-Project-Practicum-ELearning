@@ -9,6 +9,7 @@ import "./adminDashboard.css";
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../../../config/api";
+import { ACCENT_PRESETS, applyAccentColor } from "../../../app/useAppTheme";
 import CertificatesPage from "../CertificatesPage";
 import ExamQuestionForm from "../ExamQuestionForm";
 import AdminManagementPanel from "./components/AdminManagementPanel";
@@ -85,6 +86,8 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
   const [studentMessage, setStudentMessage] = useState("");
   const [teacherForm, setTeacherForm] = useState(emptyTeacherForm);
   const [teacherMessage, setTeacherMessage] = useState("");
+  const [teacherSearch, setTeacherSearch] = useState("");
+  const [teacherMajorFilter, setTeacherMajorFilter] = useState("all");
   const [lessonForm, setLessonForm] = useState(emptyLessonForm);
   const [lessonMessage, setLessonMessage] = useState("");
   const [lessonError, setLessonError] = useState("");
@@ -146,6 +149,10 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
   useEffect(() => {
     applyThemeMode(adminSettings.themeMode);
   }, [adminSettings.themeMode]);
+
+  useEffect(() => {
+    applyAccentColor(adminSettings.accentColor);
+  }, [adminSettings.accentColor]);
 
   // ── Fetch users ───────────────────────────────────────────
   const refreshUsers = useCallback(async () => {
@@ -415,6 +422,20 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
   );
 
   const teachers = users.filter((u) => u.role === "teacher");
+  const teacherSearchText = teacherSearch.trim().toLowerCase();
+  const filteredTeachers = teachers.filter((teacher) => {
+    const matchesSearch =
+      !teacherSearchText ||
+      [teacher.name, teacher.email]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(teacherSearchText));
+    const matchesMajor =
+      teacherMajorFilter === "all" || teacher.major === teacherMajorFilter;
+
+    return matchesSearch && matchesMajor;
+  });
+  const hasTeacherFilters =
+    Boolean(teacherSearchText) || teacherMajorFilter !== "all";
   const selectedYear = years.find(
     (year) => String(year.id) === String(lessonYearFilter),
   );
@@ -838,6 +859,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
     }
 
     applyThemeMode(adminSettings.themeMode);
+    applyAccentColor(adminSettings.accentColor);
     setStudentForm((prev) => ({
       ...prev,
       major: adminSettings.defaultMajor,
@@ -1968,19 +1990,63 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
               </form>
 
               <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-white font-bold">Teachers</h2>
-                    <p className="text-slate-500 text-xs">
-                      {teachers.length} teacher accounts
-                    </p>
+                <div className="p-4 border-b border-slate-800">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <h2 className="text-white font-bold">Teachers</h2>
+                      <p className="text-slate-500 text-xs">
+                        {hasTeacherFilters
+                          ? `${filteredTeachers.length} of ${teachers.length} teacher accounts`
+                          : `${teachers.length} teacher accounts`}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <label className="relative block sm:w-72">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                        <input
+                          type="search"
+                          value={teacherSearch}
+                          onChange={(e) => setTeacherSearch(e.target.value)}
+                          placeholder="Search name or email"
+                          aria-label="Search teachers by name or email"
+                          className="w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-500"
+                        />
+                      </label>
+                      <select
+                        value={teacherMajorFilter}
+                        onChange={(e) => setTeacherMajorFilter(e.target.value)}
+                        aria-label="Filter teachers by major"
+                        className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-indigo-500"
+                      >
+                        <option value="all">All majors</option>
+                        {MAJORS.map((major) => (
+                          <option key={major} value={major}>
+                            {major}
+                          </option>
+                        ))}
+                      </select>
+                      {hasTeacherFilters && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTeacherSearch("");
+                            setTeacherMajorFilter("all");
+                          }}
+                          className="px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white"
+                        >
+                          Clear
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={refreshUsers}
+                        className="p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                        title="Refresh teachers"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={refreshUsers}
-                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -1999,7 +2065,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                       </tr>
                     </thead>
                     <tbody>
-                      {teachers.map((teacher) => (
+                      {filteredTeachers.map((teacher) => (
                         <tr
                           key={teacher.id}
                           className="border-b border-slate-800 hover:bg-slate-800/40"
@@ -2058,9 +2124,11 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                       ))}
                     </tbody>
                   </table>
-                  {teachers.length === 0 && (
+                  {filteredTeachers.length === 0 && (
                     <div className="py-12 text-center text-slate-500 text-sm">
-                      No teacher accounts yet.
+                      {hasTeacherFilters
+                        ? "No teachers match your search or filter."
+                        : "No teacher accounts yet."}
                     </div>
                   )}
                 </div>
@@ -3189,6 +3257,39 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                       }
                       className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
                     />
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
+                    Interface accent
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                    {Object.values(ACCENT_PRESETS).map((accent) => {
+                      const active = adminSettings.accentColor === accent.id;
+                      return (
+                        <button
+                          key={accent.id}
+                          type="button"
+                          onClick={() =>
+                            updateAdminSetting("accentColor", accent.id)
+                          }
+                          className={`flex items-center gap-2 rounded-xl border bg-slate-950 px-3 py-2.5 text-xs font-semibold transition ${
+                            active
+                              ? "text-white"
+                              : "border-slate-700 text-slate-400 hover:border-slate-600 hover:text-white"
+                          }`}
+                          style={active ? { borderColor: accent.color } : undefined}
+                          aria-pressed={active}
+                        >
+                          <span
+                            className="h-4 w-4 shrink-0 rounded-full"
+                            style={{ background: accent.gradient }}
+                          />
+                          {accent.label.split(" ").at(-1)}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

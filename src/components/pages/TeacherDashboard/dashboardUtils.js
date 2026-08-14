@@ -1,5 +1,6 @@
 export const TEACHER_APPROVED_TAG = "teacher-approved";
 export const PROJECT_MAJOR_PREFIX = "major:";
+const TEACHER_APPEARANCE_KEY = "learnflow_teacher_appearance";
 
 export const normalizeProjectTags = (tags) =>
   Array.isArray(tags)
@@ -21,7 +22,7 @@ export const getProjectMajor = (project) => {
 export const getStoredTheme = () => {
   try {
     return (
-      JSON.parse(localStorage.getItem("learnflow_settings") || "{}").theme ||
+      JSON.parse(localStorage.getItem(TEACHER_APPEARANCE_KEY) || "{}").theme ||
       "light"
     );
   } catch {
@@ -32,25 +33,52 @@ export const getStoredTheme = () => {
 export const getStoredLiquidGlass = () => {
   try {
     return JSON.parse(
-      localStorage.getItem("learnflow_settings") || "{}",
+      localStorage.getItem(TEACHER_APPEARANCE_KEY) || "{}",
     ).liquidGlass !== false;
   } catch {
     return true;
   }
 };
 
+export const getStoredAccentColor = () => {
+  try {
+    return JSON.parse(
+      localStorage.getItem(TEACHER_APPEARANCE_KEY) || "{}",
+    ).accentColor || "indigo";
+  } catch {
+    return "indigo";
+  }
+};
+
+export const storeAccentColor = (accentColor) => {
+  try {
+    const settings = JSON.parse(
+      localStorage.getItem(TEACHER_APPEARANCE_KEY) || "{}",
+    );
+    localStorage.setItem(
+      TEACHER_APPEARANCE_KEY,
+      JSON.stringify({ ...settings, accentColor }),
+    );
+  } catch {
+    localStorage.setItem(
+      TEACHER_APPEARANCE_KEY,
+      JSON.stringify({ accentColor }),
+    );
+  }
+};
+
 export const storeLiquidGlass = (enabled) => {
   try {
     const settings = JSON.parse(
-      localStorage.getItem("learnflow_settings") || "{}",
+      localStorage.getItem(TEACHER_APPEARANCE_KEY) || "{}",
     );
     localStorage.setItem(
-      "learnflow_settings",
+      TEACHER_APPEARANCE_KEY,
       JSON.stringify({ ...settings, liquidGlass: enabled }),
     );
   } catch {
     localStorage.setItem(
-      "learnflow_settings",
+      TEACHER_APPEARANCE_KEY,
       JSON.stringify({ liquidGlass: enabled }),
     );
   }
@@ -66,14 +94,14 @@ export const applyStoredTheme = (theme) => {
 
   try {
     const settings = JSON.parse(
-      localStorage.getItem("learnflow_settings") || "{}",
+      localStorage.getItem(TEACHER_APPEARANCE_KEY) || "{}",
     );
     localStorage.setItem(
-      "learnflow_settings",
+      TEACHER_APPEARANCE_KEY,
       JSON.stringify({ ...settings, theme }),
     );
   } catch {
-    localStorage.setItem("learnflow_settings", JSON.stringify({ theme }));
+    localStorage.setItem(TEACHER_APPEARANCE_KEY, JSON.stringify({ theme }));
   }
 };
 

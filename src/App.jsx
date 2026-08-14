@@ -9,8 +9,8 @@ import GlobalStyles from "./components/layout/ui/GlobalStyles";
 import { LanguageProvider } from "./i18n/LanguageContext";
 
 const AppContent = () => {
-  useAppTheme();
   const session = useAppSession();
+  useAppTheme(session.user);
 
   return <AppRoutes {...session} />;
 };

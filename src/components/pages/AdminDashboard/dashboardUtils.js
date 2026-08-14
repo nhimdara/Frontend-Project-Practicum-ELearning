@@ -1,10 +1,11 @@
 export const TEACHER_APPROVED_TAG = "teacher-approved";
 export const PROJECT_MAJOR_PREFIX = "major:";
+const ADMIN_THEME_KEY = "learnflow_admin_theme";
 
 export const getStoredTheme = () => {
   try {
     return (
-      JSON.parse(localStorage.getItem("learnflow_settings") || "{}").theme ||
+      JSON.parse(localStorage.getItem(ADMIN_THEME_KEY) || "{}").theme ||
       "light"
     );
   } catch {
@@ -19,7 +20,7 @@ export const applyThemeMode = (theme) => {
       window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark-mode", isDark);
   try {
-    localStorage.setItem("learnflow_settings", JSON.stringify({ theme }));
+    localStorage.setItem(ADMIN_THEME_KEY, JSON.stringify({ theme }));
   } catch {
     // Theme persistence is best-effort.
   }
