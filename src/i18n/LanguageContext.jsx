@@ -241,7 +241,15 @@ const StudentTranslationBridge = ({ language }) => {
       let node = walker.nextNode();
       while (node) {
         const parentTag = node.parentElement?.tagName;
-        if (parentTag !== "STYLE" && parentTag !== "SCRIPT" && parentTag !== "NOSCRIPT") {
+        const translationDisabled = node.parentElement?.closest(
+          '[translate="no"], [data-no-translate]',
+        );
+        if (
+          !translationDisabled &&
+          parentTag !== "STYLE" &&
+          parentTag !== "SCRIPT" &&
+          parentTag !== "NOSCRIPT"
+        ) {
           const current = node.nodeValue;
           const lastApplied = appliedText.get(node);
           if (!originalText.has(node) || (lastApplied !== undefined && current !== lastApplied)) originalText.set(node, current);
@@ -254,6 +262,7 @@ const StudentTranslationBridge = ({ language }) => {
       }
 
       document.querySelectorAll("input[placeholder], textarea[placeholder], [aria-label], [title]").forEach((element) => {
+        if (element.closest('[translate="no"], [data-no-translate]')) return;
         const saved = originalAttributes.get(element) || {};
         ["placeholder", "aria-label", "title"].forEach((attribute) => {
           if (!element.hasAttribute(attribute)) return;

@@ -362,6 +362,8 @@ const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
 
               <Link
                 to="/"
+                translate="no"
+                data-no-translate
                 className="flex items-center gap-3 group select-none"
               >
                 <div className="relative">

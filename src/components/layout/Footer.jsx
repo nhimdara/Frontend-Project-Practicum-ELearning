@@ -123,7 +123,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pt-24 pb-12">
           {/* Brand Column */}
           <GlassPanel className="lg:col-span-2 p-6 sm:p-8">
-            <div className="flex items-center gap-2 mb-4 group">
+            <div
+              className="flex items-center gap-2 mb-4 group"
+              translate="no"
+              data-no-translate
+            >
               <div className="relative">
                 <div className="relative flex items-center justify-center w-10 h-10 rounded-xl group-hover:shadow-xl group-hover:shadow-indigo-500/40 group-hover:scale-110 transition-all duration-300">
                   <img
