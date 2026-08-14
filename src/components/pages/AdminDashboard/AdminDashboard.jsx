@@ -56,6 +56,7 @@ import {
   TEACHER_APPROVED_TAG,
   applyThemeMode,
   getCurrentAcademicYear,
+  getUserAcademicYear,
   getStoredTheme,
   isProjectActive,
   isTeacherApprovedProject,
@@ -430,7 +431,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
           student.name,
           student.email,
           student.major || "",
-          getCurrentAcademicYear(student.startYear || new Date().getFullYear()),
+          getUserAcademicYear(student) ?? "",
           student.status || "active",
           student.joinDate || "",
           Number(student.progress ?? 0) / 100,
@@ -1230,14 +1231,15 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                 ["Major", viewUser.major || "—"],
                 [
                   "Academic Year",
-                  viewUser.startYear
-                    ? `Year ${getCurrentAcademicYear(viewUser.startYear)}`
+                  getUserAcademicYear(viewUser) != null
+                    ? `Year ${getUserAcademicYear(viewUser)}`
                     : "—",
                 ],
                 [
                   "Study Period",
-                  viewUser.startYear && viewUser.endYear
-                    ? `${viewUser.startYear} - ${viewUser.endYear}`
+                  (viewUser.startYear ?? viewUser.start_year) &&
+                  (viewUser.endYear ?? viewUser.end_year)
+                    ? `${viewUser.startYear ?? viewUser.start_year} - ${viewUser.endYear ?? viewUser.end_year}`
                     : "—",
                 ],
                 ["Joined", viewUser.joinDate || "—"],
@@ -1646,9 +1648,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                               {["student", "client"].includes(u.role) ? (
                                 <span className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs">
                                   Year{" "}
-                                  {getCurrentAcademicYear(
-                                    u.startYear || new Date().getFullYear(),
-                                  )}
+                                  {getUserAcademicYear(u) ?? "—"}
                                 </span>
                               ) : (
                                 <span className="text-slate-500 text-sm">—</span>
@@ -1738,9 +1738,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
                           {["student", "client"].includes(u.role) && (
                             <span className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs">
                               Year{" "}
-                              {getCurrentAcademicYear(
-                                u.startYear || new Date().getFullYear(),
-                              )}
+                              {getUserAcademicYear(u) ?? "—"}
                             </span>
                           )}
                           {/* Progress bar */}

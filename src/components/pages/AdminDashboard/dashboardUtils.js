@@ -31,6 +31,21 @@ export const getCurrentAcademicYear = (startYear) => {
   return Math.min(4, Math.max(1, new Date().getFullYear() - start + 1));
 };
 
+export const getUserAcademicYear = (user) => {
+  const startYear = user?.startYear ?? user?.start_year;
+  if (startYear != null && startYear !== "") {
+    return getCurrentAcademicYear(startYear);
+  }
+
+  const academicYear = Number.parseInt(
+    user?.academicYear ?? user?.academic_year,
+    10,
+  );
+  return Number.isNaN(academicYear)
+    ? null
+    : Math.min(4, Math.max(1, academicYear));
+};
+
 export const isProjectActive = (project) =>
   project.is_active !== false &&
   project.is_active !== 0 &&
