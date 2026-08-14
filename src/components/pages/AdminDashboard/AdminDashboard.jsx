@@ -1290,7 +1290,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <form
             onSubmit={saveEditedUser}
-            className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            className="admin-user-modal bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
           >
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-white font-bold">Edit User</h3>
@@ -1331,7 +1331,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
       {/* ── View user modal ── */}
       {viewUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+          <div className="admin-user-modal bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-white font-bold">User Details</h3>
               <button

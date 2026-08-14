@@ -652,6 +652,38 @@ html:not(.dark-mode) .admin-dashboard-root textarea::placeholder {
   color: #7c8ba1;
 }
 
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal {
+  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+  border-color: rgba(100, 116, 139, 0.28);
+  color: #0f172a;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2);
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .text-white,
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .text-slate-200,
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .text-slate-300 {
+  color: #0f172a !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .text-slate-400,
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .text-slate-500 {
+  color: #64748b !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .border-slate-800,
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.bg-slate-800 {
+  background: #eef2ff;
+  color: #3730a3 !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.bg-slate-800:hover {
+  background: #e0e7ff;
+}
+
 html:not(.dark-mode) .admin-dashboard-root .admin-page-body table thead th {
   background: #eef2ff;
   color: #475569 !important;
