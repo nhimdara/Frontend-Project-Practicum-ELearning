@@ -297,13 +297,35 @@
 
 .admin-dashboard-root button[class*='bg-indigo-600'],
 .admin-dashboard-root button[class*='bg-violet-600'],
-.admin-dashboard-root button[class*='bg-emerald-600'],
-.admin-dashboard-root button[class*='bg-red-600'],
 .admin-dashboard-root .liquid-button {
   background: var(--liquid-accent) !important;
   border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow:
     0 12px 28px rgba(91, 66, 232, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: #ffffff !important;
+  background-size: 200% 200%;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-dashboard-root button[class*='bg-emerald-600'] {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 12px 28px rgba(16, 185, 129, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: #ffffff !important;
+  background-size: 200% 200%;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-dashboard-root button[class*='bg-red-600'] {
+  background: linear-gradient(135deg, #dc2626 0%, #e11d48 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 12px 28px rgba(225, 29, 72, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
   color: #ffffff !important;
   background-size: 200% 200%;
@@ -334,13 +356,27 @@
 
 .admin-dashboard-root button[class*='bg-indigo-600']:hover,
 .admin-dashboard-root button[class*='bg-violet-600']:hover,
-.admin-dashboard-root button[class*='bg-emerald-600']:hover,
-.admin-dashboard-root button[class*='bg-red-600']:hover,
 .admin-dashboard-root .liquid-button:hover {
   box-shadow:
     0 16px 32px rgba(91, 66, 232, 0.38),
     0 0 20px rgba(34, 211, 238, 0.18);
   filter: brightness(1.04);
+}
+
+.admin-dashboard-root button[class*='bg-emerald-600']:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+  box-shadow:
+    0 16px 32px rgba(16, 185, 129, 0.45),
+    0 0 20px rgba(52, 211, 153, 0.3);
+  filter: brightness(1.05);
+}
+
+.admin-dashboard-root button[class*='bg-red-600']:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
+  box-shadow:
+    0 16px 32px rgba(225, 29, 72, 0.5),
+    0 0 20px rgba(244, 63, 94, 0.3);
+  filter: brightness(1.05);
 }
 
 .admin-dashboard-root button[class*='bg-indigo-600']:hover:before,
@@ -680,6 +716,19 @@ html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.bg-slate-800
 
 html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.bg-slate-800:hover {
   background: #e0e7ff;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.border-slate-700,
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.border-slate-800 {
+  background: #ffffff;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.border-slate-700:hover,
+html:not(.dark-mode) .admin-dashboard-root .admin-user-modal button.border-slate-800:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
 }
 
 html:not(.dark-mode) .admin-dashboard-root .admin-page-body table thead th {

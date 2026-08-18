@@ -1283,7 +1283,7 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
       {/* ── Delete confirm modal ── */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+          <div className="admin-user-modal bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
               <Trash2 className="h-6 w-6 text-red-400" />
             </div>
