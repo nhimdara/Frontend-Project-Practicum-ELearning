@@ -713,9 +713,13 @@ const AdminDashboard = ({ user, onLogout, isSuperadmin = user?.role === "superad
       ? nameParts[nameParts.length - 1]
       : firstName
     ).slice(0, 24);
+    const cleanMajor = studentForm.major
+      ? String(studentForm.major).toLowerCase().replace(/[^a-z0-9]/g, "")
+      : "";
+    const majorPart = cleanMajor ? `.${cleanMajor}` : "";
     const start = String(studentForm.startYear).slice(-2);
     const end = String(studentForm.endYear).slice(-2);
-    return `${firstName}.${lastName}.${start}${end}@elearning.com`;
+    return `${firstName}.${lastName}${majorPart}.${start}${end}@elearning.com`;
   })();
 
   const updateStudentForm = (field, value) => {
